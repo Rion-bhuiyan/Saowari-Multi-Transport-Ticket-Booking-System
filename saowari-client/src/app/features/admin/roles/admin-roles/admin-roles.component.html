@@ -1,0 +1,102 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-heading font-bold text-saowari-text-primary">User Roles</h1>
+      <p class="text-gray-500">Manage user roles and permissions</p>
+    </div>
+    
+    <!-- Toolbar -->
+    <div class="flex flex-wrap gap-4 mt-4 md:mt-0">
+      <div class="relative">
+        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilter()" placeholder="Search roles..." class="input input-bordered pl-10 w-full md:w-64 bg-white shadow-sm focus:border-saowari-primary focus:ring-1 focus:ring-saowari-primary transition-all">
+      </div>
+      <button class="btn btn-saowari shadow-sm" (click)="openModal()">
+        <i class="fas fa-plus mr-2"></i> Add Role
+      </button>
+      <button class="btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 shadow-sm" (click)="load()">
+        <i class="fas fa-sync-alt" [class.fa-spin]="isLoading"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+    <span class="loading loading-spinner loading-lg text-saowari-primary"></span>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filtered.length === 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+    <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+      <i class="fas fa-users-cog text-4xl text-gray-400"></i>
+    </div>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">No roles found</h3>
+    <p class="text-gray-500 mb-6">There are no user roles matching your criteria.</p>
+  </div>
+
+  <!-- Data Table -->
+  <div *ngIf="!isLoading && filtered.length > 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table w-full">
+        <thead>
+          <tr class="bg-gray-50/50 text-gray-500 uppercase text-xs tracking-wider border-b border-gray-100">
+            <th class="py-4 px-6 font-semibold">ID</th>
+            <th class="py-4 px-6 font-semibold">Role Name</th>
+            <th class="py-4 px-6 font-semibold text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filtered" class="hover:bg-blue-50/30 transition-colors border-b border-gray-50 last:border-0 group">
+            <td class="py-4 px-6 font-medium text-gray-600">#{{ getRoleId(item) }}</td>
+            <td class="py-4 px-6 font-semibold text-gray-800">{{ item.userRoleName }}</td>
+            <td class="py-4 px-6 text-right">
+              <div class="flex items-center justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                <button class="btn btn-sm btn-ghost text-saowari-primary hover:bg-saowari-primary-light" (click)="openModal(item)" title="Edit">
+                  <i class="fas fa-pen"></i>
+                </button>
+                <button class="btn btn-sm btn-ghost text-red-500 hover:bg-red-50" (click)="deleteItem(getRoleId(item))" title="Delete">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <dialog class="modal" [class.modal-open]="isModalOpen">
+    <div class="modal-box bg-white rounded-2xl p-0 overflow-hidden shadow-2xl">
+      <div class="bg-saowari-primary-light px-6 py-4 flex justify-between items-center border-b border-blue-100">
+        <h3 class="font-bold text-xl text-saowari-primary">
+          {{ editingItem ? 'Edit Role' : 'Add New Role' }}
+        </h3>
+        <button class="btn btn-sm btn-circle btn-ghost text-gray-500 hover:text-gray-800" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="p-6">
+        <form (ngSubmit)="save()" #form="ngForm">
+          <div class="form-control w-full mb-6">
+            <label class="label">
+              <span class="label-text font-semibold text-gray-700">Role Name <span class="text-red-500">*</span></span>
+            </label>
+            <input type="text" name="userRoleName" [(ngModel)]="model.userRoleName" required placeholder="e.g. Moderator" class="input input-bordered w-full focus:border-saowari-primary focus:ring-1 focus:ring-saowari-primary" />
+          </div>
+          
+          <div class="modal-action mt-8 flex gap-3">
+            <button type="button" class="btn btn-ghost text-gray-600 hover:bg-gray-100" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-saowari shadow-md px-8" [disabled]="!form.valid">
+              {{ editingItem ? 'Update Role' : 'Create Role' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button (click)="closeModal()">close</button>
+    </form>
+  </dialog>
+</div>

@@ -1,0 +1,66 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Saowari.Interfaces;
+using Saowari.Models.DTOs.BookingStatus;
+using Saowari.Models.Responses;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Saowari.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class BookingStatussController : ControllerBase
+    {
+        private readonly IBookingStatusService _service;
+
+        public BookingStatussController(IBookingStatusService service)
+        {
+            _service = service;
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult<ApiResponse<IEnumerable<BookingStatusResponseDto>>>> GetAll()
+        {
+            var result = await _service.GetAllAsync();
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ApiResponse<BookingStatusResponseDto>>> GetById(int id)
+        {
+            var result = await _service.GetByIdAsync(id);
+            if (!result.Success) return NotFound(result);
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult<ApiResponse<BookingStatusResponseDto>>> Create([FromBody] BookingStatusCreateDto dto)
+        {
+            var result = await _service.CreateAsync(dto);
+            if (!result.Success) return BadRequest(result);
+            return CreatedAtAction(nameof(GetById), new { id = 0 }, result);
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult<ApiResponse<BookingStatusResponseDto>>> Update(int id, [FromBody] BookingStatusUpdateDto dto)
+        {
+            var result = await _service.UpdateAsync(id, dto);
+            if (!result.Success) return NotFound(result);
+            return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult<ApiResponse<bool>>> Delete(int id)
+        {
+            var result = await _service.DeleteAsync(id);
+            if (!result.Success) return NotFound(result);
+            return Ok(result);
+        }
+    }
+}

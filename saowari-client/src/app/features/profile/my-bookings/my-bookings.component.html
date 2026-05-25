@@ -1,0 +1,183 @@
+<div class="bg-saowari-surface-alt min-h-screen pt-24 pb-12">
+  <div class="container mx-auto px-4">
+    
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-heading font-bold text-saowari-text-primary">My Bookings</h1>
+      <p class="text-saowari-text-secondary mt-1">View and manage all your trip bookings.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs tabs-boxed bg-white shadow-sm rounded-xl p-1 mb-6 inline-flex gap-1">
+      <button class="tab tab-sm font-semibold" [ngClass]="activeTab === 'upcoming' ? 'tab-active' : ''" (click)="activeTab = 'upcoming'">
+        <i class="fas fa-calendar-alt mr-2"></i> Upcoming
+      </button>
+      <button class="tab tab-sm font-semibold" [ngClass]="activeTab === 'completed' ? 'tab-active' : ''" (click)="activeTab = 'completed'">
+        <i class="fas fa-check-circle mr-2"></i> Completed
+      </button>
+      <button class="tab tab-sm font-semibold" [ngClass]="activeTab === 'cancelled' ? 'tab-active' : ''" (click)="activeTab = 'cancelled'">
+        <i class="fas fa-times-circle mr-2"></i> Cancelled
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="space-y-4">
+      <div *ngFor="let i of [1,2,3]" class="bg-white rounded-xl p-6 shadow-sm animate-pulse h-28 flex gap-6">
+        <div class="w-1/4 bg-gray-200 rounded-lg"></div>
+        <div class="flex-1 space-y-3 py-2">
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredBookings.length === 0" class="bg-white rounded-xl p-16 shadow-sm text-center border border-gray-100">
+      <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-4xl">
+        <i class="fas fa-clipboard-list"></i>
+      </div>
+      <h3 class="text-xl font-heading font-bold text-gray-700 mb-2">No {{ activeTab }} bookings</h3>
+      <p class="text-gray-400">You have no {{ activeTab }} bookings at this time.</p>
+      <a routerLink="/home" class="btn btn-saowari mt-6">Search Tickets</a>
+    </div>
+
+    <!-- Booking Cards -->
+    <div *ngIf="!isLoading" class="space-y-4">
+      <div *ngFor="let b of filteredBookings"
+           class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow overflow-hidden">
+        <div class="flex flex-col md:flex-row">
+          
+          <!-- Route & Date -->
+          <div class="p-5 md:w-1/3 border-b md:border-b-0 md:border-r border-gray-100">
+            <div class="flex items-center gap-2 mb-2">
+              <span [class]="'badge badge-sm ' + getStatusClass(b.bookingStatus)">{{ b.bookingStatus }}</span>
+            </div>
+            <h3 class="font-bold text-lg text-saowari-text-primary">{{ b.fromLocation }} → {{ b.toLocation }}</h3>
+            <p class="text-sm text-gray-500 mt-1"><i class="far fa-calendar-alt mr-1"></i>{{ formatDate(b.departureDateTime) }}</p>
+            <p class="text-sm text-gray-500"><i class="far fa-clock mr-1"></i>{{ formatTime(b.departureDateTime) }}</p>
+          </div>
+
+          <!-- Vehicle & Seats -->
+          <div class="p-5 md:w-1/3 border-b md:border-b-0 md:border-r border-gray-100 flex flex-col justify-center">
+            <p class="font-semibold text-gray-700">{{ b.vehicleName }}</p>
+            <p class="text-sm text-gray-500 mt-1">{{ b.numberOfSeats }} seat(s) booked <span *ngIf="b.seatNumbers" class="font-medium text-saowari-primary">({{ b.seatNumbers }})</span></p>
+            <p class="text-sm font-mono text-gray-400 mt-2">{{ b.bookingCode }}</p>
+          </div>
+
+          <!-- Price & Actions -->
+          <div class="p-5 md:w-1/3 flex flex-col justify-center items-start md:items-end">
+            <p class="text-2xl font-bold text-saowari-primary mb-3">৳{{ b.finalAmount }}</p>
+            <div class="flex gap-2">
+              <a [routerLink]="['/ticket', b.bookingID || b.bookingId || b.id]" target="_blank" class="btn btn-sm btn-outline btn-primary gap-1">
+                <i class="fas fa-ticket-alt"></i> Tickets
+              </a>
+              <button *ngIf="activeTab === 'upcoming'" (click)="requestRefund(b)" class="btn btn-sm btn-outline btn-error gap-1">
+                <i class="fas fa-undo"></i> Refund
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Refund Modal -->
+  <div *ngIf="isRefundModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div class="flex flex-col max-h-[90vh] bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 transform transition-all scale-100">
+      
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-red-500 to-rose-600 p-6 text-white flex justify-between items-center shrink-0">
+        <div>
+          <h3 class="text-xl font-heading font-bold flex items-center gap-2">
+            <i class="fas fa-undo-alt"></i> Request Ticket Refund
+          </h3>
+          <p class="text-white/80 text-sm mt-1">Booking Ref: {{ selectedBookingForRefund?.bookingCode }}</p>
+        </div>
+        <button (click)="closeRefundModal()" class="text-white hover:text-gray-200 transition-colors text-2xl font-bold">&times;</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto flex-1">
+        
+        <!-- Loading Calc -->
+        <div *ngIf="isCalculatingRefund" class="py-12 text-center">
+          <span class="loading loading-spinner loading-lg text-rose-500"></span>
+          <p class="text-gray-500 mt-4 font-medium">Calculating eligible refund based on policies...</p>
+        </div>
+
+        <!-- Calculated Details -->
+        <div *ngIf="!isCalculatingRefund && refundPreview" class="space-y-6">
+          
+          <!-- Trip Short Summary -->
+          <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+            <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Trip Details</div>
+            <h4 class="font-bold text-gray-800 text-base mt-1">
+              {{ selectedBookingForRefund?.fromLocation }} → {{ selectedBookingForRefund?.toLocation }}
+            </h4>
+            <p class="text-sm text-gray-500 mt-1">
+              Departure: {{ formatDate(selectedBookingForRefund?.departureDateTime) }} at {{ formatTime(selectedBookingForRefund?.departureDateTime) }}
+            </p>
+          </div>
+
+          <!-- Calculated Math -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-blue-50/50 rounded-xl p-4 border border-blue-100/50">
+              <div class="text-xs text-blue-600 font-semibold uppercase tracking-wider">Paid Amount</div>
+              <p class="text-2xl font-extrabold text-blue-900 mt-1">৳{{ refundPreview.originalAmount }}</p>
+            </div>
+            <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+              <div class="text-xs text-emerald-600 font-semibold uppercase tracking-wider">Eligible Refund</div>
+              <p class="text-2xl font-extrabold text-emerald-900 mt-1">৳{{ refundPreview.eligibleRefundAmount }}</p>
+            </div>
+          </div>
+
+          <!-- Refund Info Badge -->
+          <div class="flex items-center gap-3 bg-gray-50 rounded-xl p-4 border border-gray-100">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg"
+                 [ngClass]="refundPreview.refundPercentage > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'">
+              {{ refundPreview.refundPercentage }}%
+            </div>
+            <div>
+              <p class="font-bold text-gray-800 text-sm">{{ refundPreview.policyName }}</p>
+              <p class="text-xs text-gray-500 mt-0.5">{{ refundPreview.message }}</p>
+            </div>
+          </div>
+
+          <!-- Warn Notice -->
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-900 text-xs flex gap-3">
+            <i class="fas fa-exclamation-triangle text-amber-600 text-lg mt-0.5"></i>
+            <div>
+              <span class="font-bold">Important Notice:</span> By submitting this request, your booking will be permanently cancelled, and your reserved seat(s) (<span class="font-mono font-bold">{{ selectedBookingForRefund?.seatNumbers }}</span>) will be immediately released back to the general public.
+            </div>
+          </div>
+
+          <!-- Remarks Form -->
+          <div *ngIf="refundPreview.refundPercentage > 0" class="form-control">
+            <label class="label">
+              <span class="label-text font-bold text-gray-700">Reason for Cancellation / Refund Remarks</span>
+            </label>
+            <textarea [(ngModel)]="refundRemarks" placeholder="Please let us know the reason for cancellation..." 
+                      class="textarea textarea-bordered focus:border-rose-500 focus:ring focus:ring-rose-200 focus:outline-none w-full h-24 text-gray-800 rounded-xl"></textarea>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="bg-gray-50 p-4 border-t border-gray-100 flex justify-end gap-3 shrink-0">
+        <button (click)="closeRefundModal()" class="btn btn-ghost rounded-full px-6">Close</button>
+        <button *ngIf="!isCalculatingRefund && refundPreview" 
+                [disabled]="isSubmittingRefund"
+                (click)="submitRefundRequest()" 
+                class="btn rounded-full px-6 text-white bg-gradient-to-r from-red-500 to-rose-600 border-none hover:from-red-600 hover:to-rose-700 min-w-[140px]">
+          <span *ngIf="isSubmittingRefund" class="loading loading-spinner loading-xs mr-2"></span>
+          Confirm Cancel & Refund
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

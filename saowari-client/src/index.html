@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SaowariClient</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  
+  <style>
+    /* Suppress Google Maps developer error overlay and popups */
+    .gm-err-container, .gm-err-content, .gm-err-icon, .gm-err-title, .gm-err-message {
+      display: none !important;
+    }
+    .gm-style-cc {
+      display: none !important;
+    }
+    /* Clean and bypass unbilled grey overlay masks */
+    .gm-style > div:first-child > div:nth-child(2) {
+      background-color: transparent !important;
+      background: transparent !important;
+      pointer-events: none !important;
+    }
+    .gm-style > div:first-child > div:nth-child(2) > div {
+      display: none !important;
+    }
+    /* Attribute selectors matching inline styles used by Google Maps */
+    div[style*="z-index: 1000000"], 
+    div[style*="z-index: 1000001"],
+    div[style*="z-index: 1000002"] {
+      display: none !important;
+    }
+    div[style*="background-color: rgba(0, 0, 0, 0.45)"], 
+    div[style*="background-color: rgba(0, 0, 0, 0.5)"],
+    div[style*="background-color: rgba(0, 0, 0, 0.3)"] {
+      background-color: transparent !important;
+      background: transparent !important;
+      pointer-events: none !important;
+    }
+  </style>
+
+  <script>
+    // Suppress Google Maps unbilled / invalid key errors dynamically
+    (function() {
+      // 1. Intercept native window.alert if Google Maps attempts it
+      const originalAlert = window.alert;
+      window.alert = function(msg) {
+        if (msg && (msg.indexOf('Google Maps') !== -1 || msg.indexOf('can\'t load Google Maps') !== -1)) {
+          console.warn('Blocked Google Maps native alert:', msg);
+          return;
+        }
+        return originalAlert.apply(this, arguments);
+      };
+
+      // 2. Set up a MutationObserver to actively clean up the DOM from development error banners & overlays
+      const observer = new MutationObserver((mutations) => {
+        // Find and remove Google Maps custom error overlays
+        const errContainer = document.querySelector('.gm-err-container');
+        if (errContainer) {
+          errContainer.style.display = 'none';
+          errContainer.remove();
+        }
+      });
+
+      // Observe the document immediately
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+
+      // 3. Continuous sweeping interval to remove popup and backdrop dynamically
+      setInterval(() => {
+        // Search and remove elements containing Google Map error text
+        const divs = document.querySelectorAll('div');
+        divs.forEach(div => {
+          if (div.textContent && div.textContent.indexOf("This page can't load Google Maps correctly") !== -1) {
+            let container = div;
+            while (container && container !== document.body) {
+              if (container.style && (container.style.zIndex && parseInt(container.style.zIndex) > 100)) {
+                container.style.display = 'none';
+                container.remove();
+                break;
+              }
+              if (container.classList && (container.classList.contains('gm-err-container') || container.style.boxShadow || container.style.borderRadius)) {
+                container.style.display = 'none';
+                container.remove();
+              }
+              container = container.parentElement;
+            }
+          }
+        });
+
+        // Suppress "For development purposes only" banner and clear any dark overlay backdrops
+        const spans = document.querySelectorAll('span, div');
+        spans.forEach(el => {
+          if (el.textContent && el.textContent.indexOf("development purposes only") !== -1) {
+            el.style.display = 'none';
+            let parent = el.parentElement;
+            while (parent && parent !== document.body) {
+              if (parent.style) {
+                if (parent.style.backgroundColor && (parent.style.backgroundColor.includes('rgba(0, 0, 0') || parent.style.backgroundColor.includes('rgb('))) {
+                  parent.style.backgroundColor = 'transparent';
+                }
+                if (parent.style.opacity && parent.style.opacity !== '1') {
+                  parent.style.opacity = '1';
+                }
+              }
+              parent = parent.parentElement;
+            }
+          }
+        });
+      }, 200);
+    })();
+  </script>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

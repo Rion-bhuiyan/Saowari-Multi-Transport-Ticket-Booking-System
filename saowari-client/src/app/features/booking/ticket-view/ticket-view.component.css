@@ -1,0 +1,52 @@
+/* ── Print Styles ─────────────────────────────────────── */
+@media print {
+  /* Hide everything on the page */
+  html, body {
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    overflow: hidden !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body > * { display: none !important; }
+  app-root { display: block !important; }
+  app-root > * { display: none !important; }
+  app-root app-ticket-view { display: block !important; }
+
+  .no-print { display: none !important; }
+
+  /* Outer wrappers */
+  .min-h-screen {
+    min-height: unset !important;
+    background: white !important;
+    padding: 0 !important;
+    display: block !important;
+    align-items: unset !important;
+    justify-content: unset !important;
+  }
+
+  .max-w-3xl {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* The ticket card itself */
+  #ticket-element {
+    display: block !important;
+    width: 100% !important;
+    max-height: 280mm !important; /* Ensure it fits inside standard A4 height (297mm) */
+    box-shadow: none !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+  }
+
+  @page {
+    size: a4 portrait;
+    margin: 6mm 8mm !important;
+  }
+}

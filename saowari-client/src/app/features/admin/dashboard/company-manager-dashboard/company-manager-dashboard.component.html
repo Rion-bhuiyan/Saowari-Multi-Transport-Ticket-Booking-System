@@ -1,0 +1,128 @@
+<div class="space-y-6 animate-fade-in">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-heading font-bold text-saowari-text-primary">Company Manager Dashboard</h1>
+  </div>
+
+  <div *ngIf="isLoading" class="p-12 text-center bg-white rounded-xl shadow-sm border border-gray-100">
+    <span class="loading loading-spinner loading-lg text-saowari-primary"></span>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-4 relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br from-blue-500/10 to-blue-600/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-xl text-white shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 z-10">
+          <i class="far fa-calendar-alt"></i>
+        </div>
+        <div class="z-10">
+          <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Schedules</p>
+          <h3 class="text-3xl font-heading font-bold text-gray-800">{{ totalSchedules }}</h3>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-4 relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br from-orange-500/10 to-orange-600/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-xl text-white shadow-lg bg-gradient-to-br from-orange-500 to-orange-600 z-10">
+          <i class="fas fa-bus"></i>
+        </div>
+        <div class="z-10">
+          <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Vehicles</p>
+          <h3 class="text-3xl font-heading font-bold text-gray-800">{{ totalVehicles }}</h3>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-4 relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br from-green-500/10 to-green-600/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-xl text-white shadow-lg bg-gradient-to-br from-green-500 to-green-600 z-10">
+          <i class="fas fa-tasks"></i>
+        </div>
+        <div class="z-10">
+          <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Active Schedules</p>
+          <h3 class="text-3xl font-heading font-bold text-gray-800">{{ activeSchedules }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links & Schedule List -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Quick Links (Sidebar) -->
+      <div class="col-span-1 space-y-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3 flex items-center gap-2">
+            <i class="fas fa-bolt text-saowari-primary"></i> Quick Actions
+          </h3>
+          <div class="grid grid-cols-1 gap-3">
+            <a *ngFor="let link of quickLinks" [routerLink]="link.route" class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-saowari-primary hover:shadow-md transition-all group bg-white cursor-pointer">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm" [ngClass]="link.color">
+                <i [class]="link.icon"></i>
+              </div>
+              <div class="flex-1 font-semibold text-gray-700 group-hover:text-saowari-primary transition-colors">
+                {{ link.label }}
+              </div>
+              <i class="fas fa-chevron-right text-gray-300 group-hover:text-saowari-primary group-hover:translate-x-1 transition-all"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Schedule List -->
+      <div class="col-span-1 lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <i class="far fa-calendar-check text-saowari-primary"></i> Company Schedules
+            </h3>
+            <a routerLink="/admin/schedules" class="btn btn-sm btn-ghost text-saowari-primary">View All</a>
+          </div>
+          
+          <div class="p-0">
+            <div *ngIf="schedules.length === 0" class="p-8 text-center text-gray-400">
+              <i class="fas fa-inbox text-3xl mb-2 opacity-50 block"></i>
+              <p>No schedules found.</p>
+            </div>
+            
+            <div class="overflow-x-auto" *ngIf="schedules.length > 0">
+              <table class="table w-full">
+                <thead class="bg-gray-50/80 text-gray-500 text-xs uppercase tracking-wider">
+                  <tr>
+                    <th>Schedule ID</th>
+                    <th>Bus</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th class="text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-sm">
+                  <tr *ngFor="let s of schedules.slice(0, 10)" class="hover:bg-gray-50/50 transition-colors">
+                    <td class="font-mono text-gray-500 font-semibold text-xs">#{{ s.scheduleId || s.scheduleID || s.id }}</td>
+                    <td>
+                      <span class="font-medium text-gray-800 block">{{ s.vehicleName || 'Vehicle ' + (s.vehicleID || s.vehicleId) }}</span>
+                      <span class="text-xs text-gray-400">Driver: ID {{ s.driverInformtionID || s.driverInformtionId }}</span>
+                    </td>
+                    <td>
+                      <span class="block text-green-600 whitespace-nowrap"><i class="fas fa-plane-departure mr-1 text-xs"></i>{{ (s.departureDateTime || s.departureTime) | date:'MMM d, h:mm a' }}</span>
+                      <span class="block text-red-500 text-xs mt-0.5 whitespace-nowrap"><i class="fas fa-plane-arrival mr-1"></i>{{ (s.arrivalDateTime || s.arrivalTime) | date:'MMM d, h:mm a' }}</span>
+                    </td>
+                    <td>
+                      <span [class]="'badge badge-sm ' + getStatusBadge(s.scheduleStatusName || s.statusName)">
+                        {{ s.scheduleStatusName || s.statusName }}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <a [routerLink]="['/admin/schedules', (s.scheduleID || s.scheduleId || s.id), 'seat-map']" class="btn btn-sm btn-saowari shadow-sm">
+                        <i class="fas fa-chair mr-1"></i> Seat Map
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </ng-container>
+</div>

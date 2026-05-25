@@ -1,0 +1,5 @@
+*.bcmap
+**/.angular/
+**/bin/
+**/obj/
+Saowari/wwwroot/uploads/

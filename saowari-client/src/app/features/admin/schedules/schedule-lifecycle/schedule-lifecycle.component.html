@@ -1,0 +1,250 @@
+<div class="p-6 max-w-7xl mx-auto space-y-6">
+  <!-- Header & Company Selector -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-saowari-surface-alt p-6 rounded-2xl shadow-sm border border-gray-100">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800">Schedule Lifecycle</h2>
+      <p class="text-gray-500 text-sm mt-1">Manage and track schedules from active to expired</p>
+    </div>
+    <div *ngIf="authService.isAdmin()" class="w-full md:w-auto">
+      <select 
+        class="select select-bordered w-full md:w-64 bg-white focus:outline-none focus:border-saowari-accent" 
+        [(ngModel)]="selectedCompanyId" 
+        (change)="onCompanyChange()">
+        <option [ngValue]="null">All Companies</option>
+        <option *ngFor="let c of companies" [ngValue]="c.companyID || c.id">{{ c.companyName }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs tabs-boxed bg-white/50 p-2 shadow-sm inline-flex w-full md:w-auto gap-2">
+    <a class="tab tab-lg flex-1 md:flex-none transition-all duration-300 font-semibold" 
+       [class.tab-active]="activeTab === 'upcoming'" 
+       [class.bg-saowari-primary]="activeTab === 'upcoming'"
+       [class.text-white]="activeTab === 'upcoming'"
+       (click)="setTab('upcoming')">
+       Upcoming ({{ upcoming.length }})
+    </a>
+    <a class="tab tab-lg flex-1 md:flex-none transition-all duration-300 font-semibold" 
+       [class.tab-active]="activeTab === 'ongoing'"
+       [class.bg-saowari-accent]="activeTab === 'ongoing'"
+       [class.text-white]="activeTab === 'ongoing'"
+       (click)="setTab('ongoing')">
+       Ongoing ({{ ongoing.length }})
+    </a>
+    <a class="tab tab-lg flex-1 md:flex-none transition-all duration-300 font-semibold" 
+       [class.tab-active]="activeTab === 'pendingExpiry'"
+       [class.bg-saowari-warning]="activeTab === 'pendingExpiry'"
+       [class.text-white]="activeTab === 'pendingExpiry'"
+       (click)="setTab('pendingExpiry')">
+       Pending Expiry ({{ pendingExpiry.length }})
+    </a>
+    <a class="tab tab-lg flex-1 md:flex-none transition-all duration-300 font-semibold" 
+       [class.tab-active]="activeTab === 'expired'"
+       [class.bg-saowari-danger]="activeTab === 'expired'"
+       [class.text-white]="activeTab === 'expired'"
+       (click)="setTab('expired')">
+       Expired Archive ({{ expired.length }})
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center py-20">
+    <span class="loading loading-spinner loading-lg text-saowari-primary"></span>
+  </div>
+
+  <!-- Upcoming Tab -->
+  <div *ngIf="!isLoading && activeTab === 'upcoming'" class="animate-fade-in grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <ng-container *ngTemplateOutlet="emptyState; context: { list: upcoming, msg: 'No upcoming schedules found.' }"></ng-container>
+    <div *ngFor="let item of upcoming" (click)="goToDetails(item.scheduleID || item.id)" class="card cursor-pointer bg-white shadow-xl hover:shadow-2xl transition-all border border-gray-100 relative overflow-hidden group">
+      <div class="absolute top-0 left-0 w-full h-1 bg-saowari-primary"></div>
+      <div class="card-body p-5">
+        <div class="flex justify-between items-start mb-2">
+          <div class="flex items-center gap-2">
+            <div *ngIf="item.companyLogo" class="w-8 h-8 rounded-full border overflow-hidden">
+              <img [src]="item.companyLogo" class="w-full h-full object-cover">
+            </div>
+            <span class="font-bold text-gray-700">{{ item.companyName || 'Unknown Company' }}</span>
+          </div>
+          <div class="badge badge-primary badge-outline text-[10px] sm:text-xs font-semibold whitespace-nowrap py-2 px-3 animate-pulse">
+            In {{ getCountdown(item.departureDateTime) }}
+          </div>
+        </div>
+        <h3 class="font-bold text-lg text-gray-800">{{ item.route || 'Unknown Route' }}</h3>
+        <p class="text-sm text-gray-500 mb-2">
+          <i class="fas fa-bus mr-1"></i> {{ item.vehicleName }} ({{ item.vehicleNumber }})
+        </p>
+        <div class="bg-gray-50 rounded-lg p-3 text-sm grid grid-cols-2 gap-2 mt-2">
+          <div><span class="text-gray-400 block text-xs">Departure</span><span class="font-medium">{{ item.departureDateTime | date:'MMM d, h:mm a' }}</span></div>
+          <div><span class="text-gray-400 block text-xs">Arrival</span><span class="font-medium">{{ item.arrivalDateTime | date:'MMM d, h:mm a' }}</span></div>
+        </div>
+        
+        <button 
+          *ngIf="authService.isAdmin() || authService.isCompanyManager()"
+          (click)="$event.stopPropagation(); openCloneModal(item)" 
+          class="btn btn-sm btn-outline btn-primary mt-4 w-full gap-2 group-hover:bg-saowari-primary group-hover:text-white transition-colors">
+          <i class="fas fa-copy"></i> Duplicate Schedule
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ongoing Tab -->
+  <div *ngIf="!isLoading && activeTab === 'ongoing'" class="animate-fade-in grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <ng-container *ngTemplateOutlet="emptyState; context: { list: ongoing, msg: 'No active schedules currently on the road.' }"></ng-container>
+    <div *ngFor="let item of ongoing" (click)="goToDetails(item.scheduleID || item.id)" class="card cursor-pointer bg-gradient-to-br from-white to-saowari-accent/5 shadow-xl hover:shadow-2xl transition-all border border-saowari-accent/20 relative group">
+      <div class="card-body p-5">
+        <div class="flex justify-between items-start mb-2">
+          <div class="flex items-center gap-2">
+            <div *ngIf="item.companyLogo" class="w-8 h-8 rounded-full border overflow-hidden">
+              <img [src]="item.companyLogo" class="w-full h-full object-cover">
+            </div>
+            <span class="font-bold text-gray-700">{{ item.companyName || 'Unknown Company' }}</span>
+          </div>
+          <div class="badge bg-saowari-accent text-white border-none shadow-lg text-xs flex gap-2 items-center">
+            <span class="w-2 h-2 rounded-full bg-white animate-ping"></span> Live
+          </div>
+        </div>
+        <h3 class="font-bold text-lg text-gray-800">{{ item.route || 'Unknown Route' }}</h3>
+        
+        <div class="mt-4 flex items-center justify-between text-sm">
+          <div class="text-center">
+            <span class="text-xs text-gray-400 block">Status</span>
+            <span class="font-semibold text-saowari-accent">{{ getCountdown(item.arrivalDateTime, true) }}</span>
+          </div>
+          <button 
+            *ngIf="!authService.isAgent()" 
+            (click)="$event.stopPropagation(); markPending(item.scheduleID || item.id)" 
+            class="btn btn-sm btn-outline btn-warning rounded-full px-4 hover:scale-105">
+            Mark Arrived
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Expiry Tab -->
+  <div *ngIf="!isLoading && activeTab === 'pendingExpiry'" class="animate-fade-in grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <ng-container *ngTemplateOutlet="emptyState; context: { list: pendingExpiry, msg: 'No schedules pending expiry review.' }"></ng-container>
+    <div *ngFor="let item of pendingExpiry" (click)="goToDetails(item.scheduleID || item.id)" class="card cursor-pointer bg-warning/10 shadow-lg border border-warning/30 relative hover:shadow-xl transition-all">
+      <div class="card-body p-5">
+        <div class="flex justify-between items-center mb-2">
+          <span class="font-bold text-gray-700">{{ item.companyName }}</span>
+          <i class="fas fa-exclamation-triangle text-warning text-xl"></i>
+        </div>
+        <h3 class="font-bold text-lg text-gray-800">{{ item.route }}</h3>
+        <p class="text-sm text-gray-600 my-2">This schedule was marked as completed and is awaiting final approval to be archived.</p>
+        <p class="text-xs text-gray-500 mb-4">Original Arrival: {{ item.arrivalDateTime | date:'medium' }}</p>
+        
+        <button 
+          *ngIf="authService.isAdmin() || authService.isCompanyManager()"
+          (click)="$event.stopPropagation(); approveExpiry(item.scheduleID || item.id)" 
+          class="btn btn-warning w-full shadow-md text-white font-bold hover:bg-yellow-600 transition-colors">
+          <i class="fas fa-check-circle mr-2"></i> Approve & Archive
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expired Archive Tab -->
+  <div *ngIf="!isLoading && activeTab === 'expired'" class="animate-fade-in grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <ng-container *ngTemplateOutlet="emptyState; context: { list: expired, msg: 'No expired schedules in the archive.' }"></ng-container>
+    <div *ngFor="let item of expired" (click)="goToDetails(item.scheduleID || item.id)" class="card cursor-pointer bg-gray-50 shadow-sm border border-gray-200 grayscale hover:grayscale-0 transition-all duration-300 hover:shadow-md">
+      <div class="card-body p-5 opacity-80 hover:opacity-100">
+        <div class="flex justify-between items-start">
+          <span class="font-bold text-gray-500">{{ item.companyName }}</span>
+          <span class="badge badge-ghost text-xs">Archived</span>
+        </div>
+        <h3 class="font-bold text-gray-600">{{ item.route }}</h3>
+        <p class="text-xs text-gray-400 mt-2">Vehicle: {{ item.vehicleName }}</p>
+        <p class="text-xs text-gray-400">Past Date: {{ item.departureDateTime | date:'MMM d, yyyy' }}</p>
+        
+        <button 
+          *ngIf="authService.isAdmin() || authService.isCompanyManager()"
+          (click)="$event.stopPropagation(); openCloneModal(item)" 
+          class="btn btn-sm btn-primary mt-4 w-full gap-2 group-hover:btn-active">
+          <i class="fas fa-copy"></i> Clone & Make Live
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reusable Empty State Template -->
+  <ng-template #emptyState let-list="list" let-msg="msg">
+    <div *ngIf="list.length === 0" class="col-span-full py-16 flex flex-col items-center justify-center text-gray-400 bg-white/50 rounded-2xl border border-dashed border-gray-200">
+      <i class="fas fa-folder-open text-5xl mb-4 opacity-50"></i>
+      <p class="text-lg font-medium">{{ msg }}</p>
+    </div>
+  </ng-template>
+
+</div>
+
+<!-- Clone Schedule Modal -->
+<div *ngIf="isCloneModalOpen" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-fade-in">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transform scale-100">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-saowari-primary to-saowari-accent p-6 text-white">
+      <h3 class="text-2xl font-bold flex items-center gap-2">
+        <i class="fas fa-copy"></i> Clone Schedule
+      </h3>
+      <p class="text-sm opacity-80 mt-1">Make {{ cloningItem?.route }} live again.</p>
+    </div>
+    
+    <!-- Body -->
+    <div class="p-6 space-y-4">
+      <div class="alert alert-info shadow-sm bg-blue-50 border-blue-200 text-blue-800 p-3 text-sm rounded-xl">
+        <i class="fas fa-info-circle text-lg"></i>
+        <span>Route, Vehicle, and Boarding Points will be copied automatically. You only need to provide new driver info and dates.</span>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label"><span class="label-text font-bold text-gray-700">Select Driver *</span></label>
+        <select class="select select-bordered w-full focus:outline-none focus:border-saowari-accent bg-gray-50" [(ngModel)]="cloneModel.driverInformtionId">
+          <option [ngValue]="null">-- Select Driver --</option>
+          <option *ngFor="let d of driversList" [ngValue]="d.driverInformtionId">{{ d.fullName }} ({{ d.phone }})</option>
+        </select>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label"><span class="label-text font-bold text-gray-700">Select Supervisor (Optional)</span></label>
+        <select class="select select-bordered w-full focus:outline-none focus:border-saowari-accent bg-gray-50" [(ngModel)]="cloneModel.supervisorId">
+          <option [ngValue]="null">-- None --</option>
+          <option *ngFor="let s of supervisorsList" [ngValue]="s.supervisorId">{{ s.fullName }}</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold text-gray-700">Departure Time *</span></label>
+          <input type="datetime-local" class="input input-bordered w-full focus:outline-none focus:border-saowari-accent bg-gray-50" [(ngModel)]="cloneModel.departureTime">
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold text-gray-700">Arrival Time *</span></label>
+          <input type="datetime-local" class="input input-bordered w-full focus:outline-none focus:border-saowari-accent bg-gray-50" [(ngModel)]="cloneModel.arrivalTime">
+        </div>
+      </div>
+
+      <!-- Pricing Section -->
+      <div *ngIf="cloneModel.seatClassPricings?.length > 0" class="mt-4 pt-4 border-t border-gray-100">
+        <label class="label"><span class="label-text font-bold text-gray-700 mb-1 block">Seat Class Pricing</span></label>
+        <div class="grid grid-cols-2 gap-3">
+          <div *ngFor="let pricing of cloneModel.seatClassPricings" class="form-control">
+            <label class="label py-1"><span class="label-text text-xs text-gray-500">{{ pricing.className || 'Seat Class' }}</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+              <input type="number" class="input input-sm input-bordered w-full pl-7 focus:outline-none focus:border-saowari-accent bg-white" [(ngModel)]="pricing.price" min="1">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="bg-gray-50 p-4 border-t flex justify-end gap-3">
+      <button class="btn btn-ghost rounded-full px-6" (click)="closeCloneModal()">Cancel</button>
+      <button class="btn bg-saowari-primary hover:bg-saowari-primary-dark text-white rounded-full px-8 shadow-md" (click)="saveClone()">
+        <i class="fas fa-rocket mr-2"></i> Launch
+      </button>
+    </div>
+  </div>
+</div>

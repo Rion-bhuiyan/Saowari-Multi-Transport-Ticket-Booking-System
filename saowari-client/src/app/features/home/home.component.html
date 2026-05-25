@@ -1,0 +1,644 @@
+<!-- ===== HERO SECTION ===== -->
+<section class="w-full px-4 pt-24 pb-4" style="background: linear-gradient(135deg, #e8f1fa 0%, #f5f9ff 60%, #fff 100%);">
+  <div class="container mx-auto max-w-7xl">
+    <app-home-slider></app-home-slider>
+  </div>
+</section>
+
+<!-- ===== SEARCH BOX ===== -->
+<div class="relative z-30 mt-8 px-4 pb-12">
+  <div class="container mx-auto max-w-4xl">
+    <div class="bg-white rounded-3xl shadow-[0_20px_60px_-10px_rgba(0,85,159,0.2)] p-5 md:p-7 border border-blue-50">
+
+      <!-- Tabs: Transport type -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+
+        <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+          <button type="button"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200"
+            [style.background]="searchParams.transportType === 'Bus' ? '#00559F' : 'transparent'"
+            [style.color]="searchParams.transportType === 'Bus' ? '#fff' : '#6b7280'"
+            (click)="searchParams.transportType = 'Bus'">
+            <i class="fas fa-bus"></i> Bus
+          </button>
+          <button type="button"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200"
+            [style.background]="searchParams.transportType === 'Launch' ? '#00559F' : 'transparent'"
+            [style.color]="searchParams.transportType === 'Launch' ? '#fff' : '#6b7280'"
+            (click)="searchParams.transportType = 'Launch'">
+            <i class="fas fa-ship"></i> Launch
+          </button>
+          <button type="button"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200"
+            [style.background]="searchParams.transportType === 'Airplane' ? '#00559F' : 'transparent'"
+            [style.color]="searchParams.transportType === 'Airplane' ? '#fff' : '#6b7280'"
+            (click)="searchParams.transportType = 'Airplane'">
+            <i class="fas fa-plane"></i> Flight
+          </button>
+        </div>
+
+        <div class="flex items-center gap-4 text-sm">
+          <label class="flex items-center gap-2 cursor-pointer font-bold transition-all duration-200" 
+            [style.color]="searchParams.tripType === 'one-way' ? '#00559F' : '#6b7280'"
+            (click)="searchParams.tripType = 'one-way'">
+            <span class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200" 
+              [style.border-color]="searchParams.tripType === 'one-way' ? '#00559F' : '#d1d5db'">
+              <span class="w-2 h-2 rounded-full transition-all duration-200" 
+                [style.background]="searchParams.tripType === 'one-way' ? '#00559F' : 'transparent'"></span>
+            </span>
+            One Way
+          </label>
+
+          <label class="flex items-center gap-2 cursor-pointer font-bold transition-all duration-200" 
+            [style.color]="searchParams.tripType === 'round-way' ? '#00559F' : '#6b7280'"
+            (click)="searchParams.tripType = 'round-way'">
+            <span class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200" 
+              [style.border-color]="searchParams.tripType === 'round-way' ? '#00559F' : '#d1d5db'">
+              <span class="w-2 h-2 rounded-full transition-all duration-200" 
+                [style.background]="searchParams.tripType === 'round-way' ? '#00559F' : 'transparent'"></span>
+            </span>
+            Round Way
+          </label>
+        </div>
+      </div>
+
+      <!-- Search Fields Row -->
+      <div class="grid grid-cols-1 md:grid-cols-[1fr_48px_1fr_minmax(280px,1.5fr)] items-stretch gap-3">
+
+        <!-- FROM Custom Dropdown -->
+        <div class="relative">
+          <div class="border-2 rounded-2xl p-3 cursor-pointer transition-all duration-200 bg-white h-full"
+            [style.border-color]="fromDropdownOpen ? '#00559F' : '#e5e7eb'"
+            (click)="openFromDropdown(); $event.stopPropagation()">
+            <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1" style="color: #00559F;">
+              <i class="fas fa-paper-plane mr-1"></i> From
+            </label>
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm" [class.text-gray-800]="selectedFromName" [class.text-gray-400]="!selectedFromName">
+                {{ selectedFromName || 'Leaving from...' }}
+              </span>
+              <i class="fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200"
+                [class.rotate-180]="fromDropdownOpen"></i>
+            </div>
+            <p *ngIf="formSubmitted && !searchParams.fromLocationId" class="text-red-500 text-[10px] mt-1 font-semibold">
+              <i class="fas fa-exclamation-circle"></i> Required
+            </p>
+          </div>
+
+          <!-- From Dropdown Panel -->
+          <div *ngIf="fromDropdownOpen"
+            class="absolute top-full left-0 mt-2 w-full md:w-[320px] bg-white border border-gray-200 rounded-2xl shadow-[0_10px_40px_rgba(0,85,159,0.15)] z-50 overflow-hidden"
+            (click)="$event.stopPropagation()">
+            <div class="p-3 border-b border-gray-100">
+              <div class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2">
+                <i class="fas fa-search text-gray-400 text-xs"></i>
+                <input id="from-search-input" type="text" [(ngModel)]="fromSearch"
+                  placeholder="Search city..." class="bg-transparent flex-1 outline-none text-sm text-gray-700 font-medium" />
+              </div>
+            </div>
+            <div class="max-h-52 overflow-y-auto pr-2">
+              <div *ngIf="filteredFromLocations.length === 0" class="px-4 py-6 text-center text-gray-400 text-sm">
+                No cities found
+              </div>
+              <div *ngFor="let loc of filteredFromLocations"
+                class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-blue-50"
+                [style.background]="searchParams.fromLocationId === loc.locationId.toString() ? '#e8f1fa' : ''"
+                (click)="selectFrom(loc)">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                  style="background: #e8f1fa; color: #00559F;">
+                  {{ loc.locationName.charAt(0) }}
+                </div>
+                <span class="font-semibold text-sm text-gray-800">{{ loc.locationName }}</span>
+                <i *ngIf="searchParams.fromLocationId === loc.locationId.toString()"
+                  class="fas fa-check ml-auto text-xs" style="color: #00559F;"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SWAP BUTTON -->
+        <div class="flex items-center justify-center">
+          <button type="button" (click)="swapLocations()"
+            class="w-11 h-11 rounded-full border-2 flex items-center justify-center transition-all duration-200 shadow-sm font-bold"
+            style="border-color: #00559F; color: #00559F;"
+            onmouseover="this.style.background='#00559F'; this.style.color='white';"
+            onmouseout="this.style.background=''; this.style.color='#00559F';">
+            <i class="fas fa-exchange-alt text-sm"></i>
+          </button>
+        </div>
+
+        <!-- TO Custom Dropdown -->
+        <div class="relative">
+          <div class="border-2 rounded-2xl p-3 cursor-pointer transition-all duration-200 bg-white h-full"
+            [style.border-color]="toDropdownOpen ? '#00559F' : '#e5e7eb'"
+            (click)="openToDropdown(); $event.stopPropagation()">
+            <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1" style="color: #00559F;">
+              <i class="fas fa-map-marker-alt mr-1"></i> To
+            </label>
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm" [class.text-gray-800]="selectedToName" [class.text-gray-400]="!selectedToName">
+                {{ selectedToName || 'Going to...' }}
+              </span>
+              <i class="fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200"
+                [class.rotate-180]="toDropdownOpen"></i>
+            </div>
+            <p *ngIf="formSubmitted && !searchParams.toLocationId" class="text-red-500 text-[10px] mt-1 font-semibold">
+              <i class="fas fa-exclamation-circle"></i> Required
+            </p>
+            <p *ngIf="sameLocationError" class="text-red-500 text-[10px] mt-1 font-semibold">
+              <i class="fas fa-exclamation-circle"></i> Cannot be same as From
+            </p>
+          </div>
+
+          <!-- To Dropdown Panel -->
+          <div *ngIf="toDropdownOpen"
+            class="absolute top-full right-0 mt-2 w-full md:w-[320px] bg-white border border-gray-200 rounded-2xl shadow-[0_10px_40px_rgba(0,85,159,0.15)] z-50 overflow-hidden"
+            (click)="$event.stopPropagation()">
+            <div class="p-3 border-b border-gray-100">
+              <div class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2">
+                <i class="fas fa-search text-gray-400 text-xs"></i>
+                <input id="to-search-input" type="text" [(ngModel)]="toSearch"
+                  placeholder="Search city..." class="bg-transparent flex-1 outline-none text-sm text-gray-700 font-medium" />
+              </div>
+            </div>
+            <div class="max-h-52 overflow-y-auto pr-2">
+              <div *ngIf="filteredToLocations.length === 0" class="px-4 py-6 text-center text-gray-400 text-sm">
+                No cities found
+              </div>
+              <div *ngFor="let loc of filteredToLocations"
+                class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-blue-50"
+                [style.background]="searchParams.toLocationId === loc.locationId.toString() ? '#e8f1fa' : ''"
+                (click)="selectTo(loc)">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                  style="background: #e8f1fa; color: #00559F;">
+                  {{ loc.locationName.charAt(0) }}
+                </div>
+                <span class="font-semibold text-sm text-gray-800">{{ loc.locationName }}</span>
+                <i *ngIf="searchParams.toLocationId === loc.locationId.toString()"
+                  class="fas fa-check ml-auto text-xs" style="color: #00559F;"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DATE FIELDS (Split) -->
+        <div class="flex gap-0 border-2 rounded-2xl bg-white overflow-hidden transition-all duration-200"
+          [style.border-color]="(searchParams.departureDate && searchParams.tripType === 'one-way') || (searchParams.departureDate && searchParams.returnDate && searchParams.tripType === 'round-way') ? '#00559F' : '#e5e7eb'">
+          
+          <!-- Departure Date -->
+          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 hover:bg-gray-50 border-r border-gray-100 relative">
+            <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1" style="color: #00559F;">
+              <i class="far fa-calendar-alt mr-1"></i> Journey Date
+            </label>
+            <input type="date" [(ngModel)]="searchParams.departureDate" [min]="today"
+              class="w-full bg-transparent border-0 outline-none font-bold text-sm text-gray-800 cursor-pointer p-0"
+              style="color-scheme: light;" />
+            <p *ngIf="formSubmitted && !searchParams.departureDate" class="text-red-500 text-[10px] mt-1 font-semibold absolute bottom-1">
+              <i class="fas fa-exclamation-circle"></i> Required
+            </p>
+          </div>
+
+          <!-- Return Date -->
+          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 relative"
+            [ngClass]="searchParams.tripType === 'round-way' ? 'hover:bg-gray-50' : 'bg-gray-50 opacity-70'"
+            (click)="searchParams.tripType === 'one-way' ? searchParams.tripType = 'round-way' : null">
+            
+            <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1" 
+              [style.color]="searchParams.tripType === 'round-way' ? '#00559F' : '#9ca3af'">
+              <i class="far fa-calendar-check mr-1"></i> Return Date
+            </label>
+            
+            <ng-container *ngIf="searchParams.tripType === 'round-way'; else addReturnTpl">
+              <input type="date" [(ngModel)]="searchParams.returnDate" [min]="searchParams.departureDate || today"
+                class="w-full bg-transparent border-0 outline-none font-bold text-sm text-gray-800 cursor-pointer p-0"
+                style="color-scheme: light;" />
+              <p *ngIf="formSubmitted && searchParams.tripType === 'round-way' && !searchParams.returnDate" class="text-red-500 text-[10px] mt-1 font-semibold absolute bottom-1">
+                <i class="fas fa-exclamation-circle"></i> Required
+              </p>
+            </ng-container>
+
+            <ng-template #addReturnTpl>
+              <div class="w-full h-[20px] flex items-center font-bold text-sm transition-colors" style="color: #00559F;">
+                + Add Return
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Search Button -->
+      <button type="button" (click)="onSearch()"
+        class="mt-4 w-full py-4 rounded-2xl text-white font-extrabold text-lg tracking-wide shadow-lg transition-all duration-300 flex items-center justify-center gap-3 group"
+        style="background: linear-gradient(135deg, #00559F 0%, #0074d4 100%); box-shadow: 0 8px 30px rgba(0,85,159,0.35);"
+        onmouseover="this.style.background='linear-gradient(135deg, #00447f 0%, #005db0 100%)'"
+        onmouseout="this.style.background='linear-gradient(135deg, #00559F 0%, #0074d4 100%)'">
+        <i class="fas fa-search group-hover:scale-110 transition-transform"></i>
+        SEARCH TICKETS
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== UPCOMING TRIPS / SCHEDULES ===== -->
+<section *ngIf="!hasSearched && upcomingSchedules && upcomingSchedules.length > 0" class="py-16 bg-white border-t border-slate-100">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-12">
+      <span class="text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-100" style="color: #00559F;">Live Departures</span>
+      <h2 class="text-3xl font-heading font-bold text-gray-800 mt-3 mb-2">Upcoming Scheduled Trips</h2>
+      <p class="text-gray-500">Book your tickets early on these soon-to-depart premium routes with live seat availability.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center justify-items-center">
+      <div *ngFor="let trip of upcomingSchedules"
+        class="w-full max-w-[380px] group bg-white rounded-3xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(0,85,159,0.08)] hover:-translate-y-2 transition-all duration-300 overflow-hidden flex flex-col justify-between">
+        
+        <!-- Top Info Header -->
+        <div class="p-6 pb-4 border-b border-dashed border-slate-100">
+          <div class="flex items-center justify-between mb-4">
+            <!-- Company Logo/Info -->
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-slate-50 border border-slate-100 p-1.5 flex-shrink-0">
+                <img *ngIf="trip.companyLogo" [src]="trip.companyLogo" [alt]="trip.companyName" class="max-h-full max-w-full object-contain" />
+                <div *ngIf="!trip.companyLogo" class="w-full h-full flex items-center justify-center bg-blue-50 text-blue-600 font-extrabold text-sm rounded-lg">
+                  {{ (trip.companyName || trip.vehicleName || 'SW').substring(0, 2).toUpperCase() }}
+                </div>
+              </div>
+              <div>
+                <h4 class="font-extrabold text-slate-800 text-sm tracking-wide line-clamp-1">{{ trip.companyName || trip.vehicleName }}</h4>
+                <p class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-0.5">{{ trip.vehicleNumber }}</p>
+              </div>
+            </div>
+            
+            <!-- Type Badge -->
+            <span class="flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wider rounded-xl px-3 py-1.5 shadow-sm"
+              [style.background]="trip.vehicleType === 'Airplane' ? '#eef2ff' : trip.vehicleType === 'Launch' ? '#ecfdf5' : '#eff6ff'"
+              [style.color]="trip.vehicleType === 'Airplane' ? '#4f46e5' : trip.vehicleType === 'Launch' ? '#059669' : '#0284c7'">
+              <i class="fas" [ngClass]="{'fa-bus': trip.vehicleType === 'Bus', 'fa-ship': trip.vehicleType === 'Launch', 'fa-plane': trip.vehicleType === 'Airplane'}"></i>
+              {{ trip.vehicleType }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Route Path & Route Details Section -->
+        <div class="p-6 py-4 flex-1 flex flex-col justify-between gap-5">
+          <!-- Premium Route Path Line -->
+          <div class="flex items-center justify-between px-2">
+            <!-- From Location -->
+            <div class="text-left w-[40%]">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Leaving From</p>
+              <h5 class="font-extrabold text-slate-800 text-base mt-1 line-clamp-1">{{ trip.fromLocation }}</h5>
+              <p class="text-[11px] font-semibold text-blue-600 mt-0.5">{{ formatTime(trip.departureDateTime) }}</p>
+            </div>
+
+            <!-- Route Path Line Animation Graphic -->
+            <div class="flex-1 flex flex-col items-center justify-center relative min-w-[60px]">
+              <div class="w-full border-t-2 border-dashed border-slate-200 absolute top-1/2 left-0 -translate-y-1/2"></div>
+              <div class="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center relative z-10 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                <i class="fas text-[10px]" 
+                  [style.color]="'#00559F'"
+                  [ngClass]="{'fa-bus': trip.vehicleType === 'Bus', 'fa-ship': trip.vehicleType === 'Launch', 'fa-plane': trip.vehicleType === 'Airplane'}"></i>
+              </div>
+            </div>
+
+            <!-- To Location -->
+            <div class="text-right w-[40%]">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Going To</p>
+              <h5 class="font-extrabold text-slate-800 text-base mt-1 line-clamp-1">{{ trip.toLocation }}</h5>
+              <p class="text-[11px] font-semibold text-emerald-600 mt-0.5">{{ formatTime(trip.arrivalDateTime) }}</p>
+            </div>
+          </div>
+
+          <!-- Quick Date & Duration Info -->
+          <div class="flex items-center justify-between bg-slate-50 rounded-2xl p-3 border border-slate-100/50">
+            <div class="flex items-center gap-2">
+              <i class="far fa-calendar-alt text-slate-400 text-xs"></i>
+              <span class="text-xs font-bold text-slate-600">{{ trip.departureDateTime | date:'EEE, MMM d, y' }}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <i class="far fa-clock text-slate-400 text-xs"></i>
+              <span class="text-xs font-semibold text-slate-500">{{ formatDuration(trip.departureDateTime, trip.arrivalDateTime) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price, Seats left & Book Seats CTA Footer -->
+        <div class="p-6 pt-4 border-t border-slate-50 bg-slate-50/30 flex items-center justify-between">
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ticket Price</p>
+            <p class="text-xl font-black text-slate-800 mt-0.5">৳{{ trip.basePrice }}</p>
+          </div>
+          
+          <div class="flex flex-col items-end gap-2">
+            <span class="text-[11px] font-bold" 
+              [ngClass]="trip.availableSeats > 10 ? 'text-emerald-600' : 'text-rose-500 animate-pulse'">
+              <i class="fas fa-couch mr-1"></i> {{ trip.availableSeats }} seats left
+            </span>
+            <button (click)="viewSeats(trip.scheduleId)"
+              class="text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all hover:scale-105 active:scale-95 group-hover:opacity-95"
+              style="background: #00559F; box-shadow: 0 4px 15px rgba(0,85,159,0.25);">
+              Book Seats
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== UPCOMING TRIPS BANNERS ===== -->
+<section *ngIf="!hasSearched && upcomingTripsBanners.length > 0" class="py-8 bg-gray-50">
+  <div class="container mx-auto px-4">
+    <div class="flex flex-col gap-6">
+      <a *ngFor="let banner of upcomingTripsBanners" 
+         [href]="banner.linkUrl || 'javascript:void(0)'" 
+         [target]="banner.linkUrl ? '_blank' : ''"
+         class="block w-full overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.01]">
+        <!-- Responsive wrapper to enforce roughly 1800x860 ratio (about 2.1:1), using aspect-video as a fallback or pb-[47.7%] -->
+        <div class="relative w-full pb-[47.77%] bg-slate-200">
+          <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== POPULAR ROUTES ===== -->
+<section *ngIf="!hasSearched" class="py-16 bg-gray-50 border-t border-slate-100">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-10">
+      <span class="text-xs font-extrabold uppercase tracking-widest" style="color: #00559F;">Explore Bangladesh</span>
+      <h2 class="text-3xl font-heading font-bold text-gray-800 mt-1 mb-2">Popular Routes</h2>
+      <p class="text-gray-500">Discover our most traveled destinations across the country.</p>
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-6">
+      <div *ngFor="let route of featuredRoutes"
+        class="w-full sm:w-[280px] flex-shrink-0 group bg-white rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border border-slate-100 hover:-translate-y-1.5">
+        <div class="h-44 relative overflow-hidden">
+          <img [src]="route.image" [alt]="route.to"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <span class="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider rounded-full px-3 py-1 shadow-sm"
+            style="background: rgba(255,255,255,0.9); color: #00559F;">
+            <i class="fas" [ngClass]="{'fa-bus': route.type === 'Bus', 'fa-ship': route.type === 'Launch', 'fa-plane': route.type === 'Airplane'}"></i>
+            {{ route.type }}
+          </span>
+          <div class="absolute bottom-4 left-0 right-0 text-center text-white px-3">
+            <p class="font-black text-base tracking-wide drop-shadow-md">{{ route.from }} → {{ route.to }}</p>
+          </div>
+        </div>
+        <div class="p-5 flex flex-col items-center justify-center text-center gap-4">
+          <div>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Distance / Time</p>
+            <p class="text-sm font-extrabold mt-0.5" style="color: #00559F;">{{ route.distance }} KM • {{ route.estimatedHours }}h</p>
+          </div>
+          <button (click)="quickSearch(route)"
+            class="w-full text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all hover:opacity-90"
+            style="background: #00559F; box-shadow: 0 4px 15px rgba(0,85,159,0.25);">
+            Book Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== POPULAR ROUTES BANNERS ===== -->
+<section *ngIf="!hasSearched && popularRoutesBanners.length > 0" class="py-8 bg-white">
+  <div class="container mx-auto px-4">
+    <div class="flex flex-col gap-6">
+      <a *ngFor="let banner of popularRoutesBanners" 
+         [href]="banner.linkUrl || 'javascript:void(0)'" 
+         [target]="banner.linkUrl ? '_blank' : ''"
+         class="block w-full overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.01]">
+        <div class="relative w-full pb-[47.77%] bg-slate-200">
+          <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHY CHOOSE US ===== -->
+<section *ngIf="!hasSearched" class="py-16 bg-white">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-12">
+      <span class="text-xs font-extrabold uppercase tracking-widest" style="color: #00559F;">Our Promise</span>
+      <h2 class="text-3xl font-heading font-bold text-gray-800 mt-1 mb-2">Why Choose Saowari?</h2>
+      <p class="text-gray-500">We provide the best booking experience with premium services.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div *ngFor="let feature of [
+        {icon: 'fa-ticket-alt', title: 'Easy Booking', text: 'Book your tickets in just a few clicks with our user-friendly interface.'},
+        {icon: 'fa-shield-alt', title: 'Secure Payments', text: 'Your transactions are highly secured with top-notch encryption.'},
+        {icon: 'fa-headset', title: '24/7 Support', text: 'Our dedicated support team is always ready to assist you anytime.'}
+      ]" class="group flex flex-col items-center text-center p-8 rounded-2xl border-2 border-transparent hover:border-blue-100 transition-all duration-300"
+        style="hover: background-color: #e8f1fa;">
+        <div class="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl mb-5 shadow-sm transition-all duration-300 group-hover:scale-110"
+          style="background: #e8f1fa; color: #00559F;">
+          <i class="fas" [ngClass]="feature.icon"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2 text-gray-800">{{ feature.title }}</h3>
+        <p class="text-gray-500 text-sm">{{ feature.text }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== OUR TRANSPORT PARTNERS ===== -->
+<section *ngIf="!hasSearched && companies && companies.length > 0" class="py-16 bg-gray-50 border-t border-gray-100">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-12">
+      <span class="text-xs font-extrabold uppercase tracking-widest" style="color: #00559F;">Trusted Operators</span>
+      <h2 class="text-3xl font-heading font-bold text-gray-800 mt-1 mb-2">Our Transport Partners</h2>
+      <p class="text-gray-500">We partner with the leading and most reliable transport operators in the country.</p>
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-6">
+      <div *ngFor="let company of companies" 
+        class="w-[180px] flex-shrink-0 group bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg border border-gray-100 transition-all duration-300 flex flex-col items-center justify-center text-center hover:-translate-y-1">
+        <div class="w-24 h-24 rounded-2xl flex items-center justify-center overflow-hidden mb-4 bg-gray-50 border border-gray-100 p-2 group-hover:scale-105 transition-transform duration-300">
+          <img *ngIf="company.logoURL" [src]="company.logoURL" [alt]="company.companyName" class="max-h-full max-w-full object-contain" />
+          <div *ngIf="!company.logoURL" class="w-full h-full flex items-center justify-center bg-blue-50 text-blue-600 font-extrabold text-2xl rounded-2xl">
+            {{ company.companyName.substring(0, 2).toUpperCase() }}
+          </div>
+        </div>
+        <h4 class="font-bold text-gray-800 text-sm tracking-wide group-hover:text-saowari-primary transition-colors line-clamp-1">
+          {{ company.companyName }}
+        </h4>
+        <span class="text-[10px] text-gray-400 font-semibold mt-1 uppercase tracking-wider">
+          {{ company.contactPhone || 'Active Operator' }}
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEARCH RESULTS ===== -->
+<div *ngIf="hasSearched" class="container mx-auto px-4 py-8">
+  <div class="flex flex-col lg:flex-row gap-6">
+    
+    <!-- Sidebar Filters -->
+    <div class="w-full lg:w-1/4">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-24">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="font-heading font-bold text-lg text-saowari-text-primary">Filters</h3>
+          <button class="text-xs text-saowari-accent hover:underline font-medium" (click)="resetFilters()">Reset</button>
+        </div>
+
+        <div class="mb-6">
+          <h4 class="font-semibold text-sm mb-3 text-gray-700">Vehicle Class</h4>
+          <div class="space-y-2">
+            <label *ngFor="let type of filterTypes" class="flex items-center gap-3 cursor-pointer group">
+              <input type="checkbox" 
+                     [checked]="selectedTypes.includes(type)" 
+                     (change)="toggleTypeFilter(type)"
+                     class="checkbox checkbox-sm checkbox-primary rounded transition-transform group-hover:scale-105" />
+              <span class="text-sm text-gray-600 group-hover:text-saowari-primary transition-colors">{{ type }}</span>
+            </label>
+            <div *ngIf="filterTypes.length === 0" class="text-sm text-gray-400 italic">No classes available</div>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-semibold text-sm text-gray-700">Max Price</h4>
+            <span class="text-xs font-bold text-saowari-primary">৳{{ currentMaxPrice }}</span>
+          </div>
+          <input type="range" min="0" [max]="maxPrice" [(ngModel)]="currentMaxPrice" (change)="onPriceChange()" class="range range-xs range-primary" />
+          <div class="w-full flex justify-between text-xs px-1 text-gray-400 mt-2">
+            <span>৳0</span>
+            <span>৳{{ maxPrice }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="w-full lg:w-3/4">
+
+      <!-- Round Trip Tabs -->
+      <div *ngIf="searchParams.tripType === 'round-way'" class="flex gap-2 mb-4 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+        <button class="flex-1 py-3 text-center rounded-lg font-bold text-sm transition-colors"
+                [ngClass]="currentTab === 'outbound' ? 'bg-saowari-accent text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'"
+                (click)="switchTab('outbound')">
+           <i class="fas fa-plane-departure mr-1"></i> Outbound
+           <div class="text-[10px] font-normal opacity-80 mt-1 uppercase tracking-widest">{{ getLocationName(searchParams.fromLocationId) }} <i class="fas fa-arrow-right mx-1"></i> {{ getLocationName(searchParams.toLocationId) }}</div>
+        </button>
+        <button class="flex-1 py-3 text-center rounded-lg font-bold text-sm transition-colors"
+                [ngClass]="currentTab === 'return' ? 'bg-saowari-accent text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'"
+                (click)="switchTab('return')">
+           <i class="fas fa-plane-arrival mr-1"></i> Return
+           <div class="text-[10px] font-normal opacity-80 mt-1 uppercase tracking-widest">{{ getLocationName(searchParams.toLocationId) }} <i class="fas fa-arrow-right mx-1"></i> {{ getLocationName(searchParams.fromLocationId) }}</div>
+        </button>
+      </div>
+      
+      <!-- Date Quick Selector Bar -->
+      <div *ngIf="hasSearched && dateRange.length > 0" class="bg-white border border-slate-100 rounded-2xl p-4 mb-6 shadow-sm overflow-x-auto custom-scrollbar">
+        <div class="flex items-center justify-start md:justify-center gap-2 min-w-max">
+          <button *ngFor="let item of dateRange"
+            type="button"
+            (click)="selectQuickDate(item.dateString)"
+            class="px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 border-2 select-none cursor-pointer"
+            [ngClass]="{
+              'bg-saowari-accent text-white border-saowari-accent shadow-md shadow-blue-500/10': item.isActive,
+              'bg-slate-50 text-slate-600 border-slate-200 hover:border-saowari-accent hover:text-saowari-accent hover:bg-white': !item.isActive
+            }">
+            {{ item.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Search Header -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-heading font-bold text-saowari-primary">
+            <ng-container *ngIf="currentTab === 'outbound' || searchParams.tripType === 'one-way'">
+              {{ getLocationName(searchParams.fromLocationId) }} <i class="fas fa-arrow-right text-sm mx-2 text-gray-400"></i> {{ getLocationName(searchParams.toLocationId) }}
+            </ng-container>
+            <ng-container *ngIf="searchParams.tripType === 'round-way' && currentTab === 'return'">
+              {{ getLocationName(searchParams.toLocationId) }} <i class="fas fa-arrow-right text-sm mx-2 text-gray-400"></i> {{ getLocationName(searchParams.fromLocationId) }}
+            </ng-container>
+          </h2>
+          <p class="text-sm text-gray-500 mt-1">{{ (currentTab === 'return' ? searchParams.returnDate : searchParams.departureDate) | date:'longDate' }} • {{ filteredTrips.length }} trips found</p>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="space-y-4">
+        <div *ngFor="let i of [1,2,3]" class="bg-white rounded-xl p-4 shadow-sm animate-pulse flex flex-col md:flex-row gap-4 h-32">
+          <div class="w-full md:w-1/4 bg-gray-200 rounded h-full"></div>
+          <div class="w-full md:w-1/2 flex flex-col justify-center space-y-3">
+            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+          <div class="w-full md:w-1/4 bg-gray-200 rounded h-full"></div>
+        </div>
+      </div>
+
+      <!-- No Results State -->
+      <div *ngIf="!isLoading && filteredTrips.length === 0" class="bg-white rounded-xl p-12 shadow-sm text-center border border-gray-100">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-4xl">
+          <i class="fas fa-search-minus"></i>
+        </div>
+        <h3 class="text-xl font-heading font-bold text-gray-800 mb-2">No trips found</h3>
+        <p class="text-gray-500">We couldn't find any {{ searchParams.transportType | lowercase }} matching your criteria. Try adjusting your filters or search date.</p>
+      </div>
+
+      <!-- Results List -->
+      <div *ngIf="!isLoading && filteredTrips.length > 0" class="space-y-4">
+        <div *ngFor="let trip of filteredTrips" class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow card-hover overflow-hidden flex flex-col md:flex-row">
+          
+          <!-- Company & Vehicle Info -->
+          <div class="p-5 md:w-1/4 border-b md:border-b-0 md:border-r border-gray-100 bg-gray-50/50 flex flex-col justify-center items-center text-center">
+            <div *ngIf="trip.companyLogo" class="mb-2 h-12 w-full flex justify-center items-center">
+              <img [src]="trip.companyLogo" alt="{{ trip.companyName }}" class="max-h-full max-w-[120px] object-contain drop-shadow-sm" />
+            </div>
+            <h4 class="font-bold text-lg text-saowari-text-primary">{{ trip.companyName || trip.vehicleName }}</h4>
+            <div class="flex items-center gap-2 mt-1 text-sm text-gray-500">
+               <span class="badge badge-outline text-xs">{{ trip.vehicleType }}</span>
+            </div>
+            <div class="mt-2 text-xs text-gray-400 font-mono">{{ trip.vehicleNumber }}</div>
+          </div>
+
+          <!-- Timing & Route Info -->
+          <div class="p-5 md:w-1/2 flex items-center justify-between">
+            <div class="text-center">
+              <p class="text-2xl font-bold text-gray-800">{{ formatTime(trip.departureDateTime) }}</p>
+              <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{{ trip.departureDateTime | date:'EEE, MMM d, y' }}</p>
+              <p class="text-xs text-gray-500 font-medium uppercase mt-1">{{ trip.fromLocation }}</p>
+            </div>
+            
+            <div class="flex-1 px-4 relative flex items-center justify-center">
+              <div class="w-full border-t border-dashed border-gray-300"></div>
+              <div class="absolute bg-white px-2 text-xs text-gray-400 flex flex-col items-center">
+                <span>{{ formatDuration(trip.departureDateTime, trip.arrivalDateTime) }}</span>
+                <i class="fas fa-long-arrow-alt-right mt-1 text-saowari-primary"></i>
+              </div>
+            </div>
+            
+            <div class="text-center">
+              <p class="text-2xl font-bold text-gray-800">{{ formatTime(trip.arrivalDateTime) }}</p>
+              <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{{ trip.arrivalDateTime | date:'EEE, MMM d, y' }}</p>
+              <p class="text-xs text-gray-500 font-medium uppercase mt-1">{{ trip.toLocation }}</p>
+            </div>
+          </div>
+
+          <!-- Price & Action -->
+          <div class="p-5 md:w-1/4 border-t md:border-t-0 md:border-l border-gray-100 flex flex-col justify-center items-center md:items-end text-center md:text-right bg-saowari-primary-light/10">
+            <p class="text-sm text-gray-500 mb-1">Starting from</p>
+            <p class="text-2xl font-bold text-saowari-primary mb-3">৳{{ trip.basePrice }}</p>
+            <p class="text-xs text-saowari-success mb-3 font-medium"><i class="fas fa-couch"></i> {{ trip.availableSeats }} Seats Available</p>
+            <button class="btn btn-saowari w-full" (click)="viewSeats(trip.scheduleId)">View Seats</button>
+          </div>
+          
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

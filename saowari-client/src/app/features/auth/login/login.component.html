@@ -1,0 +1,117 @@
+<div class="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+  <!-- Left: Brand Panel -->
+  <div class="hidden lg:flex flex-col justify-between bg-gradient-to-br from-saowari-primary via-saowari-secondary to-saowari-accent p-12 text-white relative overflow-hidden">
+    <!-- Decorative circles -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+
+    <div class="relative z-10">
+      <a routerLink="/home" class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+          <span class="text-saowari-primary font-extrabold text-xl">S</span>
+        </div>
+        <span class="font-heading font-bold text-2xl tracking-wide">SAOWARI</span>
+      </a>
+    </div>
+
+    <div class="relative z-10">
+      <h1 class="text-4xl font-heading font-bold leading-tight mb-6">
+        Your Journey Begins <br>With a Single Login
+      </h1>
+      <p class="text-white/80 text-lg leading-relaxed">
+        Access your bookings, tickets, and travel history. Secure, fast, and always connected.
+      </p>
+
+      <div class="flex gap-6 mt-10">
+        <div class="text-center">
+          <p class="text-3xl font-bold">50K+</p>
+          <p class="text-white/70 text-sm">Happy Travelers</p>
+        </div>
+        <div class="w-px bg-white/20"></div>
+        <div class="text-center">
+          <p class="text-3xl font-bold">200+</p>
+          <p class="text-white/70 text-sm">Routes Available</p>
+        </div>
+        <div class="w-px bg-white/20"></div>
+        <div class="text-center">
+          <p class="text-3xl font-bold">99%</p>
+          <p class="text-white/70 text-sm">On-Time Service</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative z-10 text-white/50 text-sm">
+      © 2026 Saowari. All rights reserved.
+    </div>
+  </div>
+
+  <!-- Right: Login Form -->
+  <div class="flex items-center justify-center p-6 sm:p-12 bg-white">
+    <div class="w-full max-w-md">
+      <!-- Mobile Logo -->
+      <a routerLink="/home" class="flex items-center gap-2 mb-8 lg:hidden">
+        <div class="w-9 h-9 bg-saowari-primary rounded-lg flex items-center justify-center">
+          <span class="text-white font-extrabold text-lg">S</span>
+        </div>
+        <span class="font-heading font-bold text-xl text-saowari-primary">SAOWARI</span>
+      </a>
+
+      <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mb-2">Welcome back</h2>
+      <p class="text-saowari-text-secondary mb-8">Sign in to your account to continue.</p>
+
+      <form #loginForm="ngForm" (ngSubmit)="onLogin()">
+        <!-- Email -->
+        <div class="form-control mb-5">
+          <label class="label pb-1"><span class="label-text font-semibold text-gray-700">Email Address</span></label>
+          <div class="relative">
+            <i class="far fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="email" name="email" [(ngModel)]="credentials.email" required
+                   class="input input-bordered w-full pl-11 focus:border-saowari-primary focus:ring-1 focus:ring-saowari-primary"
+                   placeholder="you@example.com">
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-control mb-2">
+          <label class="label pb-1">
+            <span class="label-text font-semibold text-gray-700">Password</span>
+            <a routerLink="/auth/forgot-password" class="label-text-alt text-saowari-accent hover:underline text-sm">Forgot password?</a>
+          </label>
+          <div class="relative">
+            <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input [type]="showPassword ? 'text' : 'password'" name="password" [(ngModel)]="credentials.password" required
+                   class="input input-bordered w-full pl-11 pr-12 focus:border-saowari-primary focus:ring-1 focus:ring-saowari-primary"
+                   placeholder="••••••••">
+            <button type="button" (click)="showPassword = !showPassword"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" [disabled]="isLoading || loginForm.invalid"
+                class="btn btn-saowari w-full mt-6 text-base shadow-lg shadow-primary/20 h-12">
+          <span *ngIf="isLoading" class="loading loading-spinner loading-sm"></span>
+          <i *ngIf="!isLoading" class="fas fa-sign-in-alt"></i>
+          {{ isLoading ? 'Signing in...' : 'Sign In' }}
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="divider text-gray-400 text-sm my-6">or</div>
+
+      <!-- Register Link -->
+      <p class="text-center text-gray-600">
+        Don't have an account?
+        <a routerLink="/auth/register" class="text-saowari-primary font-semibold hover:underline ml-1">Create one free</a>
+      </p>
+
+      <p class="text-center mt-6">
+        <a routerLink="/home" class="text-sm text-gray-400 hover:text-saowari-primary transition-colors">
+          <i class="fas fa-arrow-left mr-1"></i> Back to home
+        </a>
+      </p>
+    </div>
+  </div>
+</div>

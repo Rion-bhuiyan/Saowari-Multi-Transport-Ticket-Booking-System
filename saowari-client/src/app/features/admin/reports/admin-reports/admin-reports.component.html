@@ -1,0 +1,96 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-heading font-bold text-saowari-text-primary">Analytics & Reports</h1>
+      <p class="text-sm text-saowari-text-secondary mt-1">Monitor revenue and occupancy trends.</p>
+    </div>
+    <div class="flex gap-3 items-center flex-wrap">
+      <div *ngIf="authService.isAdmin()" class="flex gap-2 items-center mr-2">
+        <span class="text-sm font-medium text-saowari-text-secondary">Company:</span>
+        <select [(ngModel)]="selectedCompanyId" (change)="onCompanyChange()" class="select select-sm select-bordered focus:border-saowari-primary min-w-[150px]">
+          <option value="">All Companies</option>
+          <option *ngFor="let company of companies" [value]="company.companyID || company.companyId || company.id">
+            {{ company.companyName }}
+          </option>
+        </select>
+      </div>
+      <input type="date" [(ngModel)]="revenueParams.startDate" class="input input-sm input-bordered focus:border-saowari-primary">
+      <span class="text-gray-400">to</span>
+      <input type="date" [(ngModel)]="revenueParams.endDate" class="input input-sm input-bordered focus:border-saowari-primary">
+      <button (click)="loadRevenue(); loadOccupancy();" class="btn btn-sm btn-saowari gap-2">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Revenue Summary Card -->
+  <div class="bg-gradient-to-r from-saowari-primary to-saowari-secondary rounded-2xl p-6 text-white shadow-lg">
+    <p class="text-white/70 text-sm mb-1">Total Revenue (Selected Period)</p>
+    <p class="text-4xl font-bold font-heading">৳{{ getTotalRevenue() | number }}</p>
+    <p class="text-white/60 text-xs mt-2">Based on {{ revenueParams.startDate }} to {{ revenueParams.endDate }}</p>
+  </div>
+
+  <!-- Revenue Table -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-5 border-b border-gray-100">
+      <h2 class="font-heading font-bold text-lg text-saowari-text-primary">Revenue Breakdown</h2>
+    </div>
+    <div *ngIf="isLoadingRevenue" class="p-10 text-center">
+      <span class="loading loading-spinner loading-md text-saowari-primary"></span>
+    </div>
+    <div *ngIf="!isLoadingRevenue && revenueData.length === 0" class="p-10 text-center text-gray-400">
+      <i class="fas fa-chart-line text-4xl mb-3 block opacity-40"></i>
+      <p>No revenue data available for this period.</p>
+    </div>
+    <div *ngIf="!isLoadingRevenue && revenueData.length > 0" class="overflow-x-auto">
+      <table class="table table-sm w-full">
+        <thead class="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+          <tr>
+            <th class="px-5 py-3 font-semibold">Period</th>
+            <th class="px-5 py-3 font-semibold">Bookings</th>
+            <th class="px-5 py-3 font-semibold">Revenue</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let row of revenueData" class="hover:bg-gray-50/50">
+            <td class="px-5 py-3 text-sm text-gray-700 font-medium">{{ row.date || row.period || row.month }}</td>
+            <td class="px-5 py-3 text-sm text-gray-600">{{ row.bookingCount || row.count || 0 }}</td>
+            <td class="px-5 py-3 font-semibold text-saowari-primary">৳{{ (row.revenue || row.amount || 0) | number }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Occupancy Data -->
+  <div *ngIf="occupancyData.length > 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-5 border-b border-gray-100">
+      <h2 class="font-heading font-bold text-lg text-saowari-text-primary">Seat Occupancy by Route</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="table table-sm w-full">
+        <thead class="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+          <tr>
+            <th class="px-5 py-3 font-semibold">Route</th>
+            <th class="px-5 py-3 font-semibold">Total Seats</th>
+            <th class="px-5 py-3 font-semibold">Occupied</th>
+            <th class="px-5 py-3 font-semibold">Occupancy %</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let row of occupancyData" class="hover:bg-gray-50/50">
+            <td class="px-5 py-3 font-medium text-gray-800">{{ row.route || row.routeName }}</td>
+            <td class="px-5 py-3 text-sm text-gray-600">{{ row.totalSeats }}</td>
+            <td class="px-5 py-3 text-sm text-gray-600">{{ row.occupiedSeats }}</td>
+            <td class="px-5 py-3">
+              <div class="flex items-center gap-2">
+                <progress class="progress progress-primary w-24 h-2" [value]="row.occupancyRate || 0" max="100"></progress>
+                <span class="text-sm font-semibold text-saowari-primary">{{ (row.occupancyRate || 0) | number:'1.0-1' }}%</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

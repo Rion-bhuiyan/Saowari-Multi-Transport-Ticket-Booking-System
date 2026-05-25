@@ -1,0 +1,259 @@
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-4 sm:p-8">
+  <div class="max-w-3xl w-full">
+
+    <!-- Action Bar (hidden on print) -->
+    <div class="no-print flex justify-between items-center mb-6" *ngIf="!isLoading && ticketData">
+      <h2 class="text-2xl font-bold text-gray-800">Your E-Ticket</h2>
+      <div class="flex gap-3">
+        <button (click)="printTicket()" class="btn btn-outline btn-primary gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          Print
+        </button>
+        <button (click)="downloadPdf()" [disabled]="isGeneratingPdf" class="btn btn-primary shadow-lg gap-2">
+          <span *ngIf="isGeneratingPdf" class="loading loading-spinner loading-sm"></span>
+          <svg *ngIf="!isGeneratingPdf" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          {{ isGeneratingPdf ? 'Generating...' : 'Download PDF' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading && !ticketData" class="text-center py-20">
+      <p class="text-2xl font-bold text-gray-400">Ticket not found</p>
+      <a href="/home" class="btn btn-primary mt-4">Go Home</a>
+    </div>
+
+    <!-- ====== TICKET CONTAINER ====== -->
+    <div *ngIf="!isLoading && ticketData" #ticketElement id="ticket-element" class="bg-white shadow-2xl overflow-hidden relative" style="font-family: 'Segoe UI', Arial, sans-serif;">
+
+      <!-- Custom background image overlay -->
+      <div *ngIf="ticketData.ticketBackgroundUrl"
+           style="position:absolute;inset:0;z-index:0;pointer-events:none;">
+        <img [src]="ticketData.ticketBackgroundUrl" alt="" style="width:100%;height:100%;object-fit:cover;opacity:0.25;" (error)="onImgError($event)" />
+      </div>
+
+      <!-- All ticket content sits above the background -->
+      <div style="position:relative;z-index:1;">
+
+      <!-- ── Header ─────────────────────────────────────── -->
+      <div style="background: linear-gradient(135deg, #1e3a6e 0%, #2563eb 100%); padding: 22px 28px;" class="text-white flex justify-between items-start">
+        <div class="flex items-center gap-4">
+          <img *ngIf="ticketData.saowariLogoUrl" [src]="ticketData.saowariLogoUrl" alt="Saowari Logo"
+               class="h-14 w-14 rounded-md bg-white object-contain p-1"
+               (error)="onImgError($event)" />
+          <div *ngIf="!ticketData.saowariLogoUrl"
+               style="background:white;color:#1e3a6e;font-weight:900;font-size:2rem;width:56px;height:56px;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            S
+          </div>
+          <div>
+            <h1 style="font-size:1.8rem;font-weight:900;letter-spacing:3px;margin:0;">SAOWARI</h1>
+            <p style="font-size:0.78rem;opacity:0.85;margin:0;">{{ ticketData.companyName }}</p>
+          </div>
+        </div>
+        <div class="flex flex-col items-end gap-2">
+          <img *ngIf="ticketData.companyLogoUrl" [src]="ticketData.companyLogoUrl" alt="Company Logo"
+               class="h-10 w-auto object-contain bg-white rounded p-1" (error)="onImgError($event)" />
+          <div class="text-right">
+            <p style="font-size:0.68rem;opacity:0.8;text-transform:uppercase;letter-spacing:2px;margin:0;">Booking Code</p>
+            <p style="font-size:1.1rem;font-weight:700;font-family:monospace;margin:0;">{{ ticketData.bookingCode }}</p>
+            <p style="font-size:0.72rem;opacity:0.75;margin:0;">Booked: {{ ticketData.bookingDate | date:'medium' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Route Banner ─────────────────────────────── -->
+      <div *ngIf="ticketData.routeImageUrl" class="relative overflow-hidden" style="height:90px;">
+        <img [src]="ticketData.routeImageUrl" alt="Route" class="w-full h-full object-cover" (error)="onImgError($event)" />
+        <div class="absolute inset-0" style="background:linear-gradient(90deg,rgba(30,58,110,0.7) 0%,rgba(30,58,110,0.3) 50%,rgba(30,58,110,0.7) 100%);"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span style="color:white;font-size:1.2rem;font-weight:700;letter-spacing:6px;text-transform:uppercase;text-shadow:0 1px 4px rgba(0,0,0,0.6);">
+            {{ ticketData.fromLocation }} → {{ ticketData.toLocation }}
+          </span>
+        </div>
+      </div>
+
+      <!-- ── Journey Info ────────────────────────────────── -->
+      <div style="background:#f8faff;border-bottom:1px solid #e5e7eb;padding:20px 28px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <p style="font-size:0.68rem;color:#000000;text-transform:uppercase;letter-spacing:2px;margin:0;">From</p>
+            <p style="font-size:1.3rem;font-weight:900;color:#1e3a6e;margin:2px 0;">{{ ticketData.fromLocation }}</p>
+            <p style="font-size:0.82rem;color:#000000;margin:0;">{{ ticketData.departureTime | date:'MMM d, y, h:mm a' }}</p>
+          </div>
+          <div style="text-align:center;">
+            <div style="color:#2563eb;font-size:1.4rem;line-height:1;">&#xBB;</div>
+            <div style="margin-top:6px;background:#dbeafe;color:#1e40af;font-size:0.62rem;font-weight:700;padding:4px 12px;border-radius:5px;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;display:inline-block;line-height:1.4;">{{ ticketData.isAc ? 'A/C' : 'Non A/C' }}</div>
+          </div>
+          <div style="text-align:right;">
+            <p style="font-size:0.68rem;color:#000000;text-transform:uppercase;letter-spacing:2px;margin:0;">To</p>
+            <p style="font-size:1.3rem;font-weight:900;color:#1e3a6e;margin:2px 0;">{{ ticketData.toLocation }}</p>
+            <p style="font-size:0.82rem;color:#000000;margin:0;">{{ ticketData.arrivalTime | date:'MMM d, y, h:mm a' }}</p>
+          </div>
+        </div>
+
+        <div *ngIf="ticketData.boardingPoint" style="margin-top:12px;padding-top:12px;border-top:1px solid #e5e7eb;">
+          <p style="font-size:0.68rem;color:#000000;text-transform:uppercase;letter-spacing:2px;margin:0;">Boarding Point</p>
+          <p style="font-size:0.95rem;font-weight:700;color:#1e3a6e;margin:2px 0;">{{ ticketData.boardingPoint }}</p>
+        </div>
+      </div>
+
+      <!-- ── Main Body ───────────────────────────────────── -->
+      <div style="padding:20px 28px;">
+        <div style="display:flex;gap:24px;">
+
+          <!-- Left: Passenger + Bus (2/3 width) -->
+          <div style="flex:2;min-width:0;">
+
+            <!-- Passenger Info -->
+            <p style="font-size:0.65rem;color:#000000;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #e5e7eb;padding-bottom:6px;margin-bottom:10px;margin-top:0;">Passenger Information</p>
+            <div style="display:flex;gap:16px;margin-bottom:16px;">
+              <div style="flex:1;">
+                <p style="font-size:0.7rem;color:#000000;margin:0;">Name</p>
+                <p style="font-weight:700;color:#000000;margin:0;">{{ ticketData.passengerName }}</p>
+              </div>
+              <div style="flex:1;">
+                <p style="font-size:0.7rem;color:#000000;margin:0;">Phone</p>
+                <p style="font-weight:700;color:#000000;margin:0;">{{ ticketData.passengerPhone }}</p>
+              </div>
+              <div *ngIf="ticketData.passengerNID" style="flex:1;">
+                <p style="font-size:0.7rem;color:#000000;margin:0;">NID</p>
+                <p style="font-weight:700;color:#000000;margin:0;">{{ ticketData.passengerNID }}</p>
+              </div>
+            </div>
+
+            <!-- Bus Info -->
+            <p style="font-size:0.65rem;color:#000000;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #e5e7eb;padding-bottom:6px;margin-bottom:10px;margin-top:0;">Bus Information</p>
+            <div style="display:flex;flex-wrap:wrap;gap:16px;">
+              <div style="flex:1;min-width:120px;">
+                <p style="font-size:0.7rem;color:#000000;margin:0;">Bus Name &amp; Type</p>
+                <p style="font-weight:700;color:#000000;margin:0;">{{ ticketData.vehicleName }} ({{ ticketData.vehicleTypeName }})</p>
+              </div>
+              <div style="flex:1;min-width:120px;">
+                <p style="font-size:0.7rem;color:#000000;margin:0;">Registration No.</p>
+                <p style="font-weight:700;color:#000000;margin:0;">{{ ticketData.vehicleRegNumber }}</p>
+              </div>
+              <div style="flex:1;min-width:120px;">
+                <p style="font-size:0.7rem;color:#000000;margin:0;">Supervisor Name</p>
+                <p style="font-weight:700;color:#000000;margin:0;">{{ ticketData.supervisorName }}</p>
+              </div>
+              <div style="flex:1;min-width:120px;">
+                <p style="font-size:0.7rem;color:#000000;margin:0;">Supervisor Phone</p>
+                <p style="font-weight:700;color:#000000;margin:0;">{{ ticketData.supervisorPhone }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Seats + Payment (1/3 width) -->
+          <div style="flex:1;min-width:0;">
+
+            <!-- Seat Box -->
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;margin-bottom:16px;">
+              <p style="font-size:0.65rem;color:#3b82f6;text-transform:uppercase;letter-spacing:2px;margin:0 0 4px;">Seat(s)</p>
+              <p style="font-size:1.8rem;font-weight:900;color:#1e40af;letter-spacing:2px;margin:0;word-break:break-all;">{{ ticketData.seatNumbers.join(', ') }}</p>
+            </div>
+
+            <!-- Payment Summary -->
+            <p style="font-size:0.65rem;color:#000000;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #e5e7eb;padding-bottom:6px;margin-bottom:10px;margin-top:0;">Price Breakdown</p>
+
+            <!-- Individual Seat Prices -->
+            <ng-container *ngIf="(ticketData.seatDetails || ticketData.SeatDetails) as seats">
+              <div *ngFor="let seat of seats" style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:3px;">
+                <span style="color:#374151;">Seat {{ seat.seatNumber || seat.SeatNumber }}</span>
+                <span style="font-weight:600;color:#000000;">৳{{ (seat.price ?? seat.Price ?? 0) | number:'1.0-2' }}</span>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="!(ticketData.seatDetails || ticketData.SeatDetails) || (ticketData.seatDetails?.length === 0 && ticketData.SeatDetails?.length === 0)">
+              <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:3px;">
+                <span style="color:#374151;">Seat Price
+                  <span *ngIf="ticketData.seatCount > 1" style="font-size:0.72rem;color:#6b7280;">
+                    (৳{{ ticketData.pricePerSeat | number:'1.0-2' }} × {{ ticketData.seatCount }})
+                  </span>
+                </span>
+                <span style="font-weight:600;color:#000000;">৳{{ ticketData.baseAmount | number:'1.0-2' }}</span>
+              </div>
+            </ng-container>
+
+            <!-- Coupon / Discount -->
+            <div *ngIf="ticketData.discountAmount > 0" style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:3px;">
+              <span style="color:#16a34a;">
+                Coupon/Discount
+                <span *ngIf="ticketData.isPercentageDiscount" style="font-size:0.68rem;color:#15803d;margin-left:3px;font-weight:700;">({{ ticketData.discountValue | number:'1.0-2' }}%)</span>
+              </span>
+              <span style="font-weight:600;color:#16a34a;">– ৳{{ ticketData.discountAmount | number:'1.0-2' }}</span>
+            </div>
+
+            <!-- Subtotal after discount -->
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:3px;border-top:1px dashed #e5e7eb;padding-top:5px;margin-top:5px;">
+              <span style="color:#374151;">Subtotal</span>
+              <span style="font-weight:600;color:#000000;">৳{{ (ticketData.baseAmount - ticketData.discountAmount) | number:'1.0-2' }}</span>
+            </div>
+
+            <!-- Processing Fee -->
+            <div *ngIf="ticketData.processingFeeAmount > 0" style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:3px;">
+              <span style="color:#374151;">Processing Fee</span>
+              <span style="font-weight:600;color:#000000;">+ ৳{{ ticketData.processingFeeAmount | number:'1.0-2' }}</span>
+            </div>
+
+            <!-- VAT -->
+            <div *ngIf="ticketData.vatAmount > 0" style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:3px;">
+              <span style="color:#374151;">VAT</span>
+              <span style="font-weight:600;color:#000000;">+ ৳{{ ticketData.vatAmount | number:'1.0-2' }}</span>
+            </div>
+
+            <!-- Grand Total -->
+            <div style="display:flex;justify-content:space-between;border-top:2px solid #1e3a6e;margin-top:8px;padding-top:8px;">
+              <span style="font-weight:800;color:#1e3a6e;font-size:0.9rem;">Total Paid</span>
+              <span style="font-size:1.1rem;font-weight:900;color:#2563eb;">৳{{ ticketData.finalAmount | number:'1.0-2' }}</span>
+            </div>
+
+            <!-- Payment method & TXN -->
+            <div *ngIf="ticketData.transactionId || ticketData.paymentMethod" style="margin-top:8px;padding-top:6px;border-top:1px solid #e5e7eb;">
+              <p *ngIf="ticketData.paymentMethod" style="font-size:0.7rem;color:#374151;margin:2px 0;">
+                <span style="font-weight:600;">Method:</span> {{ ticketData.paymentMethod }}
+              </p>
+              <p *ngIf="ticketData.transactionId" style="font-size:0.7rem;font-family:monospace;color:#374151;margin:2px 0;">
+                <span style="font-weight:600;">TXN:</span> {{ ticketData.transactionId }}
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Dashed Divider ──────────────────────────────── -->
+      <div style="border-top:2px dashed #e5e7eb;margin:0 28px;position:relative;">
+        <div style="width:28px;height:28px;background:#f3f4f6;border-radius:50%;border:1px solid #e5e7eb;position:absolute;left:-42px;top:-14px;"></div>
+        <div style="width:28px;height:28px;background:#f3f4f6;border-radius:50%;border:1px solid #e5e7eb;position:absolute;right:-42px;top:-14px;"></div>
+      </div>
+
+      <!-- ── Footer: T&C + QR ────────────────────────────── -->
+      <div style="background:#f9fafb;padding:18px 28px;display:flex;justify-content:space-between;align-items:center;gap:24px;">
+        <div style="flex:1;">
+          <p style="font-weight:700;color:#000000;font-size:0.78rem;margin:0 0 4px;"><strong>Terms &amp; Conditions:</strong></p>
+          <ul style="font-size:0.72rem;color:#000000;padding-left:16px;margin:0;line-height:1.7;">
+            <li>Please arrive at the counter 30 minutes before departure.</li>
+            <li>Tickets are non-transferable and non-refundable after departure.</li>
+            <li>Keep this ticket/QR code ready for boarding verification.</li>
+          </ul>
+        </div>
+        <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;flex-shrink:0;">
+          <qrcode [qrdata]="qrCodeData" [width]="90" [errorCorrectionLevel]="'M'" [elementType]="'img'"></qrcode>
+          <p style="font-size:0.6rem;color:#000000;text-transform:uppercase;letter-spacing:1px;margin:4px 0 0;">Scan to Verify</p>
+        </div>
+      </div>
+      </div>
+
+    </div>
+    <!-- ====== END TICKET CONTAINER ====== -->
+
+  </div>
+</div>

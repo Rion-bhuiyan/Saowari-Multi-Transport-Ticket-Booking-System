@@ -1,0 +1,111 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-heading font-bold text-saowari-text-primary">Seat Classes</h1>
+    <button class="btn btn-saowari btn-sm shadow-sm" (click)="openModal()" *ngIf="authService.isAdmin()">
+      <i class="fas fa-plus mr-2"></i> Add Seat Class
+    </button>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-5 border-b border-gray-100 flex gap-4 flex-wrap">
+      <div class="relative flex-1 min-w-[200px]">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+        <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Search seat classes..." class="input input-sm input-bordered w-full pl-9 focus:border-saowari-primary">
+      </div>
+    </div>
+    <div *ngIf="isLoading" class="p-12 text-center">
+      <span class="loading loading-spinner loading-md text-saowari-primary"></span>
+    </div>
+    <div *ngIf="!isLoading && filtered.length === 0" class="p-12 text-center text-gray-400">
+      <i class="fas fa-inbox text-3xl mb-3 block"></i> No seat classes found
+    </div>
+    <div *ngIf="!isLoading && filtered.length > 0" class="overflow-x-auto">
+      <table class="table table-sm w-full">
+        <thead class="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+          <tr>
+            <th class="px-5 py-3 font-semibold">#ID</th>
+            <th class="px-5 py-3 font-semibold">Class Name</th>
+            <th class="px-5 py-3 font-semibold text-right" *ngIf="authService.isAdmin()">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let item of filtered" class="hover:bg-gray-50/50 transition-colors">
+            <td class="px-5 py-3 text-xs font-mono text-gray-500">{{ item.seatClassId }}</td>
+            <td class="px-5 py-3 font-medium text-gray-800">
+              <span class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold"
+                [ngClass]="{
+                  'bg-indigo-50 text-indigo-700 border border-indigo-200': item.seatClassName.toLowerCase().includes('business'),
+                  'bg-emerald-50 text-emerald-700 border border-emerald-200': item.seatClassName.toLowerCase().includes('ac') || item.seatClassName.toLowerCase().includes('first'),
+                  'bg-purple-50 text-purple-700 border border-purple-200': item.seatClassName.toLowerCase().includes('sleeper'),
+                  'bg-slate-50 text-slate-700 border border-slate-200': !item.seatClassName.toLowerCase().includes('business') && !item.seatClassName.toLowerCase().includes('ac') && !item.seatClassName.toLowerCase().includes('sleeper')
+                }">
+                <i class="fas" 
+                   [ngClass]="{
+                     'fa-briefcase': item.seatClassName.toLowerCase().includes('business'),
+                     'fa-snowflake': item.seatClassName.toLowerCase().includes('ac'),
+                     'fa-bed': item.seatClassName.toLowerCase().includes('sleeper'),
+                     'fa-chair': !item.seatClassName.toLowerCase().includes('business') && !item.seatClassName.toLowerCase().includes('ac') && !item.seatClassName.toLowerCase().includes('sleeper')
+                   }"></i>
+                {{ item.seatClassName }}
+              </span>
+            </td>
+            <td class="px-5 py-3 text-right" *ngIf="authService.isAdmin()">
+              <div class="flex gap-2 justify-end">
+                <button class="btn btn-xs btn-outline btn-primary" (click)="openModal(item)" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-xs btn-outline btn-error" (click)="deleteItem(item.seatClassId)" title="Delete"><i class="fas fa-trash-alt"></i></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="!isLoading" class="px-5 py-3 border-t border-gray-100 text-xs text-gray-400">
+      Showing {{ filtered.length }} of {{ items.length }} records
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <dialog class="modal" [class.modal-open]="isModalOpen">
+    <div class="modal-box bg-white rounded-2xl p-0 shadow-2xl max-w-md w-full flex flex-col" style="max-height: 90vh;">
+      
+      <!-- Modal Header -->
+      <div class="bg-saowari-primary-light px-6 py-4 flex justify-between items-center border-b border-blue-100 flex-shrink-0">
+        <h3 class="font-bold text-xl text-saowari-primary">
+          <i class="fas fa-chair mr-2"></i>{{ editingItem ? 'Edit Seat Class' : 'Add New Seat Class' }}
+        </h3>
+        <button type="button" class="btn btn-sm btn-circle btn-ghost text-gray-500 hover:text-gray-800" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto flex-1">
+        <form (ngSubmit)="save()" #form="ngForm" id="seatClassForm">
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text font-semibold text-gray-700">Seat Class Name <span class="text-red-500">*</span></span>
+            </label>
+            <input type="text" 
+                   name="seatClassName" 
+                   [(ngModel)]="model.seatClassName" 
+                   required 
+                   placeholder="e.g. Business Class, Economy Class, AC Sleeper"
+                   class="input input-bordered w-full focus:border-saowari-primary" />
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/50 flex-shrink-0">
+        <button type="button" class="btn btn-ghost text-gray-600 hover:bg-gray-100" (click)="closeModal()">Cancel</button>
+        <button type="submit" form="seatClassForm" class="btn btn-saowari px-6 shadow-md" [disabled]="!form.valid">
+          <i class="fas fa-save mr-2"></i>Save
+        </button>
+      </div>
+
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button (click)="closeModal()">close</button>
+    </form>
+  </dialog>
+</div>

@@ -1,0 +1,94 @@
+<div class="space-y-6 animate-fade-in">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-heading font-bold text-saowari-text-primary">My Assigned Schedules</h1>
+  </div>
+
+  <div *ngIf="isLoading" class="p-12 text-center bg-white rounded-xl shadow-sm border border-gray-100">
+    <span class="loading loading-spinner loading-lg text-saowari-primary"></span>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-saowari-primary-light">
+        <h3 class="text-lg font-bold text-saowari-primary flex items-center gap-2">
+          <i class="fas fa-clipboard-list"></i> Schedule Overview
+        </h3>
+      </div>
+      
+      <div class="p-0">
+        <div *ngIf="schedules.length === 0" class="p-12 text-center text-gray-400">
+          <i class="fas fa-bed text-4xl mb-3 opacity-50 block text-saowari-primary"></i>
+          <p class="text-lg font-semibold text-gray-600">No schedules assigned to you right now.</p>
+          <p class="text-sm">Enjoy your time off!</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6" *ngIf="schedules.length > 0">
+          
+          <div *ngFor="let s of schedules" class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-saowari-primary transition-all group overflow-hidden flex flex-col">
+            <div class="px-5 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <span class="font-mono text-xs font-bold text-gray-500 uppercase">Sch #{{ s.scheduleId || s.scheduleID || s.id }}</span>
+              <span [class]="'badge badge-sm ' + getStatusBadge(s.scheduleStatusName || s.statusName)">
+                {{ s.scheduleStatusName || s.statusName }}
+              </span>
+            </div>
+            
+            <div class="p-5 flex-1 space-y-4">
+              <!-- Route & Time -->
+              <div class="flex flex-col gap-2 relative pl-6">
+                <!-- Timeline line -->
+                <div class="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gray-200"></div>
+                
+                <!-- Departure -->
+                <div class="relative">
+                  <div class="absolute -left-[27px] top-1 w-3 h-3 rounded-full border-2 border-saowari-primary bg-white"></div>
+                  <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Departure</p>
+                  <p class="text-sm font-bold text-gray-800">{{ (s.departureDateTime || s.departureTime) | date:'MMM d, y, h:mm a' }}</p>
+                </div>
+                
+                <!-- Arrival -->
+                <div class="relative mt-2">
+                  <div class="absolute -left-[27px] top-1 w-3 h-3 rounded-full bg-saowari-primary"></div>
+                  <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Estimated Arrival</p>
+                  <p class="text-sm font-bold text-gray-800">{{ (s.arrivalDateTime || s.arrivalTime) | date:'MMM d, y, h:mm a' }}</p>
+                </div>
+              </div>
+              
+              <div class="divider my-0"></div>
+              
+              <!-- Bus Details -->
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-bus"></i>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Vehicle</p>
+                  <p class="text-sm font-bold text-gray-800">{{ s.vehicleName || 'Vehicle ' + (s.vehicleID || s.vehicleId) }}</p>
+                </div>
+              </div>
+
+              <!-- Driver Details -->
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-id-badge"></i>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Driver Info</p>
+                  <p class="text-sm font-bold text-gray-800">Driver ID: {{ s.driverInformtionID || s.driverInformtionId }}</p>
+                </div>
+              </div>
+
+            </div>
+            
+            <div class="p-4 border-t border-gray-100 bg-gray-50 mt-auto">
+              <a [routerLink]="['/admin/schedules', (s.scheduleID || s.scheduleId || s.id), 'seat-map']" class="btn btn-saowari btn-sm w-full shadow-sm group-hover:bg-saowari-accent transition-colors">
+                <i class="fas fa-chair mr-2"></i> View Seat Map & Passengers
+              </a>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

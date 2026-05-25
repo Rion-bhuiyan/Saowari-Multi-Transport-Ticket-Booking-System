@@ -1,0 +1,6 @@
+@Saowari_HostAddress = http://localhost:5293
+
+GET {{Saowari_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

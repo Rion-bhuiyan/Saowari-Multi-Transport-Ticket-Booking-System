@@ -1,0 +1,221 @@
+<div class="bg-saowari-surface-alt min-h-screen pt-24 pb-12 font-sans text-slate-800">
+  <div class="container mx-auto px-4 max-w-6xl">
+    
+    <!-- Title Section -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Ride Group Chats</h1>
+        <p class="text-sm text-slate-500">Coordinate and chat in real-time with other passengers on your booked schedules.</p>
+      </div>
+      <a routerLink="/profile" class="text-sm font-semibold text-indigo-650 hover:underline flex items-center space-x-1">
+        <span>&larr; Back to Dashboard</span>
+      </a>
+    </div>
+
+    <!-- Main Workspace Container -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-xl overflow-hidden flex h-[600px]">
+      
+      <!-- Left side: Booked Schedules list -->
+      <div class="w-80 border-r border-slate-100 flex flex-col bg-slate-50/50">
+        <div class="p-4 border-b border-slate-100 bg-slate-50">
+          <h4 class="font-bold text-xs tracking-wider uppercase text-slate-400">Your Active Trips</h4>
+        </div>
+
+        <div class="flex-1 overflow-y-auto divide-y divide-slate-100/60">
+          <div *ngIf="schedules.length === 0" class="p-8 text-center text-slate-400 text-xs">
+            No active schedules found. Ensure you have valid paid tickets.
+          </div>
+
+          <div 
+            *ngFor="let item of schedules" 
+            (click)="selectSchedule(item)"
+            [ngClass]="{
+              'bg-indigo-50/40 border-l-4 border-indigo-600': selectedSchedule?.scheduleID === item.scheduleID,
+              'hover:bg-slate-100/50': selectedSchedule?.scheduleID !== item.scheduleID
+            }"
+            class="p-4 cursor-pointer transition-all border-l-4 border-transparent flex flex-col space-y-2">
+            
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-full uppercase">
+                {{ item.vehicleType }}
+              </span>
+              <span class="text-[10px] text-slate-400 font-mono font-medium">
+                {{ item.departureDateTime | date:'shortTime' }}
+              </span>
+            </div>
+
+            <h5 class="font-bold text-sm text-slate-800 truncate">{{ item.routeName }}</h5>
+            
+            <div class="flex items-center justify-between text-[11px] text-slate-500">
+              <span class="truncate max-w-[150px] font-medium">{{ item.vehicleName }}</span>
+              <span>{{ item.departureDateTime | date:'MMM d' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: Active Chat Box -->
+      <div class="flex-1 flex flex-col bg-white">
+        <ng-container *ngIf="selectedSchedule; else noSelectedView">
+          
+          <!-- Chat Header -->
+          <div class="p-4 border-b border-slate-100 bg-slate-50/20 flex items-center justify-between">
+            <div>
+              <h4 class="font-bold text-md text-slate-900">{{ selectedSchedule.routeName }}</h4>
+              <p class="text-xs text-slate-500">{{ selectedSchedule.vehicleName }} &bull; Departure: {{ selectedSchedule.departureDateTime | date:'short' }}</p>
+            </div>
+            <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full">Active Group</span>
+          </div>
+
+          <!-- Message Streams -->
+          <div #messageContainer class="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-50/30 scroll-smooth">
+            <div *ngIf="messages.length === 0" class="text-center py-16 text-slate-400 text-xs">
+              <p class="mb-2">🎉 Group chat established!</p>
+              <p>Welcome! Coordinate boarding points or say hello to fellow passengers.</p>
+            </div>
+
+            <div 
+              *ngFor="let msg of messages" 
+              class="flex" 
+              [ngClass]="{'justify-end': isCurrentUser(msg.senderId), 'justify-start': !isCurrentUser(msg.senderId)}">
+              
+              <div 
+                [ngClass]="{
+                  'bg-indigo-600 text-white rounded-br-none': isCurrentUser(msg.senderId),
+                  'bg-white text-slate-800 border border-slate-100 rounded-bl-none shadow-sm': !isCurrentUser(msg.senderId)
+                }"
+                class="max-w-[70%] p-3.5 rounded-2xl shadow-sm text-sm">
+                
+                <p class="text-[10px] opacity-60 font-semibold mb-1" [ngClass]="{'text-indigo-200': isCurrentUser(msg.senderId), 'text-slate-400': !isCurrentUser(msg.senderId)}">
+                  {{ msg.senderName }}
+                </p>
+
+                <!-- Text -->
+                <div *ngIf="msg.messageType === 'text'" class="break-words">
+                  {{ msg.content }}
+                </div>
+
+                <!-- Image -->
+                <div *ngIf="msg.messageType === 'image'" class="space-y-1">
+                  <img [src]="getFullUrl(msg.fileUrl)" alt="Attached Image" class="rounded-lg max-h-52 object-cover">
+                  <p class="text-[11px] italic opacity-85 break-words">{{ msg.content }}</p>
+                </div>
+
+                <!-- Video -->
+                <div *ngIf="msg.messageType === 'video'" class="space-y-1">
+                  <video [src]="getFullUrl(msg.fileUrl)" controls class="rounded-lg max-h-52 max-w-full"></video>
+                  <p class="text-[11px] italic opacity-85 break-words">{{ msg.content }}</p>
+                </div>
+
+                <!-- PDF/Docs -->
+                <div *ngIf="msg.messageType === 'pdf' || msg.messageType === 'word' || msg.messageType === 'document'" class="flex items-center space-x-2 py-1.5 bg-black/5 rounded px-2 hover:bg-black/10">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <a [href]="getFullUrl(msg.fileUrl)" target="_blank" class="text-xs text-indigo-650 underline font-semibold truncate max-w-[180px]">{{ msg.content }}</a>
+                </div>
+
+                <span class="block text-[8px] text-right mt-1 opacity-50">{{ msg.createdAt | date:'shortTime' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Canvas compression panel inside group chat -->
+          <div *ngIf="pendingImage" class="p-3.5 bg-slate-50 border-t border-slate-100 flex flex-col space-y-2">
+            <div class="flex items-center justify-between text-xs text-slate-600">
+              <span class="font-semibold">Resize Image Before Sending</span>
+              <span class="text-indigo-600 font-bold">New Size: {{ getKBSize(resizedSize) }}</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <input 
+                type="range" 
+                min="0.1" 
+                max="1.0" 
+                step="0.1" 
+                [(ngModel)]="resizeScale" 
+                (change)="onResizeScaleChange()" 
+                class="flex-1 accent-indigo-600 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+              <span class="text-xs text-slate-500 w-8 text-right">{{ Math.round(resizeScale * 100) }}%</span>
+            </div>
+            <div class="flex space-x-2 justify-end">
+              <button (click)="cancelImagePending()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-xl">Cancel</button>
+              <button (click)="uploadResizedImage()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-xl font-bold">Upload & Send</button>
+            </div>
+          </div>
+
+          <!-- Input Panel -->
+          <div class="p-4 border-t border-slate-100 flex items-center space-x-2">
+            
+            <!-- File loader -->
+            <button 
+              (click)="fileInput.click()" 
+              class="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-xl"
+              title="Attach File">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+            </button>
+            <input 
+              #fileInput 
+              type="file" 
+              (change)="onFileSelected($event)" 
+              class="hidden" 
+              accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+
+            <!-- Emoji launcher -->
+            <button 
+              (click)="toggleEmojiDrawer()" 
+              class="p-2.5 text-slate-400 hover:text-amber-500 hover:bg-slate-50 rounded-xl"
+              title="Add Emoji">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+
+            <input 
+              type="text" 
+              [(ngModel)]="newMessage" 
+              (keyup.enter)="sendMessage()" 
+              placeholder="Post a message to passenger group..." 
+              class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors">
+
+            <button 
+              (click)="sendMessage()" 
+              class="p-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Emoji picker drawer -->
+          <div *ngIf="showEmojiDrawer" class="p-3 bg-slate-50 border-t border-slate-100 grid grid-cols-12 gap-2 max-h-24 overflow-y-auto">
+            <span 
+              *ngFor="let emoji of popularEmojis" 
+              (click)="insertEmoji(emoji)" 
+              class="text-xl text-center cursor-pointer hover:scale-125 transition-transform duration-100 select-none">
+              {{ emoji }}
+            </span>
+          </div>
+
+        </ng-container>
+        
+        <ng-template #noSelectedView>
+          <div class="flex-1 flex flex-col items-center justify-center text-slate-400 space-y-4">
+            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+              </svg>
+            </div>
+            <div class="text-center space-y-1">
+              <h4 class="font-bold text-slate-800 text-md">No schedule group selected</h4>
+              <p class="text-xs text-slate-400">Select an active booked ride on the left list to start coordinating.</p>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+
+    </div>
+
+  </div>
+</div>

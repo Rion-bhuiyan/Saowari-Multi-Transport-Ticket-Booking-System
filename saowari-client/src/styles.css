@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #004f98;
+  --secondary: #3372ad;
+  --accent: #1E87E4;
+  --primary-dark: #003870;
+  --primary-light: #e8f0fb;
+  --surface: #ffffff;
+  --surface-alt: #f4f8ff;
+  --text-primary: #0d1b2a;
+  --text-secondary: #4a6080;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --gradient-hero: linear-gradient(135deg, #004f98 0%, #1E87E4 60%, #3372ad 100%);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--surface-alt);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* Sleek neutral gray */
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* Darker gray on hover */
+}
+
+/* Utilities */
+.text-primary-saowari { color: var(--primary); }
+.bg-gradient-hero { background: var(--gradient-hero); }
+
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 79, 152, 0.1), 0 8px 10px -6px rgba(0, 79, 152, 0.1);
+}
+
+.btn-saowari {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.btn-saowari:hover {
+  background-color: var(--primary-dark);
+  color: white;
+}
+
+.btn-saowari-outline {
+  background-color: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.btn-saowari-outline:hover {
+  background-color: var(--primary-light);
+}
+
+.badge-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge-success { background-color: #dcfce7; color: #166534; }
+.badge-warning { background-color: #fef3c7; color: #92400e; }
+.badge-danger { background-color: #fee2e2; color: #991b1b; }
+.badge-primary { background-color: var(--primary-light); color: var(--primary-dark); }
+
+/* Material Theme Overrides */
+.mdc-button.mat-mdc-unelevated-button.mat-primary, 
+.mdc-button.mat-mdc-raised-button.mat-primary, 
+.mdc-fab.mat-primary, 
+.mdc-mini-fab.mat-primary {
+  --mdc-protected-button-container-color: var(--primary);
+  --mdc-protected-button-label-text-color: #fff;
+}
+.mdc-button.mat-mdc-unelevated-button.mat-accent, 
+.mdc-button.mat-mdc-raised-button.mat-accent, 
+.mdc-fab.mat-accent, 
+.mdc-mini-fab.mat-accent {
+  --mdc-protected-button-container-color: var(--accent);
+  --mdc-protected-button-label-text-color: #fff;
+}
+
+/* Page Transitions */
+.route-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.route-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms ease-out;
+}

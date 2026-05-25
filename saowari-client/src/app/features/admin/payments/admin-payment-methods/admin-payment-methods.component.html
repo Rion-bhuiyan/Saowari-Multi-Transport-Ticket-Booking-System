@@ -1,0 +1,180 @@
+<div class="admin-pm-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">
+        <span class="title-icon">💳</span>
+        Payment Methods
+      </h1>
+      <p class="page-subtitle">Configure gateway fees and VAT for each payment method</p>
+    </div>
+    <button class="btn-add" (click)="openForm()">
+      <span>＋</span> Add Method
+    </button>
+  </div>
+
+  <!-- Methods Grid -->
+  <div class="methods-grid" *ngIf="!isLoading">
+    <div class="method-card" *ngFor="let m of methods" [class.inactive]="!m.isActive">
+      <div class="card-logo-area">
+        <img *ngIf="m.logoUrl" [src]="m.logoUrl" [alt]="m.paymentMethodName" class="method-logo" />
+        <div *ngIf="!m.logoUrl" class="no-logo">{{ m.paymentMethodName.charAt(0) }}</div>
+      </div>
+      <div class="card-info">
+        <div class="method-name">{{ m.paymentMethodName }}</div>
+        <div class="fee-badges">
+          <span class="badge fee-badge">Fee: {{ m.processingFeePercent }}%</span>
+          <span class="badge vat-badge">VAT: {{ m.vatPercent }}%</span>
+        </div>
+        <div class="effective-rate" *ngIf="m.processingFeePercent > 0">
+          Effective: ~{{ getEffectiveRate(m) | number:'1.2-2' }}%
+        </div>
+        <div class="status-badge" [class.active]="m.isActive" [class.inactive-label]="!m.isActive">
+          {{ m.isActive ? '✓ Active' : '✗ Inactive' }}
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-edit" (click)="openForm(m)" title="Edit">✎</button>
+        <button class="btn-delete" (click)="confirmDelete(m)" title="Delete">🗑</button>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="methods.length === 0">
+      <div class="empty-icon">💳</div>
+      <p>No payment methods found. Add one to get started.</p>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading payment methods…</p>
+  </div>
+
+  <!-- Modal Overlay -->
+  <div class="modal-overlay" *ngIf="showForm" (click)="closeForm()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ editingId ? 'Edit' : 'Add' }} Payment Method</h2>
+        <button class="modal-close" (click)="closeForm()">✕</button>
+      </div>
+
+      <form class="modal-form" (ngSubmit)="saveMethod()" #pmForm="ngForm">
+
+        <!-- Name -->
+        <div class="form-group">
+          <label>Method Name <span class="required">*</span></label>
+          <input type="text" [(ngModel)]="form.paymentMethodName" name="paymentMethodName"
+                 required placeholder="e.g. bKash" class="form-control" />
+        </div>
+
+        <!-- Logo upload -->
+        <div class="form-group">
+          <label>Logo</label>
+          <div class="logo-upload-area" (click)="logoInput.click()">
+            <img *ngIf="logoPreview" [src]="logoPreview" class="logo-preview" />
+            <div *ngIf="!logoPreview" class="upload-placeholder">
+              <span class="upload-icon">📁</span>
+              <span>Click to upload logo (PNG/JPG)</span>
+            </div>
+          </div>
+          <input #logoInput type="file" accept="image/*" hidden (change)="onLogoSelected($event)" />
+          <small class="hint">Stored in wwwroot/uploads/payment-methods/</small>
+        </div>
+
+        <!-- Fee row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Processing Fee %</label>
+            <div class="input-with-suffix">
+              <input type="number" [(ngModel)]="form.processingFeePercent" name="processingFeePercent"
+                     min="0" max="100" step="0.01" class="form-control" placeholder="0.00" />
+              <span class="suffix">%</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>VAT on Fee %</label>
+            <div class="input-with-suffix">
+              <input type="number" [(ngModel)]="form.vatPercent" name="vatPercent"
+                     min="0" max="100" step="0.01" class="form-control" placeholder="0.00" />
+              <span class="suffix">%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live preview -->
+        <div class="fee-preview" *ngIf="form.processingFeePercent > 0">
+          <div class="preview-title">Fee Preview (for ৳1,000 ticket):</div>
+          <div class="preview-row">
+            <span>Net Fare</span><span>৳1,000.00</span>
+          </div>
+          <div class="preview-row">
+            <span>Processing Fee ({{ form.processingFeePercent }}%)</span>
+            <span>৳{{ (1000 * form.processingFeePercent / 100) | number:'1.2-2' }}</span>
+          </div>
+          <div class="preview-row" *ngIf="form.vatPercent > 0">
+            <span>VAT on Fee ({{ form.vatPercent }}%)</span>
+            <span>৳{{ (1000 * form.processingFeePercent / 100 * form.vatPercent / 100) | number:'1.2-2' }}</span>
+          </div>
+          <div class="preview-row total">
+            <span>Grand Total</span>
+            <span>৳{{ getPreviewTotal() | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <!-- Active toggle -->
+        <div class="form-group toggle-group">
+          <label class="toggle-label">
+            <input type="checkbox" [(ngModel)]="form.isActive" name="isActive" class="toggle-input" />
+            <span class="toggle-track"></span>
+            <span class="toggle-text">{{ form.isActive ? 'Active' : 'Inactive' }}</span>
+          </label>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeForm()">Cancel</button>
+          <button type="submit" class="btn-save" [disabled]="isSaving || pmForm.invalid">
+            <span *ngIf="!isSaving">{{ editingId ? 'Save Changes' : 'Create Method' }}</span>
+            <span *ngIf="isSaving">Saving…</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete confirm -->
+  <div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="showDeleteConfirm = false">
+    <div class="confirm-card" (click)="$event.stopPropagation()">
+      <div class="confirm-icon">⚠️</div>
+      <h3>Delete "{{ deletingMethod?.paymentMethodName }}"?</h3>
+      <p class="text-sm text-gray-500 mb-3">
+        This will remove the payment method permanently.
+      </p>
+
+      <div class="bg-red-50 text-red-800 text-xs p-3 rounded-lg border border-red-100 mb-4 text-left">
+        <strong>⚠️ Crucial Check:</strong>
+        <ul class="list-disc pl-4 mt-1 space-y-1">
+          <li>System will block this if existing transactions (bookings/payments) use it.</li>
+          <li>For older systems, we highly recommend toggling to <strong>Inactive</strong> instead of deleting, preserving transaction history.</li>
+        </ul>
+      </div>
+
+      <!-- Verification Input Box -->
+      <div class="form-group mb-4 text-left">
+        <label class="text-xs font-semibold text-gray-600 block mb-1">
+          Type <strong>{{ deletingMethod?.paymentMethodName }}</strong> to verify:
+        </label>
+        <input type="text" [(ngModel)]="deleteConfirmName" class="form-control text-center font-bold"
+               placeholder="Type method name here" style="border-color: #fca5a5; font-size: 0.9rem;" />
+      </div>
+
+      <div class="confirm-actions">
+        <button class="btn-cancel" (click)="showDeleteConfirm = false">Cancel</button>
+        <button class="btn-danger" (click)="deleteMethod()" 
+                [disabled]="isSaving || deleteConfirmName !== deletingMethod?.paymentMethodName">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

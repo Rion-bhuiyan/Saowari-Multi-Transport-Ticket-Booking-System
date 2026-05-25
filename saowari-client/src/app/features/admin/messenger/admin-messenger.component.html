@@ -1,0 +1,443 @@
+<div [ngClass]="isDarkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-800'" class="h-[calc(100vh-80px)] flex font-sans overflow-hidden transition-colors duration-200">
+  
+  <!-- Left Side: Inquiries Lobby -->
+  <aside [ngClass]="isDarkMode ? 'bg-slate-900 border-slate-800/80' : 'bg-white border-slate-200'" class="w-80 flex flex-col border-r h-full relative z-10 shadow-lg">
+    <div [ngClass]="isDarkMode ? 'border-slate-800' : 'border-slate-200'" class="p-4 border-b flex items-center justify-between">
+      <h3 [ngClass]="isDarkMode ? 'text-white' : 'text-slate-800'" class="font-heading font-extrabold text-sm tracking-wider uppercase flex items-center gap-2">
+        <i class="fas fa-comment-dots text-indigo-500"></i>
+        Active Inquiries
+      </h3>
+      <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-600/15 text-indigo-500 font-bold uppercase">Lobby</span>
+    </div>
+
+    <!-- Lobby Search/Filter -->
+    <div [ngClass]="isDarkMode ? 'border-slate-800' : 'border-slate-200'" class="p-3 border-b">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="applyFilter()"
+        placeholder="Filter inquiries..." 
+        [ngClass]="isDarkMode ? 'bg-slate-800 border-slate-700/60 text-white focus:border-indigo-500' : 'bg-slate-100 border-slate-200 text-slate-900 focus:bg-white focus:border-indigo-600'"
+        class="w-full border rounded-xl px-3 py-1.5 text-sm focus:outline-none transition-colors">
+    </div>
+
+    <!-- Room items list -->
+    <div [ngClass]="isDarkMode ? 'divide-slate-800/40' : 'divide-slate-200/50'" class="flex-1 overflow-y-auto divide-y">
+      <div *ngIf="filteredRooms.length === 0" class="p-8 text-center text-slate-500 text-sm">
+        No active support sessions.
+      </div>
+      
+      <div 
+        *ngFor="let room of filteredRooms" 
+        (click)="selectRoom(room)"
+        [ngClass]="{
+          'bg-indigo-600/10 border-l-4 border-indigo-500': selectedRoom?.id === room.id,
+          'hover:bg-slate-800/30 text-white': selectedRoom?.id !== room.id && isDarkMode,
+          'hover:bg-slate-100 text-slate-800': selectedRoom?.id !== room.id && !isDarkMode
+        }"
+        class="p-4 cursor-pointer transition-all duration-150 flex flex-col space-y-2 border-l-4 border-transparent">
+        
+        <div class="flex items-center justify-between">
+          <span [ngClass]="isDarkMode ? 'text-white' : 'text-slate-800'" class="font-semibold text-sm truncate max-w-[150px]" [title]="room.userEmailOrIP">
+            {{ room.userEmailOrIP }}
+          </span>
+          <span [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="text-[10px] font-mono">
+            {{ room.lastMessageAt | date:'shortTime' }}
+          </span>
+        </div>
+
+        <p [ngClass]="isDarkMode ? 'text-slate-300' : 'text-slate-700'" class="text-xs truncate font-medium">
+          {{ room.lastMessageContent || 'No messages sent yet' }}
+        </p>
+
+        <div class="flex items-center justify-between pt-1">
+          <!-- Claim Indicators -->
+          <span 
+            *ngIf="room.assignedAdminId" 
+            [ngClass]="{
+              'bg-emerald-950/70 text-emerald-400 border border-emerald-500/20': room.assignedAdminId == currentAdminId,
+              'bg-amber-950/70 text-amber-400 border border-amber-500/20': room.assignedAdminId != currentAdminId
+            }"
+            class="px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">
+            {{ room.assignedAdminId == currentAdminId ? 'Your Chat' : 'Locked by ' + (room.assignedAdminName || 'Admin') }}
+          </span>
+          
+          <span *ngIf="!room.assignedAdminId" [ngClass]="isDarkMode ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-700 font-semibold border border-slate-200'" class="px-2 py-0.5 rounded text-[9px] uppercase">
+            Open Chat
+          </span>
+
+          <!-- Unread tag -->
+          <span *ngIf="room.unreadCount > 0" class="badge badge-error badge-sm text-white font-bold">{{ room.unreadCount }}</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right Side: Chat Panel Container -->
+  <section class="flex-1 flex flex-col h-full bg-transparent relative">
+    
+    <div *ngIf="!selectedRoom" class="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-4">
+      <div class="w-20 h-20 rounded-2xl bg-indigo-600/10 flex items-center justify-center text-indigo-500 text-3xl shadow-lg">
+        <i class="far fa-comments animate-bounce"></i>
+      </div>
+      <div>
+        <h3 [ngClass]="isDarkMode ? 'text-white' : 'text-slate-800'" class="font-heading font-extrabold text-lg">Support Agent Console</h3>
+        <p [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="text-xs max-w-sm mt-1">Select an active customer support session from the left lobby sidebar to claim or inspect messages.</p>
+      </div>
+    </div>
+
+    <!-- Active Chat Panel -->
+    <ng-container *ngIf="selectedRoom">
+      
+      <!-- Top Active Session Info Header -->
+      <div [ngClass]="isDarkMode ? 'bg-slate-900 border-slate-800/80 shadow-md' : 'bg-white border-slate-200 shadow-sm'" class="h-16 px-6 border-b flex items-center justify-between z-10">
+        
+        <div class="flex items-center space-x-3 cursor-pointer group" (click)="openUserInfo()">
+          <!-- Profile Picture -->
+          <div class="avatar" [ngClass]="{'placeholder': !selectedRoomUser?.picture}">
+            <div *ngIf="selectedRoomUser?.picture" class="w-10 h-10 rounded-full overflow-hidden border border-slate-200/80 shadow-sm group-hover:scale-105 transition-transform">
+              <img [src]="getProfilePictureUrl(selectedRoomUser.picture)" alt="Avatar" class="w-full h-full object-cover" />
+            </div>
+            <div *ngIf="!selectedRoomUser?.picture" class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center font-bold text-white text-md">
+              {{ selectedRoom.userEmailOrIP.substring(0, 2).toUpperCase() }}
+            </div>
+          </div>
+          <div>
+            <h4 [ngClass]="isDarkMode ? 'text-white' : 'text-slate-800'" class="font-bold text-sm group-hover:underline group-hover:text-indigo-500 transition-colors">
+              {{ selectedRoomUser?.fullName || selectedRoom.userEmailOrIP }}
+            </h4>
+            <p [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="text-xs flex items-center gap-1.5">
+              <span>Created: {{ selectedRoom.createdAt | date:'short' }}</span>
+              <span class="w-1 h-1 rounded-full bg-slate-400"></span>
+              <span class="text-indigo-500 font-semibold hover:underline">Click for Profile Details</span>
+            </p>
+          </div>
+        </div>
+        
+        <!-- Claims locking triggers -->
+        <div class="flex items-center space-x-3">
+          <button 
+            *ngIf="!selectedRoom.assignedAdminId" 
+            (click)="claimRoom()" 
+            class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-750 text-white rounded-xl text-xs font-bold transition-all shadow-md">
+            Claim Conversation
+          </button>
+
+          <button 
+            *ngIf="selectedRoom.assignedAdminId == currentAdminId" 
+            (click)="releaseRoom()" 
+            class="px-4 py-1.5 bg-rose-600/10 hover:bg-rose-600/20 text-rose-500 border border-rose-500/20 rounded-xl text-xs font-bold transition-all">
+            Unassign Room
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages Stream -->
+      <div #messageContainer class="flex-1 p-6 overflow-y-auto space-y-4 scroll-smooth">
+        <div *ngFor="let msg of messages" class="flex items-end" [ngClass]="{'justify-end': isCurrentUser(msg.senderId), 'justify-start': !isCurrentUser(msg.senderId)}">
+          
+          <!-- Avatar next to customer's messages -->
+          <div 
+            *ngIf="!isCurrentUser(msg.senderId)" 
+            (click)="openUserInfo()"
+            class="avatar mr-3 flex-shrink-0 self-end cursor-pointer group"
+            title="Click to view user details">
+            <div class="w-8 h-8 rounded-full overflow-hidden border border-slate-200/80 shadow-sm group-hover:scale-105 transition-transform">
+              <img *ngIf="selectedRoomUser?.picture" [src]="getProfilePictureUrl(selectedRoomUser.picture)" class="w-full h-full object-cover" />
+              <div *ngIf="!selectedRoomUser?.picture" class="w-full h-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+                {{ selectedRoom.userEmailOrIP.substring(0, 1).toUpperCase() }}
+              </div>
+            </div>
+          </div>
+
+          <div 
+            [ngClass]="{
+              'bg-indigo-600 text-white rounded-br-none': isCurrentUser(msg.senderId),
+              'bg-slate-800 text-slate-100 rounded-bl-none': !isCurrentUser(msg.senderId) && isDarkMode,
+              'bg-white text-slate-900 border border-slate-200/90 rounded-bl-none shadow-md': !isCurrentUser(msg.senderId) && !isDarkMode
+            }"
+            class="max-w-[70%] p-3.5 rounded-2xl shadow-md text-sm relative">
+            
+            <p 
+              [ngClass]="isCurrentUser(msg.senderId) ? 'text-indigo-200' : (isDarkMode ? 'text-indigo-400' : 'text-indigo-600')"
+              class="text-[10px] font-extrabold mb-1 tracking-wide flex items-center justify-between gap-4">
+              <span>{{ msg.senderName }}</span>
+              <button 
+                (click)="deleteMessage(msg.id)" 
+                [ngClass]="isCurrentUser(msg.senderId) ? 'text-white/40 hover:text-red-300' : 'text-slate-400 hover:text-red-500'" 
+                class="transition-colors focus:outline-none" 
+                title="Delete Message">
+                <i class="far fa-trash-alt text-[10px]"></i>
+              </button>
+            </p>
+
+            <!-- Text -->
+            <div *ngIf="msg.messageType === 'text'" class="break-words font-medium">
+              {{ msg.content }}
+            </div>
+
+            <!-- Image -->
+            <div *ngIf="msg.messageType === 'image'" class="space-y-1">
+              <img 
+                [src]="getFullUrl(msg.fileUrl)" 
+                alt="Image" 
+                (click)="expandPicture(msg.fileUrl)"
+                class="rounded-lg max-h-60 object-cover cursor-zoom-in hover:opacity-95 transition-opacity">
+              <p class="text-[11px] italic opacity-85 break-words">{{ msg.content }}</p>
+            </div>
+
+            <!-- Video -->
+            <div *ngIf="msg.messageType === 'video'" class="space-y-1">
+              <video [src]="getFullUrl(msg.fileUrl)" controls class="rounded-lg max-h-60 max-w-full"></video>
+              <p class="text-[11px] italic opacity-85 break-words">{{ msg.content }}</p>
+            </div>
+
+            <!-- Voice note -->
+            <div *ngIf="msg.messageType === 'voice'" class="py-1">
+              <audio [src]="getFullUrl(msg.fileUrl)" controls class="w-60 h-8 rounded bg-slate-900"></audio>
+            </div>
+
+            <!-- PDF/Docs -->
+            <div *ngIf="msg.messageType === 'pdf' || msg.messageType === 'word' || msg.messageType === 'document'" class="flex items-center space-x-2 py-1.5 bg-black/10 rounded px-2 hover:bg-black/20">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <a 
+                [href]="getFullUrl(msg.fileUrl)" 
+                target="_blank" 
+                [ngClass]="isCurrentUser(msg.senderId) ? 'text-indigo-200 hover:text-white' : (isDarkMode ? 'text-indigo-300 hover:text-indigo-200' : 'text-indigo-800 hover:text-indigo-950')"
+                class="text-xs underline font-bold truncate max-w-[200px]">
+                {{ msg.content }}
+              </a>
+            </div>
+
+            <span 
+              [ngClass]="isCurrentUser(msg.senderId) ? 'text-white/60' : (isDarkMode ? 'text-slate-400' : 'text-slate-500')"
+              class="block text-[8px] text-right mt-1 font-mono font-semibold">
+              {{ msg.createdAt | date:'shortTime' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Admin Warning / Block Layer -->
+      <div *ngIf="selectedRoom.assignedAdminId && selectedRoom.assignedAdminId != currentAdminId" class="p-3 bg-amber-950/60 border-t border-amber-500/20 text-center text-xs text-amber-400 font-semibold flex items-center justify-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>Viewing only mode. Conversation claimed by another active admin.</span>
+      </div>
+
+      <!-- Canvas Resizing slider inside Admin Console -->
+      <div *ngIf="pendingImage" [ngClass]="isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'" class="p-3.5 border-t flex flex-col space-y-2">
+        <div class="flex items-center justify-between text-xs">
+          <span [ngClass]="isDarkMode ? 'text-slate-300' : 'text-slate-700'" class="font-semibold">Resize Image Before Sending</span>
+          <span class="text-indigo-600 font-bold">New Size: {{ getKBSize(resizedSize) }}</span>
+        </div>
+        <div class="flex items-center space-x-3">
+          <input 
+            type="range" 
+            min="0.1" 
+            max="1.0" 
+            step="0.1" 
+            [(ngModel)]="resizeScale" 
+            (input)="onResizeScaleChange()" 
+            class="flex-1 accent-indigo-500 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+          <span [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-600'" class="text-xs w-8 text-right">{{ Math.round(resizeScale * 100) }}%</span>
+        </div>
+        <div class="flex space-x-2 justify-end">
+          <button (click)="cancelImagePending()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded text-white">Cancel</button>
+          <button (click)="uploadResizedImage()" class="text-xs bg-indigo-600 hover:bg-indigo-700 px-2.5 py-1 rounded font-bold text-white">Upload & Send</button>
+        </div>
+      </div>
+
+      <!-- Input box panel -->
+      <div 
+        *ngIf="!selectedRoom.assignedAdminId || selectedRoom.assignedAdminId == currentAdminId" 
+        [ngClass]="isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'"
+        class="p-4 border-t relative flex flex-col">
+        
+        <!-- Emoji Drawer Popover -->
+        <div 
+          *ngIf="showEmojiDrawer" 
+          [ngClass]="isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-800'"
+          class="absolute bottom-16 left-4 p-3 border rounded-2xl shadow-xl w-64 z-50 grid grid-cols-6 gap-2">
+          <button 
+            *ngFor="let emoji of popularEmojis" 
+            (click)="insertEmoji(emoji)" 
+            class="text-xl hover:scale-125 transition-transform p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg">
+            {{ emoji }}
+          </button>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <!-- Emoji Button -->
+          <button (click)="toggleEmojiDrawer()" [ngClass]="isDarkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'" class="transition-colors p-1 focus:outline-none">
+            <i class="far fa-smile text-xl"></i>
+          </button>
+
+          <!-- File Upload Button -->
+          <button (click)="fileInput.click()" [ngClass]="isDarkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'" class="transition-colors p-1 focus:outline-none">
+            <i class="fas fa-paperclip text-lg"></i>
+          </button>
+          <input 
+            type="file" 
+            #fileInput 
+            (change)="onFileSelected($event)" 
+            class="hidden" 
+            accept="image/*,video/*,.pdf,.doc,.docx">
+
+          <!-- Text Input -->
+          <input 
+            type="text" 
+            [(ngModel)]="newMessage" 
+            (keydown.enter)="sendMessage()"
+            [placeholder]="selectedRoom.assignedAdminId ? 'Type a support reply...' : 'You must claim the conversation first'"
+            [disabled]="!selectedRoom.assignedAdminId"
+            [ngClass]="isDarkMode ? 'bg-slate-800 border-slate-700/60 text-white' : 'bg-slate-100 border-slate-200 text-slate-900'"
+            class="flex-1 rounded-xl px-4 py-2 text-sm border focus:outline-none focus:border-indigo-500 transition-colors">
+
+          <!-- Send Button -->
+          <button 
+            (click)="sendMessage()" 
+            [disabled]="!newMessage.trim() || !selectedRoom.assignedAdminId"
+            class="bg-indigo-600 hover:bg-indigo-750 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white rounded-xl px-4 py-2 text-sm font-bold flex items-center justify-center transition-all shadow-md">
+            <i class="far fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </section>
+
+  <!-- User Info Modal Drawer Popup -->
+  <div 
+    *ngIf="showUserInfoModal" 
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4 animate-fade-in"
+    (click)="closeUserInfo()">
+    
+    <div 
+      [ngClass]="isDarkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-800'"
+      class="w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden animate-scale-up" 
+      (click)="$event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div [ngClass]="isDarkMode ? 'bg-slate-950/85 border-slate-805' : 'bg-slate-50 border-slate-100'" class="p-4 border-b flex items-center justify-between">
+        <h3 class="font-heading font-extrabold text-sm tracking-wider uppercase flex items-center gap-2">
+          <i class="fas fa-id-card text-indigo-500"></i>
+          User Details Profile
+        </h3>
+        <button (click)="closeUserInfo()" class="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Loading State) -->
+      <div *ngIf="loadingUserInfo" class="p-12 flex flex-col items-center justify-center space-y-3">
+        <span class="loading loading-spinner loading-lg text-indigo-600"></span>
+        <span [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-600'" class="text-xs font-medium">Fetching details from server...</span>
+      </div>
+
+      <!-- Modal Body (Data State) -->
+      <div *ngIf="!loadingUserInfo && activeUserInfo" class="p-6 space-y-6">
+        <!-- Profile Picture & Primary Details -->
+        <div class="flex flex-col items-center text-center space-y-3">
+          <div class="avatar cursor-pointer" [ngClass]="{'placeholder': !activeUserInfo.picture}" (click)="expandPicture(activeUserInfo.picture)">
+            <div *ngIf="activeUserInfo.picture" class="w-24 h-24 rounded-full overflow-hidden border-2 border-indigo-500 shadow-lg hover:scale-105 transition-transform">
+              <img [src]="getProfilePictureUrl(activeUserInfo.picture)" alt="Avatar" class="w-full h-full object-cover" />
+            </div>
+            <div *ngIf="!activeUserInfo.picture" class="w-24 h-24 rounded-full bg-indigo-600 text-white flex items-center justify-center text-3xl font-bold shadow-lg">
+              {{ activeUserInfo.fullName.charAt(0).toUpperCase() }}
+            </div>
+          </div>
+          <div>
+            <h4 class="font-heading font-bold text-lg tracking-wide">{{ activeUserInfo.fullName }}</h4>
+            <span 
+              [ngClass]="activeUserInfo.isGuest ? 'bg-slate-200 text-slate-700' : 'bg-indigo-50 text-indigo-600'" 
+              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
+              {{ activeUserInfo.roleName }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Info Fields Grid -->
+        <div [ngClass]="isDarkMode ? 'bg-slate-950/60 divide-slate-800' : 'bg-slate-50 divide-slate-200'" class="rounded-xl border border-transparent overflow-hidden divide-y">
+          
+          <!-- Email -->
+          <div class="p-3.5 flex items-center justify-between text-sm">
+            <div [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-600'" class="flex items-center gap-2.5 text-slate-400 flex-shrink-0">
+              <i class="fas fa-envelope w-4 text-center text-indigo-500"></i>
+              <span>Email</span>
+            </div>
+            <span class="font-semibold text-right select-all truncate pl-4 max-w-[240px]">{{ activeUserInfo.email }}</span>
+          </div>
+
+          <!-- Phone -->
+          <div class="p-3.5 flex items-center justify-between text-sm">
+            <div [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-600'" class="flex items-center gap-2.5 text-slate-400 flex-shrink-0">
+              <i class="fas fa-phone w-4 text-center text-indigo-500"></i>
+              <span>Phone</span>
+            </div>
+            <span class="font-semibold text-right">{{ activeUserInfo.phone }}</span>
+          </div>
+
+          <!-- Company -->
+          <div *ngIf="activeUserInfo.companyName && activeUserInfo.companyName !== 'N/A'" class="p-3.5 flex items-center justify-between text-sm">
+            <div [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-600'" class="flex items-center gap-2.5 text-slate-400 flex-shrink-0">
+              <i class="fas fa-building w-4 text-center text-indigo-500"></i>
+              <span>Company</span>
+            </div>
+            <span class="font-semibold text-right">{{ activeUserInfo.companyName }}</span>
+          </div>
+
+          <!-- Account Status -->
+          <div class="p-3.5 flex items-center justify-between text-sm">
+            <div [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-600'" class="flex items-center gap-2.5 text-slate-400 flex-shrink-0">
+              <i class="fas fa-toggle-on w-4 text-center text-indigo-500"></i>
+              <span>Status</span>
+            </div>
+            <span 
+              [ngClass]="activeUserInfo.isActive ? 'text-emerald-500 font-bold' : 'text-rose-500 font-bold'" 
+              class="text-xs uppercase flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full" [ngClass]="activeUserInfo.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'"></span>
+              {{ activeUserInfo.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+
+          <!-- Registered Date -->
+          <div class="p-3.5 flex items-center justify-between text-sm">
+            <div [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-600'" class="flex items-center gap-2.5 text-slate-400 flex-shrink-0">
+              <i class="fas fa-calendar-alt w-4 text-center text-indigo-500"></i>
+              <span>Created At</span>
+            </div>
+            <span class="font-semibold text-right">{{ activeUserInfo.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-2 pt-2">
+          <button (click)="closeUserInfo()" class="px-5 py-2 rounded-xl text-xs font-bold transition-all" [ngClass]="isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'">
+            Close Details
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expanded Picture Backdrop Modal -->
+  <div 
+    *ngIf="expandedPictureUrl" 
+    (click)="closeExpandedPicture()"
+    class="fixed inset-0 bg-black/95 backdrop-blur-md z-[99999] flex items-center justify-center p-4 cursor-zoom-out animate-fade-in">
+    <div class="relative max-w-3xl max-h-[85vh] overflow-hidden rounded-2xl border border-white/10 shadow-2xl animate-scale-up" (click)="$event.stopPropagation()">
+      <!-- Close Button -->
+      <button 
+        (click)="closeExpandedPicture()" 
+        class="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white rounded-full p-2.5 transition-colors focus:outline-none z-10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <img [src]="expandedPictureUrl" alt="Profile Picture Expanded" class="max-w-full max-h-[80vh] object-contain rounded-xl select-none" />
+    </div>
+  </div>
+</div>

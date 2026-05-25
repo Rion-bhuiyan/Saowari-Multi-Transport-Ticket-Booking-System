@@ -1,0 +1,209 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-heading font-bold text-saowari-text-primary">Routes</h1>
+    <button class="btn btn-saowari btn-sm shadow-sm" (click)="openModal()">
+      <i class="fas fa-plus mr-2"></i> Add Route
+    </button>
+  </div>
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-5 border-b border-gray-100 flex gap-4 flex-wrap">
+      <div class="relative flex-1 min-w-[200px]">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+        <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Search..." class="input input-sm input-bordered w-full pl-9 focus:border-saowari-primary">
+      </div>
+    </div>
+    <div *ngIf="isLoading" class="p-12 text-center">
+      <span class="loading loading-spinner loading-md text-saowari-primary"></span>
+    </div>
+    <div *ngIf="!isLoading && filtered.length === 0" class="p-12 text-center text-gray-400">
+      <i class="fas fa-inbox text-3xl mb-3 block"></i> No records found
+    </div>
+    <div *ngIf="!isLoading && filtered.length > 0" class="overflow-x-auto">
+      <table class="table table-sm w-full">
+        <thead class="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+          <tr>
+            <th class="px-5 py-3 font-semibold">#ID</th>
+            <th class="px-5 py-3 font-semibold w-16">Image</th>
+            <th class="px-5 py-3 font-semibold">Route Name</th>
+            <th class="px-5 py-3 font-semibold">From / To</th>
+            <th class="px-5 py-3 font-semibold">Distance / Duration</th>
+            <th class="px-5 py-3 font-semibold">Status</th>
+            <th class="px-5 py-3 font-semibold text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let item of filtered" class="hover:bg-gray-50/50 transition-colors">
+            <td class="px-5 py-3 text-xs font-mono text-gray-500">{{ item.routeID || item.routeId || item.id }}</td>
+            <td class="px-5 py-3">
+              <div class="avatar">
+                <div class="w-12 h-12 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden">
+                  <img *ngIf="item.imageUrl" [src]="item.imageUrl" alt="Route" class="object-cover w-full h-full" />
+                  <i *ngIf="!item.imageUrl" class="fas fa-route text-gray-300 text-xl"></i>
+                </div>
+              </div>
+            </td>
+            <td class="px-5 py-3 font-medium text-gray-800">{{ getRouteName(item) }}</td>
+            <td class="px-5 py-3">
+              <span class="block text-sm text-green-600">{{ getLocationName(item.fromLocationID || item.fromLocationId) }}</span>
+              <span class="text-sm text-red-600">{{ getLocationName(item.toLocationID || item.toLocationId) }}</span>
+            </td>
+            <td class="px-5 py-3">
+              <span class="block text-sm">{{ item.distanceKM || item.distance }} km</span>
+              <span class="text-xs text-gray-500">{{ item.estimatedHours || item.estimatedDuration }} hrs</span>
+            </td>
+            <td class="px-5 py-3">
+              <span [class]="'badge badge-sm ' + (item.isActive !== false ? 'badge-success' : 'badge-error')">
+                {{ item.isActive !== false ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="px-5 py-3 text-right">
+              <div class="flex gap-2 justify-end">
+                <button class="btn btn-xs btn-outline btn-primary" (click)="openModal(item)"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-xs btn-outline btn-error" (click)="deleteItem(item.routeID || item.routeId || item.id)"><i class="fas fa-trash-alt"></i></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="!isLoading" class="px-5 py-3 border-t border-gray-100 text-xs text-gray-400">
+      Showing {{ filtered.length }} of {{ items.length }} records
+    </div>
+  </div>
+
+  <dialog class="modal" [class.modal-open]="isModalOpen">
+    <div class="modal-box bg-white rounded-2xl p-0 overflow-hidden shadow-2xl max-w-2xl">
+      <div class="bg-saowari-primary-light px-6 py-4 flex justify-between items-center border-b border-blue-100">
+        <h3 class="font-bold text-xl text-saowari-primary">
+          {{ editingItem ? 'Edit Route' : 'Add New Route' }}
+        </h3>
+        <button type="button" class="btn btn-sm btn-circle btn-ghost" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
+        <form (ngSubmit)="save()" #form="ngForm">
+          <div class="form-control w-full mb-5">
+            <label class="label">
+              <span class="label-text font-semibold text-gray-700">Route Cover Image</span>
+            </label>
+            <div class="mt-1 flex justify-center px-6 pt-6 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-saowari-primary transition-colors bg-gray-50 relative group cursor-pointer"
+                 (click)="fileInput.click()">
+                 
+              <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" class="hidden" />
+              
+              <div class="space-y-1 text-center" *ngIf="!imagePreview">
+                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 group-hover:text-saowari-primary transition-colors mb-2"></i>
+                <div class="flex text-sm text-gray-600 justify-center">
+                  <span class="font-medium text-saowari-primary">Click to upload</span>
+                  <p class="pl-1">or drag and drop</p>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">PNG, JPG up to 2MB</p>
+              </div>
+
+              <div *ngIf="imagePreview" class="flex flex-col items-center w-full">
+                <div class="relative w-full h-32 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
+                  <img [src]="imagePreview" alt="Preview" class="object-cover w-full h-full" />
+                  <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i class="fas fa-pen text-white"></i>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-3 font-medium group-hover:text-saowari-primary transition-colors">Click to change image</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-control w-full md:col-span-2">
+              <label class="label">
+                <span class="label-text font-semibold text-gray-700">Route Name</span>
+              </label>
+              <input type="text" [value]="getFormRouteName()" readonly class="input input-bordered w-full bg-gray-50 text-gray-500 focus:outline-none" placeholder="Auto-generated from locations..." />
+            </div>
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-semibold text-gray-700">From Location <span class="text-red-500">*</span></span>
+              </label>
+              <details class="dropdown w-full" #fromDropdown>
+                <summary class="input input-bordered w-full flex items-center justify-between cursor-pointer focus:border-saowari-primary list-none appearance-none [&::-webkit-details-marker]:hidden">
+                  <span [class.text-gray-400]="!model.fromLocationId">
+                    {{ model.fromLocationId ? getLocationName(model.fromLocationId) : 'Select Origin' }}
+                  </span>
+                  <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+                </summary>
+                <div class="dropdown-content z-[10] menu p-2 shadow-xl bg-base-100 rounded-box w-full mt-1 border border-gray-100 max-h-60 overflow-y-auto block">
+                  <div class="px-2 py-1 mb-2 sticky top-0 bg-base-100 z-10 border-b border-gray-100">
+                    <div class="relative">
+                      <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                      <input type="text" [(ngModel)]="fromSearchQuery" [ngModelOptions]="{standalone: true}" placeholder="Search origin..." class="input input-sm input-bordered w-full pl-8">
+                    </div>
+                  </div>
+                  <li *ngFor="let loc of filteredFromLocations">
+                    <a (click)="selectFromLocation(loc); fromDropdown.removeAttribute('open')" [class.active]="(loc.locationID || loc.locationId || loc.id) === model.fromLocationId">{{ loc.locationName }}</a>
+                  </li>
+                  <li *ngIf="filteredFromLocations.length === 0">
+                    <span class="text-gray-400 text-sm italic">No locations found</span>
+                  </li>
+                </div>
+              </details>
+            </div>
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-semibold text-gray-700">To Location <span class="text-red-500">*</span></span>
+              </label>
+              <details class="dropdown w-full" #toDropdown>
+                <summary class="input input-bordered w-full flex items-center justify-between cursor-pointer focus:border-saowari-primary list-none appearance-none [&::-webkit-details-marker]:hidden">
+                  <span [class.text-gray-400]="!model.toLocationId">
+                    {{ model.toLocationId ? getLocationName(model.toLocationId) : 'Select Destination' }}
+                  </span>
+                  <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+                </summary>
+                <div class="dropdown-content z-[10] menu p-2 shadow-xl bg-base-100 rounded-box w-full mt-1 border border-gray-100 max-h-60 overflow-y-auto block">
+                  <div class="px-2 py-1 mb-2 sticky top-0 bg-base-100 z-10 border-b border-gray-100">
+                    <div class="relative">
+                      <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                      <input type="text" [(ngModel)]="toSearchQuery" [ngModelOptions]="{standalone: true}" placeholder="Search destination..." class="input input-sm input-bordered w-full pl-8">
+                    </div>
+                  </div>
+                  <li *ngFor="let loc of filteredToLocations">
+                    <a (click)="selectToLocation(loc); toDropdown.removeAttribute('open')" [class.active]="(loc.locationID || loc.locationId || loc.id) === model.toLocationId">{{ loc.locationName }}</a>
+                  </li>
+                  <li *ngIf="filteredToLocations.length === 0">
+                    <span class="text-gray-400 text-sm italic">No locations found</span>
+                  </li>
+                </div>
+              </details>
+            </div>
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-semibold text-gray-700">Distance (km)</span>
+              </label>
+              <input type="number" name="distance" [(ngModel)]="model.distance" min="0" step="0.1" class="input input-bordered w-full focus:border-saowari-primary" />
+            </div>
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-semibold text-gray-700">Est. Duration (HH:MM:SS)</span>
+              </label>
+              <input type="text" name="estimatedDuration" [(ngModel)]="model.estimatedDuration" placeholder="00:00:00" class="input input-bordered w-full focus:border-saowari-primary" />
+            </div>
+            <div class="form-control w-full">
+              <label class="cursor-pointer label justify-start gap-4">
+                <input type="checkbox" name="isActive" [(ngModel)]="model.isActive" class="toggle toggle-primary" />
+                <span class="label-text font-semibold text-gray-700">Is Active</span>
+              </label>
+            </div>
+          </div>
+          <div class="modal-action mt-8 flex gap-3">
+            <button type="button" class="btn btn-ghost" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-saowari px-8" [disabled]="!form.valid">
+              {{ editingItem ? 'Update Route' : 'Create Route' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button (click)="closeModal()">close</button>
+    </form>
+  </dialog>
+</div>

@@ -1,0 +1,166 @@
+<div class="p-6">
+  <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Locations Management</h1>
+      <p class="text-sm text-gray-500 mt-1">Manage origin and destination cities</p>
+    </div>
+    <button (click)="openModal()" class="btn btn-primary mt-4 md:mt-0 shadow-sm flex items-center gap-2">
+      <i class="fas fa-plus"></i> Add Location
+    </button>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-4 border-b border-gray-100 flex items-center gap-3 bg-gray-50/50">
+      <div class="relative flex-1 max-w-md">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilter()" 
+               placeholder="Search locations..." 
+               class="input input-sm w-full pl-9 bg-white border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary">
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="table table-zebra w-full">
+        <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+          <tr>
+            <th class="py-4">ID</th>
+            <th>Name</th>
+            <th>District</th>
+            <th>Code</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="isLoading">
+            <td colspan="8" class="text-center py-8">
+              <span class="loading loading-spinner loading-md text-primary"></span>
+            </td>
+          </tr>
+          <tr *ngIf="!isLoading && filtered.length === 0">
+            <td colspan="8" class="text-center py-8 text-gray-500">
+              No locations found.
+            </td>
+          </tr>
+          <tr *ngFor="let item of filtered">
+            <td class="font-medium text-gray-900">#{{ item.locationId }}</td>
+            <td class="font-semibold">{{ item.locationName }}</td>
+            <td class="text-gray-600">{{ item.district || '—' }}</td>
+            <td class="text-gray-600 font-mono text-xs">{{ item.locationCode || '—' }}</td>
+            <td class="text-gray-600 text-xs">{{ item.latitude || '—' }}</td>
+            <td class="text-gray-600 text-xs">{{ item.longitude || '—' }}</td>
+            <td>
+              <div class="badge" [ngClass]="item.isActive ? 'badge-success badge-outline' : 'badge-ghost'">
+                {{ item.isActive ? 'Active' : 'Inactive' }}
+              </div>
+            </td>
+            <td class="text-right">
+              <div class="flex justify-end gap-2">
+                <button (click)="openModal(item)" class="btn btn-sm btn-ghost btn-square text-blue-600 hover:bg-blue-50" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button (click)="deleteItem(item.locationId)" class="btn btn-sm btn-ghost btn-square text-red-600 hover:bg-red-50" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Form -->
+<div class="modal" [class.modal-open]="isModalOpen">
+  <div class="modal-box max-w-lg bg-white rounded-xl shadow-2xl p-0 overflow-hidden flex flex-col" style="max-height: 90vh;">
+    <!-- Header -->
+    <div class="bg-gray-50 border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+      <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+        <i class="fas fa-map-marker-alt text-primary"></i>
+        {{ editingItem ? 'Edit Location' : 'Add New Location' }}
+      </h3>
+      <button (click)="closeModal()" class="btn btn-sm btn-circle btn-ghost text-gray-500 hover:bg-gray-200">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6 overflow-y-auto flex-1">
+      <form (ngSubmit)="save()" #form="ngForm" class="space-y-4">
+        
+        <!-- Location Name -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text font-semibold text-gray-700">Location Name <span class="text-red-500">*</span></span>
+          </label>
+          <input type="text" name="locationName" [(ngModel)]="model.locationName" required
+                 class="input input-bordered w-full focus:border-primary" 
+                 placeholder="e.g. Dhaka">
+        </div>
+
+        <!-- District -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text font-semibold text-gray-700">District</span>
+          </label>
+          <input type="text" name="district" [(ngModel)]="model.district"
+                 class="input input-bordered w-full focus:border-primary" 
+                 placeholder="e.g. Dhaka District">
+        </div>
+
+        <!-- Location Code -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text font-semibold text-gray-700">Location Code</span>
+          </label>
+          <input type="number" name="locationCode" [(ngModel)]="model.locationCode"
+                 class="input input-bordered w-full focus:border-primary font-mono" 
+                 placeholder="e.g. 1001">
+        </div>
+
+        <!-- Latitude & Longitude -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text font-semibold text-gray-700">Latitude</span>
+              <span class="label-text-alt text-gray-400">-90 to 90</span>
+            </label>
+            <input type="number" step="0.0000001" min="-90" max="90" name="latitude" [(ngModel)]="model.latitude"
+                   class="input input-bordered w-full focus:border-primary" 
+                   placeholder="e.g. 23.8103">
+          </div>
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text font-semibold text-gray-700">Longitude</span>
+              <span class="label-text-alt text-gray-400">-180 to 180</span>
+            </label>
+            <input type="text" name="longitude" [(ngModel)]="model.longitude"
+                   class="input input-bordered w-full focus:border-primary" 
+                   placeholder="e.g. 90.4125">
+          </div>
+        </div>
+
+        <!-- Active Toggle -->
+        <div class="form-control">
+          <label class="label cursor-pointer justify-start gap-3 mt-1">
+            <input type="checkbox" name="isActive" [(ngModel)]="model.isActive" class="toggle toggle-primary toggle-sm" />
+            <span class="label-text font-semibold text-gray-700">Active</span>
+          </label>
+        </div>
+
+        <!-- Actions -->
+        <div class="modal-action mt-6 flex gap-3 border-t border-gray-100 pt-5">
+          <button type="button" class="btn btn-ghost flex-1" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary flex-1" [disabled]="!form.valid">
+            <i class="fas fa-save mr-2"></i>{{ editingItem ? 'Update' : 'Save' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div class="modal-backdrop bg-black/40 backdrop-blur-sm" (click)="closeModal()"></div>
+</div>

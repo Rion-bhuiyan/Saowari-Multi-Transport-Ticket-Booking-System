@@ -1,0 +1,86 @@
+<div class="bg-saowari-surface-alt min-h-screen pt-24 pb-12">
+  <div class="container mx-auto px-4">
+
+    <!-- Profile Hero Card -->
+    <div class="bg-gradient-to-r from-saowari-primary to-saowari-secondary rounded-2xl shadow-lg p-8 mb-8 text-white relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
+        <div class="w-24 h-24 rounded-full bg-white/20 border-4 border-white/50 flex items-center justify-center text-3xl font-bold flex-shrink-0 shadow-lg overflow-hidden relative cursor-pointer" (click)="expandPicture(currentUser?.picture)">
+          <img *ngIf="currentUser?.picture" [src]="getProfilePictureUrl(currentUser!.picture)" alt="Profile" class="w-full h-full object-cover hover:scale-105 transition-transform" />
+          <span *ngIf="!currentUser?.picture">{{ getInitials() }}</span>
+        </div>
+        <div>
+          <h1 class="text-2xl font-heading font-bold mb-1">{{ currentUser?.fullName || 'Loading...' }}</h1>
+          <p class="text-white/80 mb-1"><i class="far fa-envelope mr-2"></i>{{ currentUser?.email }}</p>
+          <p class="text-white/80 mb-3"><i class="fas fa-phone mr-2"></i>{{ currentUser?.phone }}</p>
+          <span class="badge bg-white/20 border-white/30 text-white text-sm px-3">{{ currentUser?.roleName || 'Customer' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 text-center">
+        <div class="text-3xl font-bold text-saowari-primary mb-1">
+          <span *ngIf="isLoading" class="loading loading-dots loading-sm"></span>
+          <span *ngIf="!isLoading">{{ totalBookings }}</span>
+        </div>
+        <p class="text-sm text-gray-500 font-medium">Total Bookings</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 text-center">
+        <div class="text-3xl font-bold text-saowari-success mb-1">
+          <span *ngIf="isLoading" class="loading loading-dots loading-sm"></span>
+          <span *ngIf="!isLoading">{{ upcomingBookings }}</span>
+        </div>
+        <p class="text-sm text-gray-500 font-medium">Upcoming Trips</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 text-center">
+        <div class="text-3xl font-bold text-gray-600 mb-1">
+          <span *ngIf="isLoading" class="loading loading-dots loading-sm"></span>
+          <span *ngIf="!isLoading">{{ completedBookings }}</span>
+        </div>
+        <p class="text-sm text-gray-500 font-medium">Completed Trips</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 text-center">
+        <div class="text-2xl font-bold text-saowari-accent mb-1">
+          <span *ngIf="isLoading" class="loading loading-dots loading-sm"></span>
+          <span *ngIf="!isLoading">৳{{ totalSpent }}</span>
+        </div>
+        <p class="text-sm text-gray-500 font-medium">Total Spent</p>
+      </div>
+    </div>
+
+    <!-- Quick Links Grid -->
+    <div>
+      <h2 class="text-xl font-heading font-bold text-saowari-text-primary mb-5">Quick Actions</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <a *ngFor="let link of quickLinks" [routerLink]="link.route"
+           class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col items-center gap-3 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
+          <div [ngClass]="link.color" class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-200">
+            <i [class]="link.icon"></i>
+          </div>
+          <span class="font-semibold text-sm text-gray-700 text-center">{{ link.label }}</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Expanded Picture Backdrop Modal -->
+<div 
+  *ngIf="expandedPictureUrl" 
+  (click)="closeExpandedPicture()"
+  class="fixed inset-0 bg-black/90 backdrop-blur-md z-[99999] flex items-center justify-center p-4 cursor-zoom-out animate-fade-in">
+  <div class="relative max-w-3xl max-h-[85vh] overflow-hidden rounded-2xl border border-white/10 shadow-2xl animate-scale-up" (click)="$event.stopPropagation()">
+    <!-- Close Button -->
+    <button 
+      (click)="closeExpandedPicture()" 
+      class="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white rounded-full p-2.5 transition-colors focus:outline-none z-10">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <img [src]="expandedPictureUrl" alt="Profile Picture Expanded" class="max-w-full max-h-[80vh] object-contain rounded-xl select-none" />
+  </div>
+</div>
