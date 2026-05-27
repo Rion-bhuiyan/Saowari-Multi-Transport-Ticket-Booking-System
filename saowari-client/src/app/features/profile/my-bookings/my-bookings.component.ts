@@ -17,7 +17,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class MyBookingsComponent implements OnInit {
   bookings: any[] = [];
   isLoading = true;
-  activeTab: 'upcoming' | 'completed' | 'cancelled' = 'upcoming';
+  activeTab: 'upcoming' | 'pending' | 'completed' | 'cancelled' = 'upcoming';
 
   // Refund Modal State
   isRefundModalOpen = false;
@@ -26,6 +26,15 @@ export class MyBookingsComponent implements OnInit {
   selectedBookingForRefund: any = null;
   refundPreview: any = null;
   refundRemarks = '';
+
+  // Cancel/Refund OTP Modal State
+  isCancelOtpModalOpen = false;
+  selectedBookingForCancel: any = null;
+  cancelOtp = '';
+  isRequestingOtp = false;
+  isVerifyingOtp = false;
+  otpRequested = false;
+  otpMode: 'cancel' | 'refund' = 'cancel';
 
   constructor(
     private bookingService: BookingService,
@@ -44,6 +53,10 @@ export class MyBookingsComponent implements OnInit {
       next: (res: any) => {
         if (res.success) {
           this.bookings = res.data || [];
+          // Auto-switch to pending tab if any bookings have pending cancellations
+          if (this.activeTab === 'upcoming' && this.pendingCancellationCount > 0) {
+            // Don't auto-switch, just show badge
+          }
         }
         this.isLoading = false;
       },
@@ -54,13 +67,126 @@ export class MyBookingsComponent implements OnInit {
   get filteredBookings() {
     const now = new Date();
     return this.bookings.filter(b => {
-      const dep = new Date(b.departureDateTime);
-      if (this.activeTab === 'upcoming') return dep >= now && b.bookingStatus !== 'Cancelled';
-      if (this.activeTab === 'completed') return dep < now && b.bookingStatus !== 'Cancelled';
+      const isPendingRefund = b.latestRefundStatusId === 1 || b.latestRefundStatusId === 2;
+      const isPendingCancel = b.hasPendingCancellation === true;
+      const isPending = isPendingRefund || isPendingCancel;
+
+      if (this.activeTab === 'pending') return isPending;
+      
+      if (this.activeTab === 'upcoming') {
+        const dep = new Date(b.departureDateTime);
+        return dep >= now && b.bookingStatus !== 'Cancelled' && !isPending;
+      }
+      
+      if (this.activeTab === 'completed') {
+        const dep = new Date(b.departureDateTime);
+        return dep < now && b.bookingStatus !== 'Cancelled' && !isPending;
+      }
+      
       return b.bookingStatus === 'Cancelled';
     });
   }
 
+  get pendingCancellationCount(): number {
+    return this.bookings.filter(b => b.hasPendingCancellation === true || b.latestRefundStatusId === 1 || b.latestRefundStatusId === 2).length;
+  }
+
+  // ===== Cancellation/Refund OTP Flow =====
+  openCancelModal(booking: any) {
+    this.selectedBookingForCancel = booking;
+    this.cancelOtp = '';
+    this.otpMode = 'cancel';
+    this.otpRequested = booking.hasPendingCancellation === true;
+    this.isCancelOtpModalOpen = true;
+  }
+
+  openRefundOtpModal(booking: any) {
+    this.selectedBookingForCancel = booking;
+    this.cancelOtp = '';
+    this.otpMode = 'refund';
+    this.otpRequested = true; // OTP already sent by admin
+    this.isCancelOtpModalOpen = true;
+  }
+
+  closeCancelModal() {
+    this.isCancelOtpModalOpen = false;
+    this.selectedBookingForCancel = null;
+    this.cancelOtp = '';
+    this.otpRequested = false;
+    this.otpMode = 'cancel';
+  }
+
+  requestCancellationOtp() {
+    if (!this.selectedBookingForCancel) return;
+    const id = this.selectedBookingForCancel.bookingID || this.selectedBookingForCancel.bookingId;
+    this.isRequestingOtp = true;
+    this.bookingService.requestCancel(id).subscribe({
+      next: (res: any) => {
+        this.isRequestingOtp = false;
+        if (res.success) {
+          this.otpRequested = true;
+          this.notification.success('OTP sent to your registered email. Please check your inbox.', 'OTP Sent');
+          this.loadBookings(); // Refresh to show pending tab
+        } else {
+          this.notification.error(res.message || 'Failed to request cancellation OTP.', 'Error');
+        }
+      },
+      error: (err: any) => {
+        this.isRequestingOtp = false;
+        this.notification.error(err?.error?.message || 'Error sending OTP.', 'Error');
+      }
+    });
+  }
+
+  verifyOtp() {
+    if (!this.cancelOtp || this.cancelOtp.length !== 6) {
+      this.notification.warning('Please enter the 6-digit OTP from your email.');
+      return;
+    }
+    const id = this.selectedBookingForCancel.bookingID || this.selectedBookingForCancel.bookingId;
+    this.isVerifyingOtp = true;
+
+    if (this.otpMode === 'refund') {
+      const refundId = this.selectedBookingForCancel.latestRefundId;
+      this.refundService.verifyRefundOtp(refundId, this.cancelOtp).subscribe({
+        next: (res: any) => {
+          this.isVerifyingOtp = false;
+          if (res.success) {
+            this.notification.success('Refund completed successfully!', 'Success');
+            this.closeCancelModal();
+            this.activeTab = 'cancelled';
+            this.loadBookings();
+          } else {
+            this.notification.error(res.message || 'Invalid or expired OTP. Please try again.', 'Verification Failed');
+          }
+        },
+        error: (err: any) => {
+          this.isVerifyingOtp = false;
+          this.notification.error(err?.error?.message || 'Invalid OTP.', 'Error');
+        }
+      });
+    } else {
+      this.bookingService.verifyCancel(id, this.cancelOtp).subscribe({
+        next: (res: any) => {
+          this.isVerifyingOtp = false;
+          if (res.success) {
+            this.notification.success('Booking cancelled successfully! Your seat has been released.', 'Booking Cancelled');
+            this.closeCancelModal();
+            this.activeTab = 'cancelled';
+            this.loadBookings();
+          } else {
+            this.notification.error(res.message || 'Invalid or expired OTP. Please try again.', 'Verification Failed');
+          }
+        },
+        error: (err: any) => {
+          this.isVerifyingOtp = false;
+          this.notification.error(err?.error?.message || 'Invalid OTP.', 'Error');
+        }
+      });
+    }
+  }
+
+  // ===== Refund Flow =====
   requestRefund(booking: any) {
     this.openRefundModal(booking);
   }
@@ -101,12 +227,11 @@ export class MyBookingsComponent implements OnInit {
   submitRefundRequest() {
     if (!this.selectedBookingForRefund) return;
     const bookingId = this.selectedBookingForRefund.bookingID || this.selectedBookingForRefund.bookingId || this.selectedBookingForRefund.id;
-    
     this.isSubmittingRefund = true;
     this.refundService.requestCustomerRefund(bookingId, this.refundRemarks).subscribe({
       next: (res: any) => {
         if (res.success) {
-          this.notification.success('Refund request submitted successfully! Your booking has been cancelled.');
+          this.notification.success('Refund request submitted! Your booking has been cancelled.');
           this.closeRefundModal();
           this.loadBookings();
         } else {

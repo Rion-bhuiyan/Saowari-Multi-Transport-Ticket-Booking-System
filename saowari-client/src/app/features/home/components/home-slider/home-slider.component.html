@@ -31,8 +31,7 @@
 
         <!-- CTA Link Action -->
         <a *ngIf="slide.linkUrl" [href]="slide.linkUrl" target="_blank"
-           class="btn border-0 text-white font-extrabold px-8 py-3 rounded-2xl w-fit shadow-lg transform transition hover:scale-105 active:scale-95 duration-200 animate__animated animate__fadeInUp animate__delay-2s flex items-center gap-2 hover:opacity-90"
-           style="background: linear-gradient(135deg, #00559F 0%, #007bf2 100%);">
+           class="btn border-0 text-white font-extrabold px-8 py-3 rounded-2xl w-fit shadow-lg transform transition hover:scale-105 active:scale-95 duration-200 animate__animated animate__fadeInUp animate__delay-2s flex items-center gap-2 hover:opacity-90 bg-gradient-hero">
           Book Now <i class="fas fa-arrow-right text-xs"></i>
         </a>
       </div>
@@ -41,11 +40,11 @@
 
   <!-- Navigation Arrows -->
   <button (click)="prev()"
-          class="absolute left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-2xl bg-white/20 hover:bg-white/95 text-white hover:text-primary backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 border border-white/10 shadow-lg transform -translate-x-2 group-hover:translate-x-0">
+          class="absolute left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-2xl bg-saowari-surface/20 hover:bg-saowari-surface/95 text-white hover:text-primary backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 border border-white/10 shadow-lg transform -translate-x-2 group-hover:translate-x-0">
     <i class="fas fa-chevron-left text-lg"></i>
   </button>
   <button (click)="next()"
-          class="absolute right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-2xl bg-white/20 hover:bg-white/95 text-white hover:text-primary backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 border border-white/10 shadow-lg transform translate-x-2 group-hover:translate-x-0">
+          class="absolute right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-2xl bg-saowari-surface/20 hover:bg-saowari-surface/95 text-white hover:text-primary backdrop-blur-md flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 border border-white/10 shadow-lg transform translate-x-2 group-hover:translate-x-0">
     <i class="fas fa-chevron-right text-lg"></i>
   </button>
 
@@ -54,7 +53,7 @@
     <button *ngFor="let slide of slides; let i = index"
             (click)="goToSlide(i)"
             class="h-2.5 rounded-full transition-all duration-300 cursor-pointer"
-            [ngClass]="i === currentIndex ? 'bg-white w-7' : 'bg-white/40 w-2.5'"
+            [ngClass]="i === currentIndex ? 'bg-saowari-surface w-7' : 'bg-saowari-surface/40 w-2.5'"
             [attr.aria-label]="'Go to slide ' + (i + 1)">
     </button>
   </div>

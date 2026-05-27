@@ -1,86 +1,101 @@
 <div class="space-y-6">
-  <div class="flex items-center justify-between pb-2 border-b border-gray-100">
+  <div class="flex items-center justify-between pb-2 border-b border-saowari-border">
     <div>
       <h1 class="text-2xl font-heading font-bold text-saowari-text-primary">Refunds Management</h1>
       <p class="text-xs text-gray-400 mt-0.5">Manage customer-submitted refund requests and process updates.</p>
     </div>
   </div>
 
-  <!-- Premium Tabs Navigation -->
-  <div class="tabs tabs-boxed bg-gray-50 border border-gray-100 p-1.5 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-2">
-    <button (click)="setActiveTab('pending')" 
-            [class]="activeTab === 'pending' ? 'bg-amber-500 text-white font-bold shadow-md scale-[1.01]' : 'text-gray-500 hover:bg-white/70 hover:text-gray-800'"
-            class="tab flex-1 py-3 px-4 rounded-xl text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 transform active:scale-98">
+  <!-- Tabs Navigation -->
+  <div class="tabs tabs-boxed bg-saowari-surface-alt border border-saowari-border p-1.5 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-2">
+    <button (click)="setActiveTab('pending')"
+            [class]="activeTab === 'pending' ? 'bg-amber-500 text-white font-bold shadow-md scale-[1.01]' : 'text-saowari-text-secondary hover:bg-saowari-surface/70 hover:text-saowari-text-primary'"
+            class="tab flex-1 py-3 px-4 rounded-xl text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2">
       <i class="fas fa-clock text-sm"></i>
       Pending Refunds
-      <span class="badge badge-sm border-none ml-1 py-1 px-2" [class]="activeTab === 'pending' ? 'bg-white text-amber-600 font-bold' : 'bg-gray-200 text-gray-600'">
+      <span class="badge badge-sm border-none ml-1 py-1 px-2"
+            [class]="activeTab === 'pending' ? 'bg-saowari-surface text-amber-600 font-bold' : 'bg-gray-200 text-saowari-text-secondary'">
         {{ getStatusCount(1) }}
       </span>
     </button>
-    <button (click)="setActiveTab('approved')" 
-            [class]="activeTab === 'approved' ? 'bg-emerald-500 text-white font-bold shadow-md scale-[1.01]' : 'text-gray-500 hover:bg-white/70 hover:text-gray-800'"
-            class="tab flex-1 py-3 px-4 rounded-xl text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 transform active:scale-98">
+    <button (click)="setActiveTab('approved')"
+            [class]="activeTab === 'approved' ? 'bg-emerald-500 text-white font-bold shadow-md scale-[1.01]' : 'text-saowari-text-secondary hover:bg-saowari-surface/70 hover:text-saowari-text-primary'"
+            class="tab flex-1 py-3 px-4 rounded-xl text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2">
       <i class="fas fa-check-circle text-sm"></i>
-      Approved Refunds
-      <span class="badge badge-sm border-none ml-1 py-1 px-2" [class]="activeTab === 'approved' ? 'bg-white text-emerald-600 font-bold' : 'bg-gray-200 text-gray-600'">
+      Approved (OTP Pending)
+      <span class="badge badge-sm border-none ml-1 py-1 px-2"
+            [class]="activeTab === 'approved' ? 'bg-saowari-surface text-emerald-600 font-bold' : 'bg-gray-200 text-saowari-text-secondary'">
         {{ getStatusCount(2) }}
       </span>
     </button>
-    <button (click)="setActiveTab('rejected')" 
-            [class]="activeTab === 'rejected' ? 'bg-rose-500 text-white font-bold shadow-md scale-[1.01]' : 'text-gray-500 hover:bg-white/70 hover:text-gray-800'"
-            class="tab flex-1 py-3 px-4 rounded-xl text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 transform active:scale-98">
+    <button (click)="setActiveTab('rejected')"
+            [class]="activeTab === 'rejected' ? 'bg-rose-500 text-white font-bold shadow-md scale-[1.01]' : 'text-saowari-text-secondary hover:bg-saowari-surface/70 hover:text-saowari-text-primary'"
+            class="tab flex-1 py-3 px-4 rounded-xl text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2">
       <i class="fas fa-times-circle text-sm"></i>
-      Rejected Refunds
-      <span class="badge badge-sm border-none ml-1 py-1 px-2" [class]="activeTab === 'rejected' ? 'bg-white text-rose-600 font-bold' : 'bg-gray-200 text-gray-600'">
+      Rejected
+      <span class="badge badge-sm border-none ml-1 py-1 px-2"
+            [class]="activeTab === 'rejected' ? 'bg-saowari-surface text-rose-600 font-bold' : 'bg-gray-200 text-saowari-text-secondary'">
         {{ getStatusCount(3) }}
       </span>
     </button>
-    <button (click)="setActiveTab('processed')" 
-            [class]="activeTab === 'processed' ? 'bg-blue-500 text-white font-bold shadow-md scale-[1.01]' : 'text-gray-500 hover:bg-white/70 hover:text-gray-800'"
-            class="tab flex-1 py-3 px-4 rounded-xl text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 transform active:scale-98">
+    <button (click)="setActiveTab('processed')"
+            [class]="activeTab === 'processed' ? 'bg-blue-500 text-white font-bold shadow-md scale-[1.01]' : 'text-saowari-text-secondary hover:bg-saowari-surface/70 hover:text-saowari-text-primary'"
+            class="tab flex-1 py-3 px-4 rounded-xl text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2">
       <i class="fas fa-paper-plane text-sm"></i>
-      Processed Refunds
-      <span class="badge badge-sm border-none ml-1 py-1 px-2" [class]="activeTab === 'processed' ? 'bg-white text-blue-600 font-bold' : 'bg-gray-200 text-gray-600'">
+      Completed
+      <span class="badge badge-sm border-none ml-1 py-1 px-2"
+            [class]="activeTab === 'processed' ? 'bg-saowari-surface text-blue-600 font-bold' : 'bg-gray-200 text-saowari-text-secondary'">
         {{ getStatusCount(4) }}
       </span>
     </button>
   </div>
 
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="p-5 border-b border-gray-100 flex gap-4 flex-wrap">
+  <div class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden">
+    <!-- Search -->
+    <div class="p-5 border-b border-saowari-border flex gap-4 flex-wrap">
       <div class="relative flex-1 min-w-[200px]">
         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-        <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Search refunds..." class="input input-sm input-bordered w-full pl-9 focus:border-saowari-primary">
+        <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()"
+               placeholder="Search refunds..."
+               class="input input-sm input-bordered w-full pl-9 focus:border-saowari-primary">
       </div>
     </div>
+
+    <!-- Loading -->
     <div *ngIf="isLoading" class="p-12 text-center">
       <span class="loading loading-spinner loading-md text-saowari-primary"></span>
     </div>
+
+    <!-- Empty -->
     <div *ngIf="!isLoading && filtered.length === 0" class="p-12 text-center text-gray-400">
-      <i class="fas fa-inbox text-3xl mb-3 block"></i> No refunds found
+      <i class="fas fa-inbox text-3xl mb-3 block"></i>
+      No refunds found
     </div>
+
+    <!-- Table -->
     <div *ngIf="!isLoading && filtered.length > 0" class="overflow-x-auto">
       <table class="table table-md w-full">
-        <thead class="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+        <thead class="bg-saowari-surface-alt/80 text-xs text-saowari-text-secondary uppercase tracking-wider">
           <tr>
             <th class="px-5 py-4 font-semibold">Refund ID</th>
             <th class="px-5 py-4 font-semibold">Customer</th>
             <th class="px-5 py-4 font-semibold">Booking / Payment</th>
-            <th class="px-5 py-4 font-semibold">Refund Amount</th>
+            <th class="px-5 py-4 font-semibold">Amount</th>
             <th class="px-5 py-4 font-semibold">Reason</th>
-            <th class="px-5 py-4 font-semibold">Requested On</th>
+            <th class="px-5 py-4 font-semibold">Requested</th>
             <th class="px-5 py-4 font-semibold">Status</th>
             <th class="px-5 py-4 font-semibold text-right">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr *ngFor="let item of filtered" class="hover:bg-gray-50/50 transition-colors">
+          <tr *ngFor="let item of pagedItems" class="hover:bg-saowari-surface-alt/50 transition-colors">
+
             <!-- Refund ID -->
             <td class="px-5 py-4 text-xs font-mono text-gray-400 font-medium">
               #{{ item.refundID || item.refundId || item.id }}
             </td>
-            
-            <!-- Customer Image, Name & Number -->
+
+            <!-- Customer -->
             <td class="px-5 py-4">
               <div class="flex items-center gap-3.5">
                 <div class="avatar placeholder">
@@ -92,99 +107,115 @@
                   </div>
                 </div>
                 <div>
-                  <div class="font-bold text-gray-800 text-sm leading-tight">{{ item.customerName || 'Walk-in Customer' }}</div>
-                  <div class="text-xs text-gray-400 font-mono mt-0.5">{{ item.customerPhone || 'No phone number' }}</div>
+                  <div class="font-bold text-saowari-text-primary text-sm leading-tight">{{ item.customerName || 'Customer' }}</div>
+                  <div class="text-xs text-gray-400 font-mono mt-0.5">{{ item.customerPhone || '—' }}</div>
                 </div>
               </div>
             </td>
-            
-            <!-- Booking Code & Payment Method -->
+
+            <!-- Booking / Payment -->
             <td class="px-5 py-4">
               <div class="flex flex-col gap-1">
                 <div class="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
                   <i class="fas fa-ticket-alt text-saowari-primary text-xs"></i>
                   <span>{{ item.bookingCode || 'Booking #' + item.bookingId }}</span>
                 </div>
-                <div class="flex items-center gap-1">
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase bg-gray-100 text-gray-600 border border-gray-200">
-                    <i class="fas fa-credit-card text-[9px]"></i>
-                    {{ item.paymentMethod || 'Unknown Method' }}
-                  </span>
-                </div>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-gray-100 text-saowari-text-secondary border border-saowari-border">
+                  <i class="fas fa-credit-card text-[9px]"></i>
+                  {{ item.paymentMethod || 'Unknown' }}
+                </span>
               </div>
             </td>
-            
-            <!-- Refund Amount -->
+
+            <!-- Amount -->
             <td class="px-5 py-4">
               <div class="flex flex-col">
-                <span class="font-extrabold text-base text-rose-600">
-                  {{ item.refundAmount | currency }}
-                </span>
-                <span class="text-[10px] text-gray-400 font-medium">
-                  {{ item.refundPercentage }}% Refund
-                </span>
+                <span class="font-extrabold text-base text-rose-600">৳{{ item.refundAmount | number }}</span>
+                <span class="text-[10px] text-gray-400 font-medium">{{ item.refundPercentage }}% Refund</span>
               </div>
             </td>
-            
-            <!-- Remarks/Reason -->
+
+            <!-- Reason -->
             <td class="px-5 py-4">
-              <div class="text-sm text-gray-600 max-w-[200px] truncate" [title]="item.remarks || item.reason || 'No remarks'">
-                {{ item.remarks || item.reason || 'No remarks provided' }}
+              <div class="text-sm text-saowari-text-secondary max-w-[180px] truncate"
+                   [title]="item.remarks || 'No remarks'">
+                {{ item.remarks || 'No remarks' }}
               </div>
             </td>
-            
+
             <!-- Requested On -->
-            <td class="px-5 py-4 text-sm text-gray-600 font-medium">
+            <td class="px-5 py-4 text-sm text-saowari-text-secondary font-medium">
               <div class="flex items-center gap-1.5">
                 <i class="far fa-calendar-alt text-gray-400"></i>
                 <span>{{ item.requestedAt | date:'mediumDate' }}</span>
               </div>
             </td>
-            
-            <!-- Status Badge & Update Info -->
+
+            <!-- Status -->
             <td class="px-5 py-4">
               <div class="flex flex-col gap-1.5 items-start">
                 <span [class]="'badge badge-md font-semibold border-none py-2 px-3 ' + getStatusClass(item.refundStatusName || '')">
                   {{ item.refundStatusName || 'Status ' + item.refundStatusId }}
                 </span>
-                
-                <div *ngIf="item.updatedByUserName" class="flex flex-col gap-0.5 text-[10px] text-gray-500 bg-gray-50 p-1.5 rounded-lg border border-gray-100 mt-1 shadow-sm w-full">
-                  <div class="flex items-center gap-1.5 font-medium text-gray-700 truncate" [title]="'Updated by: ' + item.updatedByUserName">
+                <div *ngIf="item.updatedByUserName"
+                     class="flex flex-col gap-0.5 text-[10px] text-saowari-text-secondary bg-saowari-surface-alt p-1.5 rounded-lg border border-saowari-border mt-1 shadow-sm w-full">
+                  <div class="flex items-center gap-1.5 font-medium text-gray-700 truncate">
                     <i class="fas fa-user-edit text-saowari-primary text-[9px]"></i>
                     <span class="truncate max-w-[120px]">{{ item.updatedByUserName }}</span>
                   </div>
-                  <div class="flex items-center gap-1.5" *ngIf="item.updatedAt" [title]="'Updated at: ' + (item.updatedAt | date:'medium')">
+                  <div class="flex items-center gap-1.5" *ngIf="item.updatedAt">
                     <i class="far fa-clock text-[9px]"></i>
                     {{ item.updatedAt | date:'short' }}
                   </div>
                 </div>
               </div>
             </td>
-            
+
             <!-- Actions -->
             <td class="px-5 py-4 text-right">
-              <button class="btn btn-sm btn-outline btn-primary rounded-xl px-3 flex flex-nowrap items-center whitespace-nowrap gap-1.5 ml-auto hover:scale-102 transition-transform active:scale-98" (click)="openStatusModal(item)">
-                <i class="fas fa-edit text-xs"></i>
-                Update Status
-              </button>
+              <div class="flex items-center justify-end gap-2">
+                <button class="btn btn-sm btn-outline btn-primary rounded-xl px-3 flex flex-nowrap items-center whitespace-nowrap gap-1.5 hover:scale-102 transition-transform"
+                        (click)="openStatusModal(item)">
+                  <i class="fas fa-edit text-xs"></i>
+                  Update
+                </button>
+                <!-- Reset OTP button — only shown on Processed refunds (status 4) to recover auto-completed ones -->
+                <button *ngIf="(item.refundStatusId || item.refundStatusID) === 4"
+                        class="btn btn-sm btn-outline btn-warning rounded-xl px-3 flex flex-nowrap items-center whitespace-nowrap gap-1.5 hover:scale-102 transition-transform"
+                        (click)="resetToOtpPending(item)"
+                        title="Reset so customer can enter their OTP">
+                  <i class="fas fa-undo text-xs"></i>
+                  Reset OTP
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
+      <app-pagination
+        [pageSize]="pageSize"
+        (pageChange)="p = $event"
+        (pageSizeChange)="pageSize = $event; p = 1"
+        [totalItems]="(filtered || items || []).length"
+        [currentPage]="p">
+      </app-pagination>
     </div>
-    <div *ngIf="!isLoading" class="px-5 py-3 border-t border-gray-100 text-xs text-gray-400">
+    <div *ngIf="!isLoading" class="px-5 py-3 border-t border-saowari-border text-xs text-gray-400">
       Showing {{ filtered.length }} of {{ items.length }} records
     </div>
   </div>
 
+  <!-- Update Status Modal -->
   <dialog class="modal" [class.modal-open]="isStatusModalOpen">
-    <div class="modal-box bg-white rounded-2xl p-0 overflow-hidden shadow-2xl max-w-sm">
+    <div class="modal-box bg-saowari-surface rounded-2xl p-0 overflow-hidden shadow-2xl max-w-sm">
       <div class="bg-saowari-primary-light px-6 py-4 flex justify-between items-center border-b border-blue-100">
         <h3 class="font-bold text-lg text-saowari-primary">Update Refund Status</h3>
         <button class="btn btn-sm btn-circle btn-ghost" (click)="closeStatusModal()"><i class="fas fa-times"></i></button>
       </div>
       <div class="p-6">
-        <p class="text-sm text-gray-500 mb-4">Refund ID: <strong>{{ selectedItem?.refundID || selectedItem?.refundId || selectedItem?.id }}</strong></p>
+        <p class="text-sm text-saowari-text-secondary mb-4">
+          Refund ID: <strong>{{ selectedItem?.refundID || selectedItem?.refundId || selectedItem?.id }}</strong>
+        </p>
         <div class="form-control w-full">
           <label class="label"><span class="label-text font-semibold text-gray-700">New Status</span></label>
           <select [(ngModel)]="newStatusId" class="select select-bordered w-full focus:border-saowari-primary">
@@ -199,4 +230,5 @@
     </div>
     <form method="dialog" class="modal-backdrop"><button (click)="closeStatusModal()">close</button></form>
   </dialog>
+
 </div>

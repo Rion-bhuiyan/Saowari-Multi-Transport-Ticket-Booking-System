@@ -18,6 +18,9 @@ export interface BookingModel {
   seatClassId?: number;
   seats?: string[];
   schedule?: any;
+  hasPendingCancellation?: boolean;
+  latestRefundId?: number;
+  latestRefundStatusId?: number;
 }
 
 export interface BookingCreateDto {
@@ -49,6 +52,7 @@ export interface PaymentModel {
 export interface RefundModel {
   refundId: number;
   bookingId: number;
+  bookingCode?: string;
   paymentId: number;
   requestedAt: string;
   refundPercentage: number;
@@ -60,6 +64,7 @@ export interface RefundModel {
   remarks?: string;
   isRefunded: boolean;
   policyId?: number;
+  requiresOtp?: boolean;  // true when admin approved but user hasn't verified OTP yet
 }
 
 export interface RefundPreview {

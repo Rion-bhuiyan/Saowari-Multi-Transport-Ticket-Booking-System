@@ -29,4 +29,15 @@ export class SettingsService {
   deleteTicketBackground(): Observable<ApiResponse<boolean>> {
     return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/ticket-background`);
   }
+
+  // --- Admin System Settings ---
+  private adminApiUrl = `${environment.apiUrl}/adminsettings`;
+
+  getSystemSettings(): Observable<ApiResponse<Record<string, string>>> {
+    return this.http.get<ApiResponse<Record<string, string>>>(this.adminApiUrl);
+  }
+
+  updateSystemSettings(settings: Record<string, string>): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(this.adminApiUrl, settings);
+  }
 }

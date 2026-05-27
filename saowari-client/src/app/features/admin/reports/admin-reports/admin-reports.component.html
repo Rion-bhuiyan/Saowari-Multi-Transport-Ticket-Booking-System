@@ -31,8 +31,8 @@
   </div>
 
   <!-- Revenue Table -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="p-5 border-b border-gray-100">
+  <div class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden">
+    <div class="p-5 border-b border-saowari-border">
       <h2 class="font-heading font-bold text-lg text-saowari-text-primary">Revenue Breakdown</h2>
     </div>
     <div *ngIf="isLoadingRevenue" class="p-10 text-center">
@@ -44,7 +44,7 @@
     </div>
     <div *ngIf="!isLoadingRevenue && revenueData.length > 0" class="overflow-x-auto">
       <table class="table table-sm w-full">
-        <thead class="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+        <thead class="bg-saowari-surface-alt/80 text-xs text-saowari-text-secondary uppercase tracking-wider">
           <tr>
             <th class="px-5 py-3 font-semibold">Period</th>
             <th class="px-5 py-3 font-semibold">Bookings</th>
@@ -52,24 +52,25 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-50">
-          <tr *ngFor="let row of revenueData" class="hover:bg-gray-50/50">
+          <tr *ngFor="let row of pagedRevenueData" class="hover:bg-saowari-surface-alt/50">
             <td class="px-5 py-3 text-sm text-gray-700 font-medium">{{ row.date || row.period || row.month }}</td>
-            <td class="px-5 py-3 text-sm text-gray-600">{{ row.bookingCount || row.count || 0 }}</td>
+            <td class="px-5 py-3 text-sm text-saowari-text-secondary">{{ row.bookingCount || row.count || 0 }}</td>
             <td class="px-5 py-3 font-semibold text-saowari-primary">৳{{ (row.revenue || row.amount || 0) | number }}</td>
           </tr>
         </tbody>
       </table>
+      <app-pagination [pageSize]="pageSizeRevenue" (pageChange)="pRevenue = $event" (pageSizeChange)="pageSizeRevenue = $event; pRevenue = 1" [totalItems]="(revenueData || []).length" [currentPage]="pRevenue"></app-pagination>
     </div>
   </div>
 
   <!-- Occupancy Data -->
-  <div *ngIf="occupancyData.length > 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="p-5 border-b border-gray-100">
+  <div *ngIf="occupancyData.length > 0" class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden">
+    <div class="p-5 border-b border-saowari-border">
       <h2 class="font-heading font-bold text-lg text-saowari-text-primary">Seat Occupancy by Route</h2>
     </div>
     <div class="overflow-x-auto">
       <table class="table table-sm w-full">
-        <thead class="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+        <thead class="bg-saowari-surface-alt/80 text-xs text-saowari-text-secondary uppercase tracking-wider">
           <tr>
             <th class="px-5 py-3 font-semibold">Route</th>
             <th class="px-5 py-3 font-semibold">Total Seats</th>
@@ -78,10 +79,10 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-50">
-          <tr *ngFor="let row of occupancyData" class="hover:bg-gray-50/50">
-            <td class="px-5 py-3 font-medium text-gray-800">{{ row.route || row.routeName }}</td>
-            <td class="px-5 py-3 text-sm text-gray-600">{{ row.totalSeats }}</td>
-            <td class="px-5 py-3 text-sm text-gray-600">{{ row.occupiedSeats }}</td>
+          <tr *ngFor="let row of pagedOccupancyData" class="hover:bg-saowari-surface-alt/50">
+            <td class="px-5 py-3 font-medium text-saowari-text-primary">{{ row.route || row.routeName }}</td>
+            <td class="px-5 py-3 text-sm text-saowari-text-secondary">{{ row.totalSeats }}</td>
+            <td class="px-5 py-3 text-sm text-saowari-text-secondary">{{ row.occupiedSeats }}</td>
             <td class="px-5 py-3">
               <div class="flex items-center gap-2">
                 <progress class="progress progress-primary w-24 h-2" [value]="row.occupancyRate || 0" max="100"></progress>
@@ -91,6 +92,7 @@
           </tr>
         </tbody>
       </table>
+      <app-pagination [pageSize]="pageSizeOccupancy" (pageChange)="pOccupancy = $event" (pageSizeChange)="pageSizeOccupancy = $event; pOccupancy = 1" [totalItems]="(occupancyData || []).length" [currentPage]="pOccupancy"></app-pagination>
     </div>
   </div>
 </div>

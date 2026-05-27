@@ -1,6 +1,6 @@
 <div class="min-h-screen grid grid-cols-1 lg:grid-cols-2">
   <!-- Left: Register Form -->
-  <div class="flex items-center justify-center p-6 sm:p-12 bg-white order-2 lg:order-1">
+  <div class="flex items-center justify-center p-6 sm:p-12 bg-saowari-surface order-2 lg:order-1">
     <div class="w-full max-w-md">
       <!-- Mobile Logo -->
       <a routerLink="/home" class="flex items-center gap-2 mb-6 lg:hidden">
@@ -10,10 +10,10 @@
         <span class="font-heading font-bold text-xl text-saowari-primary">SAOWARI</span>
       </a>
 
-      <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mb-2">Create Account</h2>
-      <p class="text-saowari-text-secondary mb-7">Join thousands of travelers on Saowari.</p>
+      <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mb-2" *ngIf="!isOtpRequired">Create Account</h2>
+      <p class="text-saowari-text-secondary mb-7" *ngIf="!isOtpRequired">Join thousands of travelers on Saowari.</p>
 
-      <form #regForm="ngForm" (ngSubmit)="onRegister()">
+      <form #regForm="ngForm" (ngSubmit)="onRegister()" *ngIf="!isOtpRequired">
         <!-- Full Name -->
         <div class="form-control mb-4">
           <label class="label pb-1"><span class="label-text font-semibold text-gray-700">Full Name</span></label>
@@ -81,21 +81,50 @@
         </button>
       </form>
 
-      <p class="text-center text-gray-600 mt-6">
+      <p class="text-center text-saowari-text-secondary mt-6" *ngIf="!isOtpRequired">
         Already have an account?
-        <a routerLink="/auth/login" class="text-saowari-primary font-semibold hover:underline ml-1">Sign in</a>
+        <a routerLink="/auth/login" [queryParams]="returnUrl ? { returnUrl: returnUrl } : {}" class="text-saowari-primary font-semibold hover:underline ml-1">Sign in</a>
       </p>
+
+      <!-- OTP Verification Form -->
+      <div *ngIf="isOtpRequired" class="animate-fade-in">
+        <div class="w-16 h-16 bg-saowari-primary/10 rounded-full flex items-center justify-center mb-6 mx-auto">
+          <i class="fas fa-envelope-open-text text-2xl text-saowari-primary"></i>
+        </div>
+        
+        <h2 class="text-3xl font-heading font-bold text-center text-saowari-text-primary mb-2">Verify Email</h2>
+        <p class="text-saowari-text-secondary text-center mb-8">
+          We've sent a 6-digit code to <strong>{{ model.email }}</strong>.
+        </p>
+
+        <form (ngSubmit)="onVerifyOtp()">
+          <div class="form-control mb-6">
+            <label class="label pb-1 justify-center">
+              <span class="label-text font-semibold text-gray-700">Verification Code</span>
+            </label>
+            <input type="text" name="otp" [(ngModel)]="otpCode" required maxlength="6"
+                   class="input input-bordered w-full text-center text-2xl tracking-[0.5em] font-bold focus:border-saowari-primary h-14" 
+                   placeholder="------">
+          </div>
+
+          <button type="submit" [disabled]="isLoading || otpCode.length !== 6"
+                  class="btn btn-saowari w-full text-base shadow-lg shadow-primary/20 h-12">
+            <span *ngIf="isLoading" class="loading loading-spinner loading-sm"></span>
+            {{ isLoading ? 'Verifying...' : 'Verify & Continue' }}
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 
   <!-- Right: Brand Panel -->
   <div class="hidden lg:flex flex-col justify-between bg-gradient-to-bl from-saowari-primary via-saowari-secondary to-saowari-accent p-12 text-white relative overflow-hidden order-1 lg:order-2">
-    <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+    <div class="absolute top-0 right-0 w-96 h-96 bg-saowari-surface/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+    <div class="absolute bottom-0 left-0 w-64 h-64 bg-saowari-surface/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
 
     <div class="relative z-10">
       <a routerLink="/home" class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+        <div class="w-10 h-10 bg-saowari-surface rounded-lg flex items-center justify-center">
           <span class="text-saowari-primary font-extrabold text-xl">S</span>
         </div>
         <span class="font-heading font-bold text-2xl tracking-wide">SAOWARI</span>
@@ -112,7 +141,7 @@
       <div class="space-y-4">
         <div *ngFor="let item of ['Instant ticket booking', 'Real-time seat selection', 'Easy cancellations & refunds']"
              class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+          <div class="w-8 h-8 rounded-full bg-saowari-surface/20 flex items-center justify-center flex-shrink-0">
             <i class="fas fa-check text-sm"></i>
           </div>
           <span class="text-white/90">{{ item }}</span>

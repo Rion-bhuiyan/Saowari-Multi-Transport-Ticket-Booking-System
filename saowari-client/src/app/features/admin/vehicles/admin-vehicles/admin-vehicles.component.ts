@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,14 +11,40 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { SeatClassService, SeatClassModel } from '../../../../core/services/api/seat-class.service';
 import { SeatPricingService } from '../../../../core/services/api/seat-pricing.service';
 
+export interface VisualSeat {
+  row: number;
+  col: number;
+  seatNumber: string;
+  seatClassId: number;
+}
+export interface VisualDeck {
+  level: number;
+  name: string;
+  seats: VisualSeat[];
+}
+export interface VisualLayout {
+  mode: string;
+  gridWidth: number;
+  gridHeight: number;
+  isDoubleDecker?: boolean;
+  decks: VisualDeck[];
+}
+
 @Component({
   selector: 'app-admin-vehicles',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './admin-vehicles.component.html',
   styleUrls: ['./admin-vehicles.component.css']
 })
 export class AdminVehiclesComponent implements OnInit {
+  get pagedItems() {
+    const start = (this.p - 1) * Number(this.pageSize);
+    return (this.filtered || this.items || []).slice(start, start + Number(this.pageSize));
+  }
+  p: number = 1;
+  pageSize: number = 15;
+
   items: any[] = [];
   filtered: any[] = [];
   isLoading = true;
@@ -34,16 +61,23 @@ export class AdminVehiclesComponent implements OnInit {
   isLayoutModalOpen = false;
   editingItem: any = null;
   selectedVehicleIdForLayout: number | null = null;
-  layoutModel: any = {
-    isDoubleDecker: false,
-    continuousBackRow: true
+  
+  visualLayout: VisualLayout = {
+    mode: 'visual',
+    gridWidth: 5,
+    gridHeight: 12,
+    decks: [
+      { level: 1, name: 'Main Deck', seats: [] }
+    ]
   };
+  activeDeckIndex = 0;
+  selectedSeat: VisualSeat | null = null;
+
   model: any = { 
     vehicleName: '', vehicleNumber: '', companyId: null, vehicleTypeId: null, 
     engineNumber: '', engineCC: '', chassisNumber: '',
     capacity: 40, isActive: true,
-    isDoubleDecker: false, continuousBackRow: true,
-    layoutPreset: 'standard'
+    isDoubleDecker: false
   };
 
   constructor(
@@ -97,28 +131,65 @@ export class AdminVehiclesComponent implements OnInit {
       this.editingItem = item;
       
       let isDoubleDecker = false;
-      let continuousBackRow = true;
-      let layoutPreset = 'standard';
       if (item.seatLayoutConfig) {
         try {
           const config = JSON.parse(item.seatLayoutConfig);
-          isDoubleDecker = config.IsDoubleDecker || false;
-          continuousBackRow = config.ContinuousBackRow !== false; // default true if undefined
-          layoutPreset = config.LayoutPreset || 'standard';
-        } catch(e) {}
+          isDoubleDecker = config.IsDoubleDecker || config.isDoubleDecker || false;
+
+          const hasDecks = !!(config.decks || config.Decks);
+          if (config.mode === 'visual' || config.Mode === 'visual' || hasDecks) {
+            this.visualLayout.gridWidth = config.gridWidth || config.GridWidth || 5;
+            this.visualLayout.gridHeight = config.gridHeight || config.GridHeight || 12;
+            
+            const decks = config.decks || config.Decks;
+            if (decks && decks.length > 1) {
+              isDoubleDecker = true;
+            }
+            
+            this.visualLayout.isDoubleDecker = isDoubleDecker;
+            if (decks) {
+              this.visualLayout.decks = decks;
+              this.visualLayout.decks.forEach((d: any) => {
+                if (d.Seats) d.seats = d.Seats;
+                if (!d.seats) d.seats = [];
+                if (d.Name) d.name = d.Name;
+                if (d.Level) d.level = d.Level;
+                d.seats.forEach((s: any) => {
+                  if (s.Row !== undefined) s.row = s.Row;
+                  if (s.Col !== undefined) s.col = s.Col;
+                  if (s.SeatNumber) s.seatNumber = s.SeatNumber;
+                  if (s.SeatClassId) s.seatClassId = s.SeatClassId;
+                });
+              });
+            } else {
+              this.resetVisualLayout();
+            }
+          } else {
+            this.resetVisualLayout();
+          }
+        } catch(e) {
+          this.resetVisualLayout();
+        }
+      } else {
+        this.resetVisualLayout();
       }
 
       this.model = { 
         ...item,
         capacity: item.totalSeats,
-        isDoubleDecker,
-        continuousBackRow,
-        layoutPreset
+        isDoubleDecker
       };
 
-      if (item.seats) {
+      if (item.seats && this.visualLayout.decks.length > 0) {
         item.seats.forEach((seat: any) => {
           this.seatClassAssignments[seat.seatNumber] = seat.seatClassId;
+        });
+        this.visualLayout.decks.forEach(d => {
+          d.seats.forEach(s => {
+            if (this.seatClassAssignments[s.seatNumber]) {
+              s.seatClassId = this.seatClassAssignments[s.seatNumber];
+            }
+          });
         });
       }
 
@@ -129,33 +200,64 @@ export class AdminVehiclesComponent implements OnInit {
         vehicleName: '', vehicleNumber: '', companyId: null, vehicleTypeId: null, 
         engineNumber: '', engineCC: '', chassisNumber: '',
         capacity: 40, isActive: true,
-        isDoubleDecker: false, continuousBackRow: true,
-        layoutPreset: 'standard'
+        isDoubleDecker: false
       };
+      this.resetVisualLayout();
       this.activeAssignmentClassId = this.seatClasses[0]?.seatClassId || 1;
     }
+    this.activeDeckIndex = 0;
+    this.selectedSeat = null;
     this.isModalOpen = true;
+  }
+
+  resetVisualLayout() {
+    this.visualLayout = {
+      mode: 'visual',
+      gridWidth: 5,
+      gridHeight: 12,
+      isDoubleDecker: false,
+      decks: [
+        { level: 1, name: 'Main Deck', seats: [] }
+      ]
+    };
+  }
+
+  toggleDoubleDecker() {
+    if (this.model.isDoubleDecker) {
+      if (this.visualLayout.decks.length === 1) {
+        this.visualLayout.decks[0].name = 'Lower Deck';
+        this.visualLayout.decks.push({ level: 2, name: 'Upper Deck', seats: [] });
+      }
+    } else {
+      if (this.visualLayout.decks.length > 1) {
+        this.visualLayout.decks = [this.visualLayout.decks[0]];
+        this.visualLayout.decks[0].name = 'Main Deck';
+        this.activeDeckIndex = 0;
+      }
+    }
   }
 
   closeModal() {
     this.isModalOpen = false;
   }
 
-  getSeatClassId(seatNumber: string): number {
-    return this.seatClassAssignments[seatNumber] || this.seatClasses[0]?.seatClassId || 1;
+  updateCapacity() {
+    let totalVisualSeats = 0;
+    this.visualLayout.decks.forEach(d => totalVisualSeats += d.seats.length);
+    if (totalVisualSeats > 0) {
+      this.model.capacity = totalVisualSeats;
+    }
   }
 
-  getSeatClassNameShort(seatNumber: string): string {
-    const classId = this.getSeatClassId(seatNumber);
-    const sc = this.seatClasses.find(c => c.seatClassId === classId);
+  getSeatClassNameShort(classId: number): string {
+    const sc = this.seatClasses.find(c => c.seatClassId == classId);
     if (!sc) return 'ECO';
     return sc.seatClassName.substring(0, 3).toUpperCase();
   }
 
-  getSeatClassColor(seatNumber: string): string {
-    const classId = this.getSeatClassId(seatNumber);
-    const sc = this.seatClasses.find(c => c.seatClassId === classId);
-    if (!sc) return 'bg-white border-gray-300 text-gray-600';
+  getSeatClassColor(classId: number): string {
+    const sc = this.seatClasses.find(c => c.seatClassId == classId);
+    if (!sc) return 'bg-saowari-surface border-saowari-border text-saowari-text-secondary';
     const name = sc.seatClassName.toLowerCase();
     if (name.includes('business')) return 'bg-indigo-50 border-indigo-300 text-indigo-700 hover:bg-indigo-100';
     if (name.includes('economy')) return 'bg-slate-50 border-slate-300 text-slate-700 hover:bg-slate-100';
@@ -164,24 +266,35 @@ export class AdminVehiclesComponent implements OnInit {
     return 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100';
   }
 
-  assignSeatClass(seatNumber: string) {
-    this.seatClassAssignments[seatNumber] = this.activeAssignmentClassId;
+  setActiveAssignmentClass(classId: number) {
+    this.activeAssignmentClassId = classId;
+    if (this.selectedSeat) {
+      this.selectedSeat.seatClassId = classId;
+    }
   }
 
   assignAllSeats(classId: number) {
     if (!classId) return;
-    const seatMap = this.previewSeatMap;
-    seatMap.forEach(deck => {
-      deck.rows.forEach(row => {
-        row.forEach((seat: any) => {
-          this.seatClassAssignments[seat.seatNumber] = classId;
-        });
+    this.visualLayout.decks.forEach(d => {
+      d.seats.forEach(s => {
+        s.seatClassId = classId;
       });
     });
-    this.notification.success('All seats assigned to ' + (this.seatClasses.find(c => c.seatClassId === classId)?.seatClassName || 'selected class'));
+    this.notification.success('All seats assigned to ' + (this.seatClasses.find(c => c.seatClassId == classId)?.seatClassName || 'selected class'));
   }
 
   save() {
+    // Ensure data consistency before saving
+    this.visualLayout.isDoubleDecker = this.model.isDoubleDecker;
+    if (!this.model.isDoubleDecker && this.visualLayout.decks.length > 1) {
+      this.visualLayout.decks = [this.visualLayout.decks[0]];
+      this.visualLayout.decks[0].name = 'Main Deck';
+    }
+
+    let totalVisualSeats = 0;
+    this.visualLayout.decks.forEach(d => totalVisualSeats += d.seats.length);
+    this.model.capacity = totalVisualSeats;
+
     const payload = {
       companyId: this.model.companyId || 0,
       vehicleName: this.model.vehicleName,
@@ -192,9 +305,8 @@ export class AdminVehiclesComponent implements OnInit {
       vehicleTypeId: this.model.vehicleTypeId,
       totalSeats: this.model.capacity,
       isDoubleDecker: this.model.isDoubleDecker,
-      continuousBackRow: this.model.continuousBackRow,
-      layoutPreset: this.model.layoutPreset,
-      isActive: this.model.isActive
+      isActive: this.model.isActive,
+      visualLayout: this.visualLayout
     };
 
     const request = this.editingItem 
@@ -204,40 +316,9 @@ export class AdminVehiclesComponent implements OnInit {
     request.subscribe({
       next: (res: any) => {
         if (res.success) {
-          const savedVehicleId = res.data?.vehicleID || res.data?.vehicleId || res.data?.id || this.editingItem?.vehicleID || this.editingItem?.vehicleId || this.editingItem?.id;
-          
-          const assignmentsPayload: any[] = [];
-          const seatMap = this.previewSeatMap;
-          seatMap.forEach(deck => {
-            deck.rows.forEach(row => {
-              row.forEach((seat: any) => {
-                const classId = this.getSeatClassId(seat.seatNumber);
-                assignmentsPayload.push({
-                  seatNumber: seat.seatNumber,
-                  seatClassId: classId
-                });
-              });
-            });
-          });
-
-          if (savedVehicleId && assignmentsPayload.length > 0) {
-            this.svc.updateSeatClasses(savedVehicleId, assignmentsPayload).subscribe({
-              next: () => {
-                this.notification.success(this.editingItem ? 'Vehicle and seat classes updated successfully!' : 'Vehicle and seat classes configured successfully!');
-                this.closeModal();
-                this.load();
-              },
-              error: () => {
-                this.notification.warning('Vehicle saved, but failed to save seat class assignments.');
-                this.closeModal();
-                this.load();
-              }
-            });
-          } else {
-            this.notification.success(this.editingItem ? 'Vehicle updated successfully!' : 'Vehicle created successfully!');
-            this.closeModal();
-            this.load();
-          }
+          this.notification.success(this.editingItem ? 'Vehicle updated successfully!' : 'Vehicle created successfully!');
+          this.closeModal();
+          this.load();
         } else {
           this.notification.error(res.message || 'Failed to save vehicle');
         }
@@ -262,133 +343,80 @@ export class AdminVehiclesComponent implements OnInit {
     }
   }
 
-  selectLayout(preset: string) {
-    this.model.layoutPreset = preset;
-    switch (preset) {
-      case 'standard':
-        this.model.isDoubleDecker = false;
-        this.model.continuousBackRow = false;
-        break;
-      case 'economy':
-        this.model.isDoubleDecker = false;
-        this.model.continuousBackRow = false;
-        break;
-      case 'standard-back':
-        this.model.isDoubleDecker = false;
-        this.model.continuousBackRow = true;
-        break;
-      case 'double-decker':
-        this.model.isDoubleDecker = true;
-        this.model.continuousBackRow = true;
-        break;
-      case 'sleeper':
-        this.model.isDoubleDecker = false;
-        this.model.continuousBackRow = false;
-        break;
-      case 'minibus':
-        this.model.isDoubleDecker = false;
-        this.model.continuousBackRow = false;
-        break;
+  get activeDeck() {
+    return this.visualLayout.decks[this.activeDeckIndex];
+  }
+
+  get gridRows() {
+    return Array.from({ length: this.visualLayout.gridHeight }, (_, i) => i);
+  }
+
+  get gridCols() {
+    return Array.from({ length: this.visualLayout.gridWidth }, (_, i) => i);
+  }
+
+  getSeatAt(row: number, col: number): VisualSeat | undefined {
+    return this.activeDeck.seats.find(s => s.row === row && s.col === col);
+  }
+
+  onCellClick(row: number, col: number) {
+    const existing = this.getSeatAt(row, col);
+    if (existing) {
+      this.selectedSeat = existing;
+    } else {
+      const nextNum = this.activeDeck.seats.length + 1;
+      const prefix = this.model.isDoubleDecker ? (this.activeDeck.level === 1 ? 'L' : 'U') : 'S';
+      const newSeat: VisualSeat = {
+        row,
+        col,
+        seatNumber: `${prefix}${nextNum}`,
+        seatClassId: this.activeAssignmentClassId
+      };
+      this.activeDeck.seats.push(newSeat);
+      this.selectedSeat = newSeat;
+      this.updateCapacity();
     }
   }
 
-  get layoutInfo(): { name: string; icon: string; seating: string; detail: string; color: string } {
-    switch (this.model.layoutPreset) {
-      case 'standard':
-        return { name: 'Standard 1+2', icon: 'fa-bus', seating: '1 seat ╠═══ Aisle ═══╣ 2 seats per row', detail: '3 columns · Aisle after column 1 · Seat prefix: A1, A2, A3…', color: 'text-gray-700' };
-      case 'economy':
-        return { name: 'Economy 2+2', icon: 'fa-bus-alt', seating: '2 seats ╠═══ Aisle ═══╣ 2 seats per row', detail: '4 columns · Aisle after column 2 · Seat prefix: A1, A2, A3, A4…', color: 'text-gray-700' };
-      case 'standard-back':
-        return { name: 'Standard 1+2 + Back Row', icon: 'fa-bus', seating: '1 seat ╠═══ Aisle ═══╣ 2 seats per row + Full rear bench', detail: '3 columns + back row of 4 seats spanning full width', color: 'text-blue-700' };
-      case 'double-decker':
-        return { name: 'Double Decker', icon: 'fa-building', seating: '1 seat ╠═ Aisle ═╣ 2 seats · Two floors', detail: 'Lower Deck: L-prefix (LA1, LA2…) · Upper Deck: U-prefix (UA1, UA2…)', color: 'text-indigo-700' };
-      case 'sleeper':
-        return { name: 'Sleeper Berth 2+2', icon: 'fa-bed', seating: '2 wide berths ╠══ Aisle ══╣ 2 wide berths per row', detail: '4 wide columns · Luxury recliner/sleeper configuration · No back row', color: 'text-purple-700' };
-      case 'minibus':
-        return { name: 'Minibus 1+1', icon: 'fa-shuttle-van', seating: '1 seat ╠═══ Aisle ═══╣ 1 seat per row', detail: '2 narrow columns · Compact minibus layout · Seat prefix: A1, A2…', color: 'text-orange-700' };
-      default:
-        return { name: 'Standard', icon: 'fa-bus', seating: '1 seat | Aisle | 2 seats per row', detail: '', color: 'text-gray-700' };
+  removeSelectedSeat() {
+    if (this.selectedSeat) {
+      this.activeDeck.seats = this.activeDeck.seats.filter(s => s !== this.selectedSeat);
+      this.selectedSeat = null;
+      this.updateCapacity();
     }
   }
 
-  // Returns config based on selected layout preset
-  get layoutConfig(): { seatsPerRow: number; aisleAfter: number; backRowSeats: number } {
-    switch (this.model.layoutPreset) {
-      case 'economy':    return { seatsPerRow: 4, aisleAfter: 2, backRowSeats: 5 };
-      case 'standard-back': return { seatsPerRow: 3, aisleAfter: 1, backRowSeats: 4 };
-      case 'double-decker': return { seatsPerRow: 3, aisleAfter: 1, backRowSeats: 4 };
-      case 'sleeper':    return { seatsPerRow: 4, aisleAfter: 2, backRowSeats: 5 };
-      case 'minibus':    return { seatsPerRow: 2, aisleAfter: 1, backRowSeats: 3 };
-      default:           return { seatsPerRow: 3, aisleAfter: 1, backRowSeats: 4 }; // standard
-    }
-  }
+  autoFillLayout(preset: string) {
+    this.activeDeck.seats = [];
+    const h = this.visualLayout.gridHeight;
+    const prefix = this.model.isDoubleDecker ? (this.activeDeck.level === 1 ? 'L' : 'U') : '';
+    let seatIdx = 1;
 
-  get seatPreviewConfig() {
-    const cfg = this.layoutConfig;
-    return {
-      Columns: cfg.seatsPerRow,
-      AisleAfterColumn: cfg.aisleAfter,
-      IsDoubleDecker: this.model.isDoubleDecker,
-      ContinuousBackRow: this.model.continuousBackRow
-    };
-  }
-
-  get previewSeatMap() {
-    const cfg = this.layoutConfig;
-    const seatsPerRow = cfg.seatsPerRow;
-    const backRowSeats = cfg.backRowSeats;
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const decks = this.model.isDoubleDecker ? 2 : 1;
-    const totalCapacity = this.model.capacity || 0;
-    
-    const decksMap = new Map<string, Map<string, any[]>>();
-
-    for (let d = 1; d <= decks; d++) {
-      const capacityForThisDeck = d === 1 ? Math.ceil(totalCapacity / decks) : Math.floor(totalCapacity / decks);
-      
-      let numRegularRows = 0;
-      if (this.model.continuousBackRow) {
-        numRegularRows = Math.ceil(Math.max(0, capacityForThisDeck - backRowSeats) / seatsPerRow);
-      } else {
-        numRegularRows = Math.ceil(capacityForThisDeck / seatsPerRow);
+    if (preset === 'standard') {
+      this.visualLayout.gridWidth = 5;
+      for (let r = 0; r < h - 1; r++) {
+        [0, 1, 3, 4].forEach(c => {
+          this.activeDeck.seats.push({ row: r, col: c, seatNumber: `${prefix}${seatIdx++}`, seatClassId: this.activeAssignmentClassId });
+        });
       }
-
-      const deckName = this.model.isDoubleDecker ? (d === 1 ? 'Lower Deck' : 'Upper Deck') : 'Main Deck';
-      const deckPrefix = this.model.isDoubleDecker ? (d === 1 ? 'L' : 'U') : '';
-      let generatedForDeck = 0;
-      
-      if (!decksMap.has(deckName)) decksMap.set(deckName, new Map());
-
-      for (let r = 0; r < numRegularRows; r++) {
-        const rowLetter = r < alphabet.length ? alphabet[r] : `R${r + 1}`;
-        if (!decksMap.get(deckName)!.has(rowLetter)) decksMap.get(deckName)!.set(rowLetter, []);
-
-        for (let c = 1; c <= seatsPerRow; c++) {
-          if (generatedForDeck >= capacityForThisDeck) break;
-          decksMap.get(deckName)!.get(rowLetter)!.push({
-            seatNumber: `${deckPrefix}${rowLetter}${c}`
-          });
-          generatedForDeck++;
-        }
+      [0, 1, 2, 3, 4].forEach(c => {
+        this.activeDeck.seats.push({ row: h - 1, col: c, seatNumber: `${prefix}${seatIdx++}`, seatClassId: this.activeAssignmentClassId });
+      });
+    } else if (preset === 'economy') {
+      this.visualLayout.gridWidth = 5;
+      for (let r = 0; r < h; r++) {
+        [0, 1, 3, 4].forEach(c => {
+          this.activeDeck.seats.push({ row: r, col: c, seatNumber: `${prefix}${seatIdx++}`, seatClassId: this.activeAssignmentClassId });
+        });
       }
-
-      if (this.model.continuousBackRow) {
-        const backLetter = numRegularRows < alphabet.length ? alphabet[numRegularRows] : `R${numRegularRows + 1}`;
-        if (!decksMap.get(deckName)!.has(backLetter)) decksMap.get(deckName)!.set(backLetter, []);
-
-        for (let c = 1; c <= backRowSeats; c++) {
-          if (generatedForDeck >= capacityForThisDeck) break;
-          decksMap.get(deckName)!.get(backLetter)!.push({
-            seatNumber: `${deckPrefix}${backLetter}${c}`
-          });
-          generatedForDeck++;
-        }
+    } else if (preset === 'minibus') {
+      this.visualLayout.gridWidth = 4;
+      for (let r = 0; r < h; r++) {
+        [0, 2, 3].forEach(c => {
+          this.activeDeck.seats.push({ row: r, col: c, seatNumber: `${prefix}${seatIdx++}`, seatClassId: this.activeAssignmentClassId });
+        });
       }
     }
-
-    return Array.from(decksMap.entries()).map(([name, rowsMap]) => ({
-      deckName: name,
-      rows: Array.from(rowsMap.values())
-    }));
+    this.updateCapacity();
   }
 }

@@ -25,5 +25,10 @@ namespace Saowari.Models.DTOs.Booking
         public string? VehicleName { get; set; }
         public int NumberOfSeats { get; set; }
         public string? SeatNumbers { get; set; }
+        // True when a cancellation OTP has been generated but not yet verified
+        public bool HasPendingCancellation { get; set; }
+        // Information about the latest refund request for this booking
+        public int? LatestRefundId { get; set; }
+        public int? LatestRefundStatusId { get; set; }
     }
 }

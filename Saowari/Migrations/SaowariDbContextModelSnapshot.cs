@@ -116,6 +116,13 @@ namespace Saowari.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("CancellationOtp")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTime?>("CancellationOtpExpiry")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
@@ -251,6 +258,13 @@ namespace Saowari.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("LogoURL")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("TicketBackgroundOpacity")
+                        .HasColumnType("decimal(3,2)");
+
+                    b.Property<string>("TicketBackgroundUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -644,6 +658,13 @@ namespace Saowari.Migrations
 
                     b.Property<decimal>("RefundAmount")
                         .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("RefundOtpCode")
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<DateTime?>("RefundOtpExpireTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("RefundPercentage")
                         .HasColumnType("decimal(5,2)");
@@ -1173,6 +1194,20 @@ namespace Saowari.Migrations
                     b.ToTable("SupportRoom");
                 });
 
+            modelBuilder.Entity("Saowari.Models.Entities.SystemSetting", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("SystemSetting");
+                });
+
             modelBuilder.Entity("Saowari.Models.Entities.Ticket", b =>
                 {
                     b.Property<int>("TicketID")
@@ -1213,6 +1248,10 @@ namespace Saowari.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserID"));
 
+                    b.Property<string>("AdminCopyEmail")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
                     b.Property<int?>("CompanyId")
                         .HasColumnType("int");
 
@@ -1227,6 +1266,16 @@ namespace Saowari.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("EmailChangeOtpCode")
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<DateTime?>("EmailChangeOtpExpireTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FailedLoginAttempts")
+                        .HasColumnType("int");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -1235,10 +1284,34 @@ namespace Saowari.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LockoutEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LoginOtpCode")
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<DateTime?>("LoginOtpExpireTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OtpCode")
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<DateTime?>("OtpExpireTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PendingNewEmail")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -1253,6 +1326,13 @@ namespace Saowari.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("RefreshTokenExpireTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RegistrationOtpCode")
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<DateTime?>("RegistrationOtpExpireTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("RoleID")
@@ -1272,6 +1352,40 @@ namespace Saowari.Migrations
                     b.HasIndex("SupervisorId");
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("Saowari.Models.Entities.UserLoginHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DeviceName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("IpAddress")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LoginTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLoginHistory");
                 });
 
             modelBuilder.Entity("Saowari.Models.Entities.UserRole", b =>
@@ -1322,8 +1436,7 @@ namespace Saowari.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("SeatLayoutConfig")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TotalSeats")
                         .HasColumnType("int");
@@ -1856,6 +1969,17 @@ namespace Saowari.Migrations
                     b.Navigation("Supervisor");
 
                     b.Navigation("UserRole");
+                });
+
+            modelBuilder.Entity("Saowari.Models.Entities.UserLoginHistory", b =>
+                {
+                    b.HasOne("Saowari.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Saowari.Models.Entities.Vehicle", b =>

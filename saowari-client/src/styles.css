@@ -4,28 +4,109 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
-:root {
-  --primary: #004f98;
-  --secondary: #3372ad;
-  --accent: #1E87E4;
-  --primary-dark: #003870;
-  --primary-light: #e8f0fb;
-  --surface: #ffffff;
-  --surface-alt: #f4f8ff;
-  --text-primary: #0d1b2a;
-  --text-secondary: #4a6080;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --gradient-hero: linear-gradient(135deg, #004f98 0%, #1E87E4 60%, #3372ad 100%);
+:root, [data-theme="light"] {
+  --saowari-primary: #004f98;
+  --saowari-secondary: #3372ad;
+  --saowari-accent: #1E87E4;
+  --saowari-primary-dark: #003870;
+  --saowari-primary-light: #e8f0fb;
+  --saowari-surface: #ffffff;
+  --saowari-surface-alt: #f4f8ff;
+  --saowari-text-primary: #0d1b2a;
+  --saowari-text-secondary: #4a6080;
+  --saowari-border: #e2e8f0;
+  --primary: var(--saowari-primary);
+  --accent: var(--saowari-accent);
+  --gradient-hero: linear-gradient(135deg, var(--saowari-primary) 0%, var(--saowari-accent) 60%, var(--saowari-secondary) 100%);
+}
+
+[data-theme="dark"] {
+  --saowari-primary: #3b82f6;
+  --saowari-secondary: #60a5fa;
+  --saowari-accent: #93c5fd;
+  --saowari-primary-dark: #2563eb;
+  --saowari-primary-light: #1e3a8a;
+  --saowari-surface: #0f172a;
+  --saowari-surface-alt: #020617;
+  --saowari-text-primary: #f8fafc;
+  --saowari-text-secondary: #94a3b8;
+  --saowari-border: #1e293b;
+  --primary: var(--saowari-primary);
+  --accent: var(--saowari-accent);
+  --gradient-hero: linear-gradient(135deg, var(--saowari-primary) 0%, var(--saowari-accent) 60%, var(--saowari-secondary) 100%);
+}
+
+[data-theme="gray"] {
+  --saowari-primary: #475569;
+  --saowari-secondary: #64748b;
+  --saowari-accent: #94a3b8;
+  --saowari-primary-dark: #334155;
+  --saowari-primary-light: #cbd5e1;
+  --saowari-surface: #f1f5f9;
+  --saowari-surface-alt: #e2e8f0;
+  --saowari-text-primary: #0f172a;
+  --saowari-text-secondary: #334155;
+  --saowari-border: #cbd5e1;
+  --primary: var(--saowari-primary);
+  --accent: var(--saowari-accent);
+  --gradient-hero: linear-gradient(135deg, var(--saowari-primary) 0%, var(--saowari-accent) 60%, var(--saowari-secondary) 100%);
+}
+
+[data-theme="blue"] {
+  --saowari-primary: #0ea5e9;
+  --saowari-secondary: #38bdf8;
+  --saowari-accent: #7dd3fc;
+  --saowari-primary-dark: #0284c7;
+  --saowari-primary-light: #e0f2fe;
+  --saowari-surface: #f0f9ff;
+  --saowari-surface-alt: #e0f2fe;
+  --saowari-text-primary: #082f49;
+  --saowari-text-secondary: #0c4a6e;
+  --saowari-border: #bae6fd;
+  --primary: var(--saowari-primary);
+  --accent: var(--saowari-accent);
+  --gradient-hero: linear-gradient(135deg, var(--saowari-primary) 0%, var(--saowari-accent) 60%, var(--saowari-secondary) 100%);
+}
+
+[data-theme="emerald"] {
+  --saowari-primary: #10b981;
+  --saowari-secondary: #34d399;
+  --saowari-accent: #6ee7b7;
+  --saowari-primary-dark: #059669;
+  --saowari-primary-light: #d1fae5;
+  --saowari-surface: #f0fdf4;
+  --saowari-surface-alt: #dcfce7;
+  --saowari-text-primary: #064e3b;
+  --saowari-text-secondary: #065f46;
+  --saowari-border: #a7f3d0;
+  --primary: var(--saowari-primary);
+  --accent: var(--saowari-accent);
+  --gradient-hero: linear-gradient(135deg, var(--saowari-primary) 0%, var(--saowari-accent) 60%, var(--saowari-secondary) 100%);
+}
+
+[data-theme="sunset"] {
+  --saowari-primary: #f97316;
+  --saowari-secondary: #fb923c;
+  --saowari-accent: #fdba74;
+  --saowari-primary-dark: #ea580c;
+  --saowari-primary-light: #ffedd5;
+  --saowari-surface: #fff7ed;
+  --saowari-surface-alt: #ffedd5;
+  --saowari-text-primary: #431407;
+  --saowari-text-secondary: #7c2d12;
+  --saowari-border: #fed7aa;
+  --primary: var(--saowari-primary);
+  --accent: var(--saowari-accent);
+  --gradient-hero: linear-gradient(135deg, var(--saowari-primary) 0%, var(--saowari-accent) 60%, var(--saowari-secondary) 100%);
 }
 
 html, body {
   height: 100%;
   margin: 0;
   font-family: 'Inter', sans-serif;
-  color: var(--text-primary);
-  background-color: var(--surface-alt);
+  color: var(--saowari-text-primary);
+  background-color: var(--saowari-surface-alt);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {

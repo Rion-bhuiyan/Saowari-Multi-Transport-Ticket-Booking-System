@@ -37,20 +37,6 @@ export class HomeComponent implements OnInit {
 
   today = new Date().toISOString().split('T')[0];
 
-  currentTab: 'outbound' | 'return' = 'outbound';
-  
-  // Search Results State
-  trips: TripSearchResult[] = [];
-  filteredTrips: TripSearchResult[] = [];
-  isLoading = false;
-  hasSearched = false;
-
-  // Filters State
-  filterTypes: string[] = [];
-  selectedTypes: string[] = [];
-  maxPrice: number = 5000;
-  currentMaxPrice: number = 5000;
-
   // Custom dropdown state
   fromDropdownOpen = false;
   toDropdownOpen = false;
@@ -246,161 +232,24 @@ export class HomeComponent implements OnInit {
     }
 
     this.bookingState.setTripType(this.searchParams.tripType as any);
-    this.currentTab = 'outbound';
-    this.performSearch();
+    this.router.navigate(['/search'], { queryParams: this.searchParams });
   }
 
-  performSearch() {
-    this.isLoading = true;
-    this.hasSearched = true;
-    this.trips = [];
-    this.filteredTrips = [];
-    
-    let fromId = this.searchParams.fromLocationId;
-    let toId = this.searchParams.toLocationId;
-    let date = this.searchParams.departureDate;
-
-    if (this.currentTab === 'return') {
-      fromId = this.searchParams.toLocationId;
-      toId = this.searchParams.fromLocationId;
-      date = this.searchParams.returnDate;
-    }
-
-    if (!date) {
-        this.isLoading = false;
-        return;
-    }
-
-    const apiParams = {
-        transportType: this.searchParams.transportType,
-        fromLocationId: fromId,
-        toLocationId: toId,
-        travelDate: date
-    };
-
-    this.searchService.searchTrips(apiParams).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.trips = res.data;
-          this.extractFilters();
-          this.applyFilters();
-        }
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-      }
-    });
-  }
-
-  switchTab(tab: 'outbound' | 'return') {
-    this.currentTab = tab;
-    this.performSearch();
-  }
-
-  get dateRange() {
-    const activeDateStr = this.currentTab === 'return' ? this.searchParams.returnDate : this.searchParams.departureDate;
-    if (!activeDateStr) return [];
-
-    const activeDate = new Date(activeDateStr);
-    const dates = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Center around activeDate: 3 days before, active date, 3 days after
-    // But don't go before today
-    let startDate = new Date(activeDate);
-    startDate.setDate(startDate.getDate() - 3);
-
-    if (startDate < today) {
-      startDate = new Date(today);
-    }
-
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
-      
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-
-      dates.push({
-        dateString: dateStr,
-        label: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
-        isActive: dateStr === activeDateStr
-      });
-    }
-    return dates;
-  }
-
-  selectQuickDate(dateStr: string) {
-    if (this.currentTab === 'return') {
-      this.searchParams.returnDate = dateStr;
-    } else {
-      this.searchParams.departureDate = dateStr;
-    }
-    this.performSearch();
-  }
-
-  extractFilters() {
-    const types = new Set<string>();
-    let maxP = 0;
-    this.trips.forEach(t => {
-      if (t.vehicleType) types.add(t.vehicleType);
-      if (t.basePrice > maxP) maxP = t.basePrice;
-    });
-    this.filterTypes = Array.from(types);
-    this.maxPrice = maxP > 0 ? maxP : 5000;
-    this.currentMaxPrice = this.maxPrice;
-    this.selectedTypes = [...this.filterTypes];
-  }
-
-  toggleTypeFilter(type: string) {
-    const idx = this.selectedTypes.indexOf(type);
-    if (idx > -1) {
-      this.selectedTypes.splice(idx, 1);
-    } else {
-      this.selectedTypes.push(type);
-    }
-    this.applyFilters();
-  }
-
-  onPriceChange() {
-    this.applyFilters();
-  }
-
-  applyFilters() {
-    this.filteredTrips = this.trips.filter(t => {
-      const typeMatch = t.vehicleType ? this.selectedTypes.includes(t.vehicleType) : true;
-      const priceMatch = t.basePrice <= this.currentMaxPrice;
-      return typeMatch && priceMatch;
-    });
-  }
-
-  resetFilters() {
-    this.currentMaxPrice = this.maxPrice;
-    this.selectedTypes = this.filterTypes.slice();
-    this.applyFilters();
-  }
-
-  viewSeats(scheduleId: number) {
-    const trip = this.trips.find(t => t.scheduleId === scheduleId);
-    if (trip) {
-      if (this.currentTab === 'outbound') {
-        this.bookingState.setOutboundTrip(trip);
-      } else {
-        this.bookingState.setReturnTrip(trip);
-      }
-    }
-    this.router.navigate(['/schedules', scheduleId]);
-  }
 
   swapLocations() {
     const temp = this.searchParams.fromLocationId;
     this.searchParams.fromLocationId = this.searchParams.toLocationId;
     this.searchParams.toLocationId = temp;
     this.sameLocationError = false;
+  }
+
+  viewSeats(scheduleId: number) {
+    const trip = this.upcomingSchedules.find(t => t.scheduleId === scheduleId);
+    if (trip) {
+      this.bookingState.setTripType('one-way');
+      this.bookingState.setOutboundTrip(trip);
+    }
+    this.router.navigate(['/schedules', scheduleId]);
   }
 
   quickSearch(route: any) {

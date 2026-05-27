@@ -1,94 +1,159 @@
 <div class="space-y-6 animate-fade-in">
-  <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-heading font-bold text-saowari-text-primary">My Assigned Schedules</h1>
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <div>
+      <h1 class="text-2xl font-heading font-bold text-saowari-text-primary">Supervisor Dashboard</h1>
+      <p class="text-sm text-saowari-text-secondary">Monitor your assigned trips and passenger manifests</p>
+    </div>
+    <div class="text-sm text-saowari-text-secondary font-medium bg-saowari-surface border border-saowari-border rounded-full px-4 py-1.5 shadow-sm">
+      <i class="far fa-clock mr-1 text-saowari-primary"></i> {{ today | date:'EEEE, MMMM d, y' }}
+    </div>
   </div>
 
-  <div *ngIf="isLoading" class="p-12 text-center bg-white rounded-xl shadow-sm border border-gray-100">
+  <div *ngIf="isLoading" class="p-12 text-center bg-saowari-surface rounded-xl shadow-sm border border-saowari-border">
     <span class="loading loading-spinner loading-lg text-saowari-primary"></span>
   </div>
 
   <ng-container *ngIf="!isLoading">
-    
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-saowari-primary-light">
-        <h3 class="text-lg font-bold text-saowari-primary flex items-center gap-2">
-          <i class="fas fa-clipboard-list"></i> Schedule Overview
+
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <div class="bg-saowari-surface rounded-2xl p-5 shadow-sm border border-saowari-border flex items-center gap-4 relative overflow-hidden group hover:-translate-y-0.5 transition-transform duration-300">
+        <div class="absolute -right-3 -top-3 w-20 h-20 bg-blue-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md bg-gradient-to-br from-blue-500 to-blue-700 z-10 flex-shrink-0">
+          <i class="far fa-calendar-check"></i>
+        </div>
+        <div class="z-10">
+          <p class="text-xs font-semibold text-saowari-text-secondary uppercase tracking-wide">Total Trips</p>
+          <h3 class="text-2xl font-heading font-bold text-saowari-text-primary">{{ totalTrips }}</h3>
+        </div>
+      </div>
+
+      <div class="bg-saowari-surface rounded-2xl p-5 shadow-sm border border-saowari-border flex items-center gap-4 relative overflow-hidden group hover:-translate-y-0.5 transition-transform duration-300">
+        <div class="absolute -right-3 -top-3 w-20 h-20 bg-green-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md bg-gradient-to-br from-green-500 to-green-700 z-10 flex-shrink-0">
+          <i class="fas fa-road"></i>
+        </div>
+        <div class="z-10">
+          <p class="text-xs font-semibold text-saowari-text-secondary uppercase tracking-wide">Active / Ongoing</p>
+          <h3 class="text-2xl font-heading font-bold text-saowari-text-primary">{{ ongoingCount }}</h3>
+        </div>
+      </div>
+
+      <div class="bg-saowari-surface rounded-2xl p-5 shadow-sm border border-saowari-border flex items-center gap-4 relative overflow-hidden group hover:-translate-y-0.5 transition-transform duration-300">
+        <div class="absolute -right-3 -top-3 w-20 h-20 bg-orange-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md bg-gradient-to-br from-orange-500 to-orange-700 z-10 flex-shrink-0">
+          <i class="far fa-calendar-alt"></i>
+        </div>
+        <div class="z-10">
+          <p class="text-xs font-semibold text-saowari-text-secondary uppercase tracking-wide">Upcoming</p>
+          <h3 class="text-2xl font-heading font-bold text-saowari-text-primary">{{ upcomingCount }}</h3>
+        </div>
+      </div>
+
+      <div class="bg-saowari-surface rounded-2xl p-5 shadow-sm border border-saowari-border flex items-center gap-4 relative overflow-hidden group hover:-translate-y-0.5 transition-transform duration-300">
+        <div class="absolute -right-3 -top-3 w-20 h-20 bg-purple-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md bg-gradient-to-br from-purple-500 to-purple-700 z-10 flex-shrink-0">
+          <i class="fas fa-check-double"></i>
+        </div>
+        <div class="z-10">
+          <p class="text-xs font-semibold text-saowari-text-secondary uppercase tracking-wide">Completed</p>
+          <h3 class="text-2xl font-heading font-bold text-saowari-text-primary">{{ completedCount }}</h3>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Ongoing / Active Trips Hero Section -->
+    <div *ngIf="ongoingSchedules.length > 0" class="bg-saowari-surface rounded-2xl shadow-sm border border-l-4 border-l-green-500 border-saowari-border overflow-hidden">
+      <div class="px-6 py-4 border-b border-saowari-border flex justify-between items-center bg-green-50/50">
+        <h3 class="text-lg font-bold text-green-700 flex items-center gap-2">
+          <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
+          Active / In-Progress Trips ({{ ongoingSchedules.length }})
         </h3>
       </div>
-      
-      <div class="p-0">
-        <div *ngIf="schedules.length === 0" class="p-12 text-center text-gray-400">
-          <i class="fas fa-bed text-4xl mb-3 opacity-50 block text-saowari-primary"></i>
-          <p class="text-lg font-semibold text-gray-600">No schedules assigned to you right now.</p>
-          <p class="text-sm">Enjoy your time off!</p>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6" *ngIf="schedules.length > 0">
-          
-          <div *ngFor="let s of schedules" class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-saowari-primary transition-all group overflow-hidden flex flex-col">
-            <div class="px-5 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <span class="font-mono text-xs font-bold text-gray-500 uppercase">Sch #{{ s.scheduleId || s.scheduleID || s.id }}</span>
-              <span [class]="'badge badge-sm ' + getStatusBadge(s.scheduleStatusName || s.statusName)">
-                {{ s.scheduleStatusName || s.statusName }}
-              </span>
+      <div class="divide-y divide-saowari-border">
+        <div *ngFor="let s of ongoingSchedules" class="px-6 py-4 hover:bg-saowari-surface-alt/50 transition-colors flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-3 mb-1.5">
+              <span class="font-mono text-xs font-bold text-saowari-text-secondary bg-saowari-surface-alt rounded-md px-2 py-0.5">#{{ s.scheduleId || s.scheduleID }}</span>
+              <span class="badge badge-success badge-sm">Active</span>
             </div>
-            
-            <div class="p-5 flex-1 space-y-4">
-              <!-- Route & Time -->
-              <div class="flex flex-col gap-2 relative pl-6">
-                <!-- Timeline line -->
-                <div class="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gray-200"></div>
-                
-                <!-- Departure -->
-                <div class="relative">
-                  <div class="absolute -left-[27px] top-1 w-3 h-3 rounded-full border-2 border-saowari-primary bg-white"></div>
-                  <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Departure</p>
-                  <p class="text-sm font-bold text-gray-800">{{ (s.departureDateTime || s.departureTime) | date:'MMM d, y, h:mm a' }}</p>
-                </div>
-                
-                <!-- Arrival -->
-                <div class="relative mt-2">
-                  <div class="absolute -left-[27px] top-1 w-3 h-3 rounded-full bg-saowari-primary"></div>
-                  <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Estimated Arrival</p>
-                  <p class="text-sm font-bold text-gray-800">{{ (s.arrivalDateTime || s.arrivalTime) | date:'MMM d, y, h:mm a' }}</p>
-                </div>
-              </div>
-              
-              <div class="divider my-0"></div>
-              
-              <!-- Bus Details -->
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center flex-shrink-0">
-                  <i class="fas fa-bus"></i>
-                </div>
-                <div>
-                  <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Vehicle</p>
-                  <p class="text-sm font-bold text-gray-800">{{ s.vehicleName || 'Vehicle ' + (s.vehicleID || s.vehicleId) }}</p>
-                </div>
-              </div>
-
-              <!-- Driver Details -->
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
-                  <i class="fas fa-id-badge"></i>
-                </div>
-                <div>
-                  <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">Driver Info</p>
-                  <p class="text-sm font-bold text-gray-800">Driver ID: {{ s.driverInformtionID || s.driverInformtionId }}</p>
-                </div>
-              </div>
-
-            </div>
-            
-            <div class="p-4 border-t border-gray-100 bg-gray-50 mt-auto">
-              <a [routerLink]="['/admin/schedules', (s.scheduleID || s.scheduleId || s.id), 'seat-map']" class="btn btn-saowari btn-sm w-full shadow-sm group-hover:bg-saowari-accent transition-colors">
-                <i class="fas fa-chair mr-2"></i> View Seat Map & Passengers
-              </a>
-            </div>
+            <p class="text-sm font-semibold text-saowari-text-primary"><i class="fas fa-bus mr-2 text-orange-500"></i>{{ s.vehicleName || 'Vehicle ' + s.vehicleId }}</p>
+            <p class="text-xs text-saowari-text-secondary mt-1 flex items-center gap-3 flex-wrap">
+              <span><i class="fas fa-plane-departure text-green-500 mr-1"></i>{{ (s.departureDateTime) | date:'MMM d, h:mm a' }}</span>
+              <i class="fas fa-arrow-right text-gray-300"></i>
+              <span><i class="fas fa-plane-arrival text-red-400 mr-1"></i>{{ (s.arrivalDateTime) | date:'MMM d, h:mm a' }}</span>
+            </p>
           </div>
-          
+          <a [routerLink]="['/admin/schedules', (s.scheduleID || s.scheduleId), 'seat-map']"
+             class="btn btn-success btn-sm text-white shadow-sm flex-shrink-0">
+            <i class="fas fa-chair mr-1.5"></i> Seat Map
+          </a>
         </div>
       </div>
     </div>
+
+    <!-- Upcoming Schedules Table -->
+    <div class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden">
+      <div class="px-6 py-4 border-b border-saowari-border flex justify-between items-center bg-saowari-surface-alt/50">
+        <h3 class="text-lg font-bold text-saowari-text-primary flex items-center gap-2">
+          <i class="far fa-calendar-alt text-saowari-primary"></i> Upcoming Assigned Trips
+        </h3>
+        <span class="badge badge-primary badge-sm">{{ upcomingSchedules.length }}</span>
+      </div>
+
+      <div *ngIf="upcomingSchedules.length === 0" class="p-12 text-center text-gray-400">
+        <i class="fas fa-calendar-check text-4xl mb-3 opacity-30 block text-saowari-primary"></i>
+        <p class="font-semibold text-saowari-text-secondary">No upcoming trips assigned.</p>
+      </div>
+
+      <div class="overflow-x-auto" *ngIf="upcomingSchedules.length > 0">
+        <table class="table w-full">
+          <thead class="bg-saowari-surface-alt/80 text-saowari-text-secondary text-xs uppercase tracking-wider">
+            <tr>
+              <th>Trip</th>
+              <th>Vehicle</th>
+              <th>Departure</th>
+              <th>Arrival</th>
+              <th>Status</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-saowari-border text-sm">
+            <tr *ngFor="let s of upcomingSchedules" class="hover:bg-saowari-surface-alt/40 transition-colors">
+              <td class="font-mono text-xs font-bold text-saowari-text-secondary">#{{ s.scheduleId || s.scheduleID }}</td>
+              <td>
+                <span class="font-semibold text-saowari-text-primary">{{ s.vehicleName || 'Vehicle ' + s.vehicleId }}</span>
+              </td>
+              <td class="text-green-600 whitespace-nowrap">
+                <i class="fas fa-play-circle mr-1 text-xs"></i>{{ (s.departureDateTime) | date:'MMM d, h:mm a' }}
+              </td>
+              <td class="text-red-500 whitespace-nowrap text-xs">
+                <i class="fas fa-stop-circle mr-1"></i>{{ (s.arrivalDateTime) | date:'MMM d, h:mm a' }}
+              </td>
+              <td>
+                <span [class]="'badge badge-sm ' + getStatusBadge(s.scheduleStatusName)">{{ s.scheduleStatusName }}</span>
+              </td>
+              <td class="text-right">
+                <div class="flex gap-2 justify-end">
+                  <a [routerLink]="['/admin/schedules', (s.scheduleID || s.scheduleId), 'seat-map']"
+                     class="btn btn-saowari btn-sm shadow-sm">
+                    <i class="fas fa-chair mr-1"></i> Seat Map
+                  </a>
+                  <button (click)="markPendingExpiry(s.scheduleID || s.scheduleId)"
+                          class="btn btn-warning btn-sm text-white shadow-sm" title="Mark as Pending Expiry">
+                    <i class="fas fa-flag-checkered mr-1"></i> Arrived
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </ng-container>
 </div>

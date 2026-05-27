@@ -15,5 +15,8 @@ namespace Saowari.Interfaces
         Task<ApiResponse<BookingResponseDto>> CreateAsync(BookingCreateDto dto);
         Task<ApiResponse<BookingResponseDto>> UpdateAsync(int id, BookingUpdateDto dto);
         Task<ApiResponse<bool>> DeleteAsync(int id);
+        
+        Task<ApiResponse<bool>> RequestCancellationAsync(int id);
+        Task<ApiResponse<bool>> VerifyCancellationAsync(int id, string otp);
     }
 }

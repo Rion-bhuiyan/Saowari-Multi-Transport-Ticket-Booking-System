@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,11 +10,18 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   selector: 'app-admin-seat-classes',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './admin-seat-classes.component.html',
   styleUrls: ['./admin-seat-classes.component.css']
 })
 export class AdminSeatClassesComponent implements OnInit {
+  get pagedItems() {
+    const start = (this.p - 1) * Number(this.pageSize);
+    return (this.filtered || this.items || []).slice(start, start + Number(this.pageSize));
+  }
+  p: number = 1;
+  pageSize: number = 15;
+
   items: SeatClassModel[] = [];
   filtered: SeatClassModel[] = [];
   isLoading = true;

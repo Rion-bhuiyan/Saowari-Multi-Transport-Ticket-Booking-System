@@ -8,6 +8,7 @@ using Saowari.Extensions;
 using Saowari.Services;
 using System.Text;
 using System.Text.Json.Serialization;
+using Saowari.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,11 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplicationServices();
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<Saowari.Services.ChatCleanupService>();
+
+// Register PresenceTracker as Singleton
+builder.Services.AddSingleton<Saowari.Services.PresenceTracker>();
+
+builder.Services.AddScoped<Saowari.Services.IEmailService, Saowari.Services.EmailService>();
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 // Configured to allow credentials specifically for real-time SignalR clients
@@ -73,6 +79,22 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSetting["Audience"],
         ClockSkew = TimeSpan.Zero
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/chatHub") ||
+                 path.StartsWithSegments("/presenceHub") ||
+                 path.StartsWithSegments("/notificationHub")))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 // ── Authorization Policies ────────────────────────────────────────────────────
@@ -85,6 +107,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AnyStaff",     policy => policy.RequireRole("Admin", "Agent", "Supervisor", "Driver"));
     options.AddPolicy("AdminOrManager", policy => policy.RequireRole("Admin", "CompanyManager"));
     options.AddPolicy("ManagerOrSupervisor", policy => policy.RequireRole("Admin", "CompanyManager", "Supervisor"));
+    options.AddPolicy("ScheduleViewer", policy => policy.RequireRole("Admin", "CompanyManager", "Supervisor", "Driver"));
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -130,5 +153,7 @@ app.UseAuthorization();
 // 5. Map Controllers & Hubs
 app.MapControllers();
 app.MapHub<Saowari.Hubs.ChatHub>("/chatHub");
+app.MapHub<Saowari.Hubs.PresenceHub>("/presenceHub");
+app.MapHub<Saowari.Hubs.NotificationHub>("/notificationHub");
 
 app.Run();

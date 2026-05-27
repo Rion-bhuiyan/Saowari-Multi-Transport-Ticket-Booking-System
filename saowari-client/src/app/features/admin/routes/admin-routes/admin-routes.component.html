@@ -5,8 +5,8 @@
       <i class="fas fa-plus mr-2"></i> Add Route
     </button>
   </div>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="p-5 border-b border-gray-100 flex gap-4 flex-wrap">
+  <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border overflow-hidden">
+    <div class="p-5 border-b border-saowari-border flex gap-4 flex-wrap">
       <div class="relative flex-1 min-w-[200px]">
         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
         <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Search..." class="input input-sm input-bordered w-full pl-9 focus:border-saowari-primary">
@@ -20,7 +20,7 @@
     </div>
     <div *ngIf="!isLoading && filtered.length > 0" class="overflow-x-auto">
       <table class="table table-sm w-full">
-        <thead class="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+        <thead class="bg-saowari-surface-alt/80 text-xs text-saowari-text-secondary uppercase tracking-wider">
           <tr>
             <th class="px-5 py-3 font-semibold">#ID</th>
             <th class="px-5 py-3 font-semibold w-16">Image</th>
@@ -32,24 +32,24 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-50">
-          <tr *ngFor="let item of filtered" class="hover:bg-gray-50/50 transition-colors">
-            <td class="px-5 py-3 text-xs font-mono text-gray-500">{{ item.routeID || item.routeId || item.id }}</td>
+          <tr *ngFor="let item of pagedItems" class="hover:bg-saowari-surface-alt/50 transition-colors">
+            <td class="px-5 py-3 text-xs font-mono text-saowari-text-secondary">{{ item.routeID || item.routeId || item.id }}</td>
             <td class="px-5 py-3">
               <div class="avatar">
-                <div class="w-12 h-12 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden">
+                <div class="w-12 h-12 rounded-xl border border-saowari-border bg-saowari-surface-alt flex items-center justify-center overflow-hidden">
                   <img *ngIf="item.imageUrl" [src]="item.imageUrl" alt="Route" class="object-cover w-full h-full" />
                   <i *ngIf="!item.imageUrl" class="fas fa-route text-gray-300 text-xl"></i>
                 </div>
               </div>
             </td>
-            <td class="px-5 py-3 font-medium text-gray-800">{{ getRouteName(item) }}</td>
+            <td class="px-5 py-3 font-medium text-saowari-text-primary">{{ getRouteName(item) }}</td>
             <td class="px-5 py-3">
               <span class="block text-sm text-green-600">{{ getLocationName(item.fromLocationID || item.fromLocationId) }}</span>
               <span class="text-sm text-red-600">{{ getLocationName(item.toLocationID || item.toLocationId) }}</span>
             </td>
             <td class="px-5 py-3">
               <span class="block text-sm">{{ item.distanceKM || item.distance }} km</span>
-              <span class="text-xs text-gray-500">{{ item.estimatedHours || item.estimatedDuration }} hrs</span>
+              <span class="text-xs text-saowari-text-secondary">{{ item.estimatedHours || item.estimatedDuration }} hrs</span>
             </td>
             <td class="px-5 py-3">
               <span [class]="'badge badge-sm ' + (item.isActive !== false ? 'badge-success' : 'badge-error')">
@@ -65,14 +65,15 @@
           </tr>
         </tbody>
       </table>
+      <app-pagination [pageSize]="pageSize" (pageChange)="p = $event" (pageSizeChange)="pageSize = $event; p = 1" [totalItems]="(filtered || items || []).length" [currentPage]="p"></app-pagination>
     </div>
-    <div *ngIf="!isLoading" class="px-5 py-3 border-t border-gray-100 text-xs text-gray-400">
+    <div *ngIf="!isLoading" class="px-5 py-3 border-t border-saowari-border text-xs text-gray-400">
       Showing {{ filtered.length }} of {{ items.length }} records
     </div>
   </div>
 
   <dialog class="modal" [class.modal-open]="isModalOpen">
-    <div class="modal-box bg-white rounded-2xl p-0 overflow-hidden shadow-2xl max-w-2xl">
+    <div class="modal-box bg-saowari-surface rounded-2xl p-0 overflow-hidden shadow-2xl max-w-2xl">
       <div class="bg-saowari-primary-light px-6 py-4 flex justify-between items-center border-b border-blue-100">
         <h3 class="font-bold text-xl text-saowari-primary">
           {{ editingItem ? 'Edit Route' : 'Add New Route' }}
@@ -87,14 +88,14 @@
             <label class="label">
               <span class="label-text font-semibold text-gray-700">Route Cover Image</span>
             </label>
-            <div class="mt-1 flex justify-center px-6 pt-6 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-saowari-primary transition-colors bg-gray-50 relative group cursor-pointer"
+            <div class="mt-1 flex justify-center px-6 pt-6 pb-6 border-2 border-saowari-border border-dashed rounded-xl hover:border-saowari-primary transition-colors bg-saowari-surface-alt relative group cursor-pointer"
                  (click)="fileInput.click()">
                  
               <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" class="hidden" />
               
               <div class="space-y-1 text-center" *ngIf="!imagePreview">
                 <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 group-hover:text-saowari-primary transition-colors mb-2"></i>
-                <div class="flex text-sm text-gray-600 justify-center">
+                <div class="flex text-sm text-saowari-text-secondary justify-center">
                   <span class="font-medium text-saowari-primary">Click to upload</span>
                   <p class="pl-1">or drag and drop</p>
                 </div>
@@ -102,13 +103,13 @@
               </div>
 
               <div *ngIf="imagePreview" class="flex flex-col items-center w-full">
-                <div class="relative w-full h-32 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
+                <div class="relative w-full h-32 rounded-xl overflow-hidden border border-saowari-border shadow-sm bg-saowari-surface">
                   <img [src]="imagePreview" alt="Preview" class="object-cover w-full h-full" />
                   <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <i class="fas fa-pen text-white"></i>
                   </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-3 font-medium group-hover:text-saowari-primary transition-colors">Click to change image</p>
+                <p class="text-xs text-saowari-text-secondary mt-3 font-medium group-hover:text-saowari-primary transition-colors">Click to change image</p>
               </div>
             </div>
           </div>
@@ -118,7 +119,7 @@
               <label class="label">
                 <span class="label-text font-semibold text-gray-700">Route Name</span>
               </label>
-              <input type="text" [value]="getFormRouteName()" readonly class="input input-bordered w-full bg-gray-50 text-gray-500 focus:outline-none" placeholder="Auto-generated from locations..." />
+              <input type="text" [value]="getFormRouteName()" readonly class="input input-bordered w-full bg-saowari-surface-alt text-saowari-text-secondary focus:outline-none" placeholder="Auto-generated from locations..." />
             </div>
             <div class="form-control w-full">
               <label class="label">
@@ -131,8 +132,8 @@
                   </span>
                   <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
                 </summary>
-                <div class="dropdown-content z-[10] menu p-2 shadow-xl bg-base-100 rounded-box w-full mt-1 border border-gray-100 max-h-60 overflow-y-auto block">
-                  <div class="px-2 py-1 mb-2 sticky top-0 bg-base-100 z-10 border-b border-gray-100">
+                <div class="dropdown-content z-[10] menu p-2 shadow-xl bg-base-100 rounded-box w-full mt-1 border border-saowari-border max-h-60 overflow-y-auto block">
+                  <div class="px-2 py-1 mb-2 sticky top-0 bg-base-100 z-10 border-b border-saowari-border">
                     <div class="relative">
                       <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                       <input type="text" [(ngModel)]="fromSearchQuery" [ngModelOptions]="{standalone: true}" placeholder="Search origin..." class="input input-sm input-bordered w-full pl-8">
@@ -158,8 +159,8 @@
                   </span>
                   <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
                 </summary>
-                <div class="dropdown-content z-[10] menu p-2 shadow-xl bg-base-100 rounded-box w-full mt-1 border border-gray-100 max-h-60 overflow-y-auto block">
-                  <div class="px-2 py-1 mb-2 sticky top-0 bg-base-100 z-10 border-b border-gray-100">
+                <div class="dropdown-content z-[10] menu p-2 shadow-xl bg-base-100 rounded-box w-full mt-1 border border-saowari-border max-h-60 overflow-y-auto block">
+                  <div class="px-2 py-1 mb-2 sticky top-0 bg-base-100 z-10 border-b border-saowari-border">
                     <div class="relative">
                       <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                       <input type="text" [(ngModel)]="toSearchQuery" [ngModelOptions]="{standalone: true}" placeholder="Search destination..." class="input input-sm input-bordered w-full pl-8">

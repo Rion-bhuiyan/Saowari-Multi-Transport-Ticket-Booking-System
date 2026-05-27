@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SettingsService } from '../../../core/services/api/settings.service';
+import { NotificationService, NotificationItem } from '../../../core/services/api/notification.service';
 import { Observable } from 'rxjs';
 import { UserModel } from '../../../core/models/auth.model';
 
@@ -44,13 +45,89 @@ import { UserModel } from '../../../core/models/auth.model';
               <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-saowari-accent transition-all group-hover:w-full"></span>
             </a>
 
+            <!-- Theme Switcher -->
+            <div class="dropdown dropdown-end">
+              <label tabindex="0" class="btn btn-ghost btn-circle relative text-white hover:text-saowari-accent transition-colors" title="Select Theme">
+                <i class="fas fa-palette text-xl"></i>
+              </label>
+              <div tabindex="0" class="dropdown-content z-[100] p-5 shadow-2xl bg-saowari-surface/95 backdrop-blur-md border border-saowari-border rounded-2xl w-[320px] mt-3 animate-scale-up text-saowari-text-primary">
+                <!-- Header -->
+                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-saowari-border">
+                  <div class="w-9 h-9 rounded-xl bg-gradient-hero flex items-center justify-center text-white shadow-md shadow-saowari-primary/20">
+                    <i class="fas fa-palette text-sm"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-heading font-extrabold text-xs tracking-wide text-saowari-text-primary">Interface Theme</h4>
+                    <p class="text-[9px] text-saowari-text-secondary font-medium">Choose your personal workspace style</p>
+                  </div>
+                </div>
+
+                <!-- Grid of themes -->
+                <div class="grid grid-cols-2 gap-2.5">
+                  <button *ngFor="let t of themes" 
+                          (click)="setTheme(t.id)"
+                          class="flex flex-col items-start p-3 rounded-xl border-2 transition-all duration-300 relative group cursor-pointer text-left w-full select-none"
+                          [ngClass]="activeTheme === t.id 
+                                     ? 'bg-saowari-surface-alt border-saowari-accent shadow-md shadow-saowari-accent/5' 
+                                     : 'bg-saowari-surface border-saowari-border hover:border-saowari-primary hover:bg-saowari-surface-alt hover:-translate-y-0.5'">
+                    
+                    <!-- Selection Indicator -->
+                    <span *ngIf="activeTheme === t.id" 
+                          class="absolute top-2 right-2 w-4.5 h-4.5 rounded-full bg-saowari-accent text-white flex items-center justify-center text-[8px] font-bold shadow-sm animate-scale-up border border-saowari-surface">
+                      <i class="fas fa-check"></i>
+                    </span>
+
+                    <!-- Color Swatch Dots -->
+                    <div class="flex gap-1.5 mb-2.5 items-center">
+                      <span class="w-3.5 h-3.5 rounded-full border border-black/10 shadow-sm transform transition group-hover:scale-110 duration-200" [style.background]="t.primary" title="Primary"></span>
+                      <span class="w-2.5 h-2.5 rounded-full border border-black/10 shadow-sm transform transition group-hover:scale-110 duration-200" [style.background]="t.accent" title="Accent"></span>
+                      <span class="w-2.5 h-2.5 rounded-full border border-black/10 shadow-sm transform transition group-hover:scale-110 duration-200" [style.background]="t.surface" title="Surface"></span>
+                    </div>
+
+                    <!-- Theme Metadata -->
+                    <span class="text-xs font-bold text-saowari-text-primary capitalize tracking-wide transition-colors group-hover:text-saowari-primary">{{ t.name.replace(' mode', '') }}</span>
+                    <span class="text-[9px] text-saowari-text-secondary mt-0.5 font-medium leading-tight group-hover:text-saowari-text-primary/70">{{ t.desc }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <!-- Auth/Profile Section -->
             <ng-container *ngIf="currentUser === null; else loggedInMenu">
-              <a routerLink="/auth/login" class="text-white hover:text-saowari-accent font-medium transition-colors">Login</a>
-              <a routerLink="/auth/register" class="btn btn-outline border-white text-white hover:bg-white hover:text-saowari-primary rounded-full px-6">Sign Up</a>
+              <a routerLink="/auth/login" class="text-white hover:text-saowari-accent font-medium transition-colors ml-4">Login</a>
+              <a routerLink="/auth/register" class="btn btn-outline border-white text-white hover:bg-saowari-surface hover:text-saowari-primary rounded-full px-6 ml-4">Sign Up</a>
             </ng-container>
             
             <ng-template #loggedInMenu>
+              <!-- Notifications Dropdown -->
+              <div class="dropdown dropdown-end mr-4">
+                <label tabindex="0" class="btn btn-ghost btn-circle relative text-white hover:text-saowari-accent transition-colors" (click)="markAllAsRead()">
+                  <i class="fas fa-bell text-xl"></i>
+                  <span *ngIf="unreadNotificationCount > 0"
+                        class="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center font-bold border-2 border-saowari-primary animate-fade-in">{{ unreadNotificationCount }}</span>
+                </label>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-xl bg-saowari-surface border border-saowari-border rounded-box w-80 mt-2 text-saowari-text-primary">
+                  <li class="menu-title px-4 py-3 flex flex-row items-center justify-between border-b border-saowari-border">
+                    <span class="font-bold text-saowari-text-primary">Notifications</span>
+                    <span *ngIf="unreadNotificationCount > 0" class="badge badge-primary badge-sm">{{ unreadNotificationCount }} new</span>
+                  </li>
+                  <li *ngFor="let notif of recentNotifications">
+                    <a class="flex items-start gap-3 p-3 hover:bg-saowari-surface-alt rounded-lg" [class.opacity-60]="notif.isRead" (click)="markAsRead(notif.id)">
+                      <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1" [ngClass]="notif.colorClass">
+                        <i [class]="notif.icon + ' text-xs'"></i>
+                      </div>
+                      <div class="flex-1 overflow-hidden">
+                        <p class="text-sm font-semibold text-saowari-text-primary" [class.font-normal]="notif.isRead">{{ notif.title }}</p>
+                        <p class="text-xs text-saowari-text-secondary mt-0.5" style="white-space: normal; line-height: 1.2;">{{ notif.message }}</p>
+                      </div>
+                    </a>
+                  </li>
+                  <li *ngIf="recentNotifications.length === 0">
+                    <div class="p-4 text-center text-sm text-saowari-text-secondary">No notifications</div>
+                  </li>
+                </ul>
+              </div>
+
               <div class="dropdown dropdown-end">
                 <label tabindex="0" class="btn btn-ghost btn-circle avatar border-2 border-white/30 hover:border-white cursor-pointer">
                   <div class="w-10 rounded-full bg-saowari-primary-dark flex items-center justify-center text-white overflow-hidden animate-fade-in">
@@ -58,16 +135,17 @@ import { UserModel } from '../../../core/models/auth.model';
                     <img *ngIf="currentUser?.picture" [src]="getProfilePictureUrl(currentUser?.picture)" alt="Avatar" class="w-full h-full object-cover hover:scale-105 transition-transform" />
                   </div>
                 </label>
-                <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-saowari-text-primary">
-                  <li class="menu-title px-4 py-2 border-b border-gray-100">
-                    <span class="block font-semibold text-gray-800">{{ currentUser?.fullName }}</span>
-                    <span class="block text-xs text-gray-500">{{ currentUser?.roleName }}</span>
+                <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-saowari-surface border border-saowari-border rounded-box w-52 text-saowari-text-primary">
+                  <li class="menu-title px-4 py-2 border-b border-saowari-border">
+                    <span class="block font-semibold text-saowari-text-primary">{{ currentUser?.fullName }}</span>
+                    <span class="block text-xs text-saowari-text-secondary">{{ currentUser?.roleName }}</span>
                   </li>
-                  <li *ngIf="isAdmin || isAgent"><a routerLink="/admin/dashboard" class="py-3"><i class="fas fa-shield-alt mr-2 text-saowari-primary"></i> Admin Panel</a></li>
-                  <li><a routerLink="/profile/dashboard" class="py-3"><i class="fas fa-user mr-2 text-saowari-primary"></i> Profile Dashboard</a></li>
-                  <li><a routerLink="/profile/my-bookings" class="py-3"><i class="fas fa-ticket-alt mr-2 text-saowari-primary"></i> My Bookings</a></li>
-                  <div class="divider my-0"></div>
-                  <li><a (click)="logout()" class="py-3 text-saowari-danger"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a></li>
+                  <li *ngIf="canAccessAdminPanel"><a routerLink="/admin/dashboard" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-shield-alt mr-2 text-saowari-primary"></i> Admin Panel</a></li>
+                  <li><a routerLink="/profile/dashboard" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-user mr-2 text-saowari-primary"></i> Profile Dashboard</a></li>
+                  <li><a routerLink="/profile/my-bookings" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-ticket-alt mr-2 text-saowari-primary"></i> My Bookings</a></li>
+                  <li><a routerLink="/profile/my-refunds" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-undo-alt mr-2 text-saowari-primary"></i> My Refunds</a></li>
+                  <div class="divider my-0 bg-saowari-border h-px"></div>
+                  <li><a (click)="logout()" class="py-3 text-saowari-danger hover:bg-saowari-surface-alt"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a></li>
                 </ul>
               </div>
             </ng-template>
@@ -90,7 +168,7 @@ import { UserModel } from '../../../core/models/auth.model';
           <li><a routerLink="/about" (click)="toggleMobileMenu()">About Us</a></li>
           <li><a routerLink="/contact" (click)="toggleMobileMenu()">Contact Support</a></li>
           <li><a routerLink="/faq" (click)="toggleMobileMenu()">FAQs</a></li>
-          <div class="divider bg-white/20 h-px my-2"></div>
+          <div class="divider bg-saowari-surface/20 h-px my-2"></div>
           
           <ng-container *ngIf="currentUser === null; else mobileLoggedInMenu">
             <li><a routerLink="/auth/login" (click)="toggleMobileMenu()">Login</a></li>
@@ -99,9 +177,10 @@ import { UserModel } from '../../../core/models/auth.model';
           
           <ng-template #mobileLoggedInMenu>
             <li class="menu-title text-gray-300">Welcome, {{ currentUser?.fullName }}</li>
-            <li *ngIf="isAdmin || isAgent"><a routerLink="/admin/dashboard" (click)="toggleMobileMenu()">Admin Panel</a></li>
+            <li *ngIf="canAccessAdminPanel"><a routerLink="/admin/dashboard" (click)="toggleMobileMenu()">Admin Panel</a></li>
             <li><a routerLink="/profile/dashboard" (click)="toggleMobileMenu()">Profile Dashboard</a></li>
             <li><a routerLink="/profile/my-bookings" (click)="toggleMobileMenu()">My Bookings</a></li>
+            <li><a routerLink="/profile/my-refunds" (click)="toggleMobileMenu()">My Refunds</a></li>
             <li><a (click)="logout(); toggleMobileMenu()" class="text-red-400">Logout</a></li>
           </ng-template>
         </ul>
@@ -151,13 +230,27 @@ export class NavbarComponent implements OnInit {
   currentUser: UserModel | null = null;
   isAdmin = false;
   isAgent = false;
+  canAccessAdminPanel = false;
   globalLogoUrl: string | null = null;
   expandedPictureUrl: string | null = null;
+  unreadNotificationCount = 0;
+  recentNotifications: NotificationItem[] = [];
+
+  themes = [
+    { id: 'light', name: 'light mode', desc: 'Clean & professional', primary: '#004f98', accent: '#1E87E4', surface: '#ffffff' },
+    { id: 'dark', name: 'dark mode', desc: 'Sleek & eye-friendly', primary: '#3b82f6', accent: '#93c5fd', surface: '#0f172a' },
+    { id: 'gray', name: 'gray mode', desc: 'Muted slate & silver', primary: '#475569', accent: '#94a3b8', surface: '#f1f5f9' },
+    { id: 'blue', name: 'blue mode', desc: 'Vibrant ocean breeze', primary: '#0ea5e9', accent: '#7dd3fc', surface: '#f0f9ff' },
+    { id: 'emerald', name: 'emerald mode', desc: 'Fresh & organic mint', primary: '#10b981', accent: '#6ee7b7', surface: '#f0fdf4' },
+    { id: 'sunset', name: 'sunset mode', desc: 'Warm autumn glow', primary: '#f97316', accent: '#fdba74', surface: '#fff7ed' }
+  ];
+  activeTheme = 'light';
 
   constructor(
     private authService: AuthService, 
     private router: Router,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private notificationService: NotificationService
   ) {
     this.router.events.subscribe(() => {
       this.isHome = this.router.url === '/' || this.router.url === '/home';
@@ -166,11 +259,46 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const savedTheme = localStorage.getItem('admin_theme');
+    if (savedTheme && this.themes.find(t => t.id === savedTheme)) {
+      this.activeTheme = savedTheme;
+    }
+    this.applyTheme();
+
+    // Listen for theme changes from other components (like admin panel)
+    window.addEventListener('admin-theme-changed', ((e: CustomEvent) => {
+      if (e.detail && e.detail.theme) {
+        this.activeTheme = e.detail.theme;
+      }
+    }) as EventListener);
+
     this.currentUser$ = this.authService.currentUser$;
     this.currentUser$.subscribe(user => {
       this.currentUser = user;
+      
+      if (this.currentUser && !this.currentUser.roleName) {
+        this.currentUser.roleName = this.authService.getRoleName();
+      }
+
       this.isAdmin = this.authService.isAdmin();
       this.isAgent = this.authService.isAgent();
+      this.canAccessAdminPanel = this.authService.canAccessAdminPanel();
+      
+      if (this.currentUser) {
+        this.fetchNotifications();
+      }
+    });
+
+    this.notificationService.unreadCount$.subscribe(cnt => {
+      this.unreadNotificationCount = cnt;
+    });
+
+    this.notificationService.newNotification$.subscribe((notification: NotificationItem) => {
+      this.recentNotifications.unshift(notification);
+      if (this.recentNotifications.length > 5) {
+        this.recentNotifications.pop();
+      }
+      this.playNotificationSound();
     });
 
     this.settingsService.getLogo().subscribe((res: any) => {
@@ -178,6 +306,18 @@ export class NavbarComponent implements OnInit {
         this.globalLogoUrl = res.data;
       }
     });
+  }
+
+  setTheme(themeId: string) {
+    this.activeTheme = themeId;
+    localStorage.setItem('admin_theme', themeId);
+    this.applyTheme();
+    window.dispatchEvent(new CustomEvent('admin-theme-changed', { detail: { theme: themeId } }));
+  }
+
+  applyTheme() {
+    document.body.setAttribute('data-theme', this.activeTheme);
+    document.documentElement.setAttribute('data-theme', this.activeTheme);
   }
 
   @HostListener('window:scroll', [])
@@ -224,5 +364,34 @@ export class NavbarComponent implements OnInit {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
+  }
+
+  fetchNotifications() {
+    this.notificationService.getAll().subscribe((res: any) => {
+      if (res.success && res.data) {
+        this.recentNotifications = res.data.slice(0, 5);
+      }
+    });
+  }
+
+  markAsRead(id: number) {
+    this.notificationService.markAsRead(id).subscribe(() => {
+      this.fetchNotifications();
+    });
+  }
+
+  markAllAsRead() {
+    if (this.unreadNotificationCount > 0) {
+      this.notificationService.markAllAsRead().subscribe(() => {
+        this.fetchNotifications();
+      });
+    }
+  }
+
+  playNotificationSound() {
+    // Play a standard pop/notification sound
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    audio.volume = 0.5;
+    audio.play().catch(e => console.log('Audio autoplay prevented by browser', e));
   }
 }

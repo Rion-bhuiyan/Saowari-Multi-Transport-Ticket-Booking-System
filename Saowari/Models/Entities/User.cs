@@ -53,9 +53,36 @@ namespace Saowari.Models.Entities
 
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+        public int FailedLoginAttempts { get; set; } = 0;
+        public DateTime? LockoutEnd { get; set; }
         
+        [MaxLength(6)]
+        public string? OtpCode { get; set; }
+        public DateTime? OtpExpireTime { get; set; }
+
+        // OTP for new-device login verification (separate from account-lock OTP)
+        [MaxLength(6)]
+        public string? LoginOtpCode { get; set; }
+        public DateTime? LoginOtpExpireTime { get; set; }
+
+        [MaxLength(6)]
+        public string? EmailChangeOtpCode { get; set; }
+        public DateTime? EmailChangeOtpExpireTime { get; set; }
+
+        [MaxLength(100)]
+        public string? PendingNewEmail { get; set; }
+
+        [MaxLength(150)]
+        [EmailAddress]
+        public string? AdminCopyEmail { get; set; }
+
+        public bool IsEmailVerified { get; set; } = false;
+
+        [MaxLength(6)]
+        public string? RegistrationOtpCode { get; set; }
+        public DateTime? RegistrationOtpExpireTime { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public virtual Company? Company { get; set; }
         public virtual Supervisor? Supervisor { get; set; }

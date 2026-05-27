@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../../../core/services/api/settings.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-settings',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-settings.component.html'
 })
 export class AdminSettingsComponent implements OnInit {
@@ -21,6 +22,7 @@ export class AdminSettingsComponent implements OnInit {
   bgPreview: string | ArrayBuffer | null = null;
   selectedBgFile: File | null = null;
   isBgLoading = false;
+  ticketBgOpacity = 0.1;
 
   constructor(
     private settingsService: SettingsService,
@@ -30,6 +32,31 @@ export class AdminSettingsComponent implements OnInit {
   ngOnInit(): void {
     this.loadLogo();
     this.loadTicketBackground();
+    this.loadSystemSettings();
+  }
+
+  loadSystemSettings() {
+    this.settingsService.getSystemSettings().subscribe({
+      next: (res: any) => {
+        if (res.success && res.data) {
+          if (res.data.TicketBackgroundOpacity) {
+            this.ticketBgOpacity = parseFloat(res.data.TicketBackgroundOpacity);
+          }
+        }
+      }
+    });
+  }
+
+  saveOpacity() {
+    this.settingsService.updateSystemSettings({ TicketBackgroundOpacity: this.ticketBgOpacity.toString() }).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.notification.success('Global opacity updated successfully');
+        } else {
+          this.notification.error('Failed to update opacity');
+        }
+      }
+    });
   }
 
   // ── Logo Methods ──────────────────────────────────────

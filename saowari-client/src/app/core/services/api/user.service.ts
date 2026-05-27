@@ -20,6 +20,10 @@ export class UserService {
     return this.http.get<ApiResponse<UserModel>>(`${this.apiUrl}/${id}`);
   }
 
+  getAdminUserProfile(id: number): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/${id}/admin-profile`);
+  }
+
   getByEmail(email: string): Observable<ApiResponse<UserModel>> {
     return this.http.get<ApiResponse<UserModel>>(`${this.apiUrl}/by-email/${email}`);
   }
@@ -54,5 +58,30 @@ export class UserService {
 
   getMyInvoice(bookingId: number): Observable<ApiResponse<InvoiceModel>> {
     return this.http.get<ApiResponse<InvoiceModel>>(`${this.apiUrl}/me/bookings/${bookingId}/invoice`);
+  }
+
+  getMyDevices(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/me/devices`);
+  }
+
+  revokeDevice(id: number): Observable<ApiResponse<boolean>> {
+    return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/me/devices/${id}`);
+  }
+
+  revokeOtherDevices(currentDeviceId: number): Observable<ApiResponse<boolean>> {
+    return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/me/devices/others?currentDeviceId=${currentDeviceId}`);
+  }
+
+  // --- Email Change ---
+  requestEmailChange(newEmail: string): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/request-email-change`, { newEmail });
+  }
+
+  verifyEmailChangeStep1(currentEmailOtp: string): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/verify-email-change-step1`, { currentEmailOtp });
+  }
+
+  verifyEmailChangeStep2(newEmailOtp: string): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/verify-email-change-step2`, { newEmailOtp });
   }
 }

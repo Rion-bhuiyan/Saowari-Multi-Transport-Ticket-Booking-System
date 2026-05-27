@@ -50,6 +50,10 @@ namespace Saowari.Controllers
             {
                 dto.LogoURL = await SaveLogoFileAsync(dto.LogoFile);
             }
+            if (dto.TicketBackgroundImage != null)
+            {
+                dto.TicketBackgroundUrl = await SaveLogoFileAsync(dto.TicketBackgroundImage);
+            }
 
             var result = await _service.CreateAsync(dto);
             if (!result.Success) return BadRequest(result);
@@ -63,6 +67,10 @@ namespace Saowari.Controllers
             if (dto.LogoFile != null)
             {
                 dto.LogoURL = await SaveLogoFileAsync(dto.LogoFile);
+            }
+            if (dto.TicketBackgroundImage != null)
+            {
+                dto.TicketBackgroundUrl = await SaveLogoFileAsync(dto.TicketBackgroundImage);
             }
 
             var result = await _service.UpdateAsync(id, dto);

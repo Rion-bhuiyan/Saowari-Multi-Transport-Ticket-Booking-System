@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
+import * as signalR from '@microsoft/signalr';
+import { AuthService } from '../auth.service';
 
 export interface NotificationItem {
   id: number;
@@ -37,7 +39,48 @@ export class NotificationService {
   private _unreadCount$ = new BehaviorSubject<number>(0);
   unreadCount$ = this._unreadCount$.asObservable();
 
-  constructor(private http: HttpClient) {}
+  private _newNotification$ = new Subject<NotificationItem>();
+  newNotification$ = this._newNotification$.asObservable();
+
+  private hubConnection: signalR.HubConnection | null = null;
+
+  constructor(private http: HttpClient, private authService: AuthService) {
+    this.startConnection();
+  }
+
+  public startConnection(): void {
+    if (!this.authService.isLoggedIn()) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    
+    this.hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl(`${environment.apiUrl.replace('/api', '')}/notificationHub`, {
+        accessTokenFactory: () => token || ''
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    this.hubConnection
+      .start()
+      .then(() => {
+        console.log('Real-time Notification SignalR Connection started');
+        this.addNotificationListener();
+      })
+      .catch(err => console.log('Error while starting notification connection: ' + err));
+  }
+
+  private addNotificationListener(): void {
+    if (!this.hubConnection) return;
+    
+    this.hubConnection.on('ReceiveNotification', (notification: NotificationItem) => {
+      // Update unread count immediately
+      this._unreadCount$.next(this._unreadCount$.value + 1);
+      // Emit the notification so navbar can show it
+      this._newNotification$.next(notification);
+    });
+  }
 
   getAll(): Observable<any> {
     return this.http.get<any>(this.apiUrl).pipe(

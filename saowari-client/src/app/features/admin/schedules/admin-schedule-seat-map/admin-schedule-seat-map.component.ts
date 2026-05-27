@@ -18,6 +18,7 @@ export class AdminScheduleSeatMapComponent implements OnInit {
   seatMapData: any = null;
   seatLayoutConfig: any = null;
   previewSeatMap: any[] = [];
+  gridWidth: number = 5;
   
   constructor(
     private route: ActivatedRoute,
@@ -81,68 +82,123 @@ export class AdminScheduleSeatMapComponent implements OnInit {
     return this.seatMapData.seats.filter((s: any) => s.isBooked).length;
   }
 
+  visualDecks: { name: string, grid: (any | null)[][] }[] = [];
+
   generateSeatPreview() {
     if (!this.seatMapData || !this.seatMapData.seats) return;
     
-    const cfg = this.layoutConfig;
-    const seatsPerRow = cfg.seatsPerRow;
-    const backRowSeats = cfg.backRowSeats;
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const isDoubleDecker = this.seatLayoutConfig?.IsDoubleDecker || false;
-    const continuousBackRow = this.seatLayoutConfig?.ContinuousBackRow !== false;
-    
-    const decks = isDoubleDecker ? 2 : 1;
-    const totalCapacity = this.seatMapData.seats.length;
-    
-    const decksMap = new Map<string, Map<string, any[]>>();
-    const allSeats = this.seatMapData.seats;
+    const mode = this.seatLayoutConfig?.mode || this.seatLayoutConfig?.Mode;
+    const hasDecks = !!(this.seatLayoutConfig?.decks || this.seatLayoutConfig?.Decks);
+    if (this.seatLayoutConfig && (mode === 'visual' || hasDecks)) {
+      this.gridWidth = this.seatLayoutConfig.gridWidth || this.seatLayoutConfig.GridWidth || 5;
+      const gridHeight = this.seatLayoutConfig.gridHeight || this.seatLayoutConfig.GridHeight || 15;
+      this.visualDecks = [];
 
-    let seatIndex = 0;
-
-    for (let d = 1; d <= decks; d++) {
-      const capacityForThisDeck = d === 1 ? Math.ceil(totalCapacity / decks) : Math.floor(totalCapacity / decks);
+      const isDoubleDecker = this.seatLayoutConfig.isDoubleDecker ?? this.seatLayoutConfig.IsDoubleDecker;
+      let decksConfig = this.seatLayoutConfig.decks || this.seatLayoutConfig.Decks;
       
-      let numRegularRows = 0;
-      if (continuousBackRow) {
-        numRegularRows = Math.ceil(Math.max(0, capacityForThisDeck - backRowSeats) / seatsPerRow);
-      } else {
-        numRegularRows = Math.ceil(capacityForThisDeck / seatsPerRow);
+      if (decksConfig && Array.isArray(decksConfig)) {
+        if (isDoubleDecker === false && decksConfig.length > 1) {
+          decksConfig = [decksConfig[0]];
+        } else if (isDoubleDecker === undefined && decksConfig.length > 1) {
+          const secondDeckSeats = decksConfig[1].seats || decksConfig[1].Seats || [];
+          if (secondDeckSeats.length === 0) {
+            decksConfig = [decksConfig[0]];
+          }
+        }
+        for (const deckConfig of decksConfig) {
+          const grid: (any | null)[][] = [];
+          for (let r = 0; r < gridHeight; r++) {
+            const rowArray: (any | null)[] = [];
+            for (let c = 0; c < this.gridWidth; c++) {
+              rowArray.push(null);
+            }
+            grid.push(rowArray);
+          }
+
+          const seatsConfig = deckConfig.seats || deckConfig.Seats;
+          if (seatsConfig && Array.isArray(seatsConfig)) {
+            for (const seatPos of seatsConfig) {
+              const row = seatPos.row !== undefined ? seatPos.row : seatPos.Row;
+              const col = seatPos.col !== undefined ? seatPos.col : seatPos.Col;
+              const seatNumber = seatPos.seatNumber || seatPos.SeatNumber || '';
+
+              if (row >= 0 && row < gridHeight && col >= 0 && col < this.gridWidth) {
+                const actualSeat = this.seatMapData.seats.find((s: any) => s.seatNumber.toUpperCase() === seatNumber.trim().toUpperCase());
+                if (actualSeat) {
+                  grid[row][col] = actualSeat;
+                }
+              }
+            }
+          }
+
+          this.visualDecks.push({
+            name: deckConfig.name || deckConfig.Name || 'Main Deck',
+            grid: grid
+          });
+        }
       }
-
-      const deckName = isDoubleDecker ? (d === 1 ? 'Lower Deck' : 'Upper Deck') : 'Main Deck';
-      let generatedForDeck = 0;
+    } else {
+      const cfg = this.layoutConfig;
+      const seatsPerRow = cfg.seatsPerRow;
+      const backRowSeats = cfg.backRowSeats;
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const isDoubleDecker = this.seatLayoutConfig?.IsDoubleDecker || false;
+      const continuousBackRow = this.seatLayoutConfig?.ContinuousBackRow !== false;
       
-      if (!decksMap.has(deckName)) decksMap.set(deckName, new Map());
+      const decks = isDoubleDecker ? 2 : 1;
+      const totalCapacity = this.seatMapData.seats.length;
+      
+      const decksMap = new Map<string, Map<string, any[]>>();
+      const allSeats = this.seatMapData.seats;
 
-      for (let r = 0; r < numRegularRows; r++) {
-        const rowLetter = r < alphabet.length ? alphabet[r] : `R${r + 1}`;
-        if (!decksMap.get(deckName)!.has(rowLetter)) decksMap.get(deckName)!.set(rowLetter, []);
+      let seatIndex = 0;
 
-        for (let c = 1; c <= seatsPerRow; c++) {
-          if (generatedForDeck >= capacityForThisDeck || seatIndex >= totalCapacity) break;
-          decksMap.get(deckName)!.get(rowLetter)!.push(allSeats[seatIndex]);
-          seatIndex++;
-          generatedForDeck++;
+      for (let d = 1; d <= decks; d++) {
+        const capacityForThisDeck = d === 1 ? Math.ceil(totalCapacity / decks) : Math.floor(totalCapacity / decks);
+        
+        let numRegularRows = 0;
+        if (continuousBackRow) {
+          numRegularRows = Math.ceil(Math.max(0, capacityForThisDeck - backRowSeats) / seatsPerRow);
+        } else {
+          numRegularRows = Math.ceil(capacityForThisDeck / seatsPerRow);
+        }
+
+        const deckName = isDoubleDecker ? (d === 1 ? 'Lower Deck' : 'Upper Deck') : 'Main Deck';
+        let generatedForDeck = 0;
+        
+        if (!decksMap.has(deckName)) decksMap.set(deckName, new Map());
+
+        for (let r = 0; r < numRegularRows; r++) {
+          const rowLetter = r < alphabet.length ? alphabet[r] : `R${r + 1}`;
+          if (!decksMap.get(deckName)!.has(rowLetter)) decksMap.get(deckName)!.set(rowLetter, []);
+
+          for (let c = 1; c <= seatsPerRow; c++) {
+            if (generatedForDeck >= capacityForThisDeck || seatIndex >= totalCapacity) break;
+            decksMap.get(deckName)!.get(rowLetter)!.push(allSeats[seatIndex]);
+            seatIndex++;
+            generatedForDeck++;
+          }
+        }
+
+        if (continuousBackRow) {
+          const backLetter = numRegularRows < alphabet.length ? alphabet[numRegularRows] : `R${numRegularRows + 1}`;
+          if (!decksMap.get(deckName)!.has(backLetter)) decksMap.get(deckName)!.set(backLetter, []);
+
+          for (let c = 1; c <= backRowSeats; c++) {
+            if (generatedForDeck >= capacityForThisDeck || seatIndex >= totalCapacity) break;
+            decksMap.get(deckName)!.get(backLetter)!.push(allSeats[seatIndex]);
+            seatIndex++;
+            generatedForDeck++;
+          }
         }
       }
 
-      if (continuousBackRow) {
-        const backLetter = numRegularRows < alphabet.length ? alphabet[numRegularRows] : `R${numRegularRows + 1}`;
-        if (!decksMap.get(deckName)!.has(backLetter)) decksMap.get(deckName)!.set(backLetter, []);
-
-        for (let c = 1; c <= backRowSeats; c++) {
-          if (generatedForDeck >= capacityForThisDeck || seatIndex >= totalCapacity) break;
-          decksMap.get(deckName)!.get(backLetter)!.push(allSeats[seatIndex]);
-          seatIndex++;
-          generatedForDeck++;
-        }
-      }
+      this.previewSeatMap = Array.from(decksMap.entries()).map(([name, rowsMap]) => ({
+        deckName: name,
+        rows: Array.from(rowsMap.values())
+      }));
     }
-
-    this.previewSeatMap = Array.from(decksMap.entries()).map(([name, rowsMap]) => ({
-      deckName: name,
-      rows: Array.from(rowsMap.values())
-    }));
   }
 
   getProfilePictureUrl(path: string | null | undefined): string {

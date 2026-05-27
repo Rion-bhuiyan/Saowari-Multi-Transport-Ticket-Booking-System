@@ -7,12 +7,31 @@
   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
   </svg>
+  
+  <!-- Notification badge -->
+  <span *ngIf="unreadCount > 0" class="absolute -top-1 -right-1 bg-rose-500 text-white rounded-full min-w-[20px] h-[20px] px-1 flex items-center justify-center text-[10px] font-bold border-2 border-slate-50 animate-pulse shadow-sm">
+    {{ unreadCount }}
+  </span>
 </button>
+
+<!-- New Message Toast Notification -->
+<div *ngIf="showNewMessagePopup && !isOpen" (click)="toggleChat()" class="fixed bottom-24 right-6 bg-saowari-surface dark:bg-slate-800 text-slate-800 dark:text-white p-3.5 rounded-2xl shadow-2xl border border-indigo-500/30 z-50 animate-bounce cursor-pointer flex items-center gap-4 select-none hover:shadow-indigo-500/20 transition-shadow">
+  <div class="relative">
+    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-md">
+      S
+    </div>
+    <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></span>
+  </div>
+  <div class="pr-2">
+    <p class="text-sm font-bold text-slate-800 dark:text-white">New message arrived</p>
+    <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Support agent replied</p>
+  </div>
+</div>
 
 <!-- Support Chat Panel Drawer -->
 <div 
   *ngIf="isOpen" 
-  [ngClass]="isDarkMode ? 'bg-slate-900/95 border-slate-700/50 text-white' : 'bg-white border-slate-200 text-slate-800 shadow-2xl'"
+  [ngClass]="isDarkMode ? 'bg-saowari-surface-alt/95 border-slate-700/50 text-white' : 'bg-saowari-surface border-slate-200 text-slate-800 shadow-2xl'"
   class="fixed bottom-24 right-6 w-96 h-[550px] backdrop-blur-xl border rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden animate-slide-in font-sans">
   
   <!-- Header Bar -->
@@ -31,7 +50,7 @@
     </div>
     <div class="flex items-center space-x-2">
       <!-- Theme Switcher button -->
-      <button (click)="toggleTheme()" class="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title="Toggle Light/Dark Theme">
+      <button (click)="toggleTheme()" class="p-1.5 hover:bg-saowari-surface/10 rounded-lg transition-colors" title="Toggle Light/Dark Theme">
         <svg *ngIf="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
         </svg>
@@ -42,7 +61,7 @@
 
       <button 
         (click)="toggleChat()" 
-        class="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-white"
+        class="p-1.5 hover:bg-saowari-surface/10 rounded-lg transition-colors text-white"
         title="Minimize Chat">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -72,7 +91,7 @@
         [ngClass]="{
           'bg-indigo-600 text-white rounded-br-none': isCurrentUser(msg.senderName),
           'bg-slate-800 text-slate-100 rounded-bl-none': !isCurrentUser(msg.senderName) && isDarkMode,
-          'bg-white text-slate-800 border border-slate-200/80 rounded-bl-none shadow-sm': !isCurrentUser(msg.senderName) && !isDarkMode
+          'bg-saowari-surface text-slate-800 border border-slate-200/80 rounded-bl-none shadow-sm': !isCurrentUser(msg.senderName) && !isDarkMode
         }"
         class="max-w-[80%] p-3 rounded-2xl shadow-md text-sm transition-all duration-200">
         
@@ -97,7 +116,7 @@
 
         <!-- Voice Note attachments -->
         <div *ngIf="msg.messageType === 'voice'" class="py-1">
-          <audio [src]="getFullUrl(msg.fileUrl)" controls class="w-48 h-8 rounded bg-slate-900"></audio>
+          <audio [src]="getFullUrl(msg.fileUrl)" controls class="w-48 h-8 rounded bg-saowari-surface-alt"></audio>
         </div>
 
         <!-- Doc/PDF attachments -->
@@ -149,7 +168,7 @@
   </div>
 
   <!-- Chat Tray Input Actions Bar -->
-  <div [ngClass]="isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-inner'" class="p-3 border-t flex items-center space-x-2">
+  <div [ngClass]="isDarkMode ? 'bg-saowari-surface-alt border-slate-800' : 'bg-saowari-surface border-slate-200 shadow-inner'" class="p-3 border-t flex items-center space-x-2">
     <!-- Attachment Button -->
     <div class="relative">
       <button 
@@ -200,7 +219,7 @@
       placeholder="Type a message..." 
       [ngClass]="{
         'bg-slate-800 border-slate-700/60 text-white focus:border-indigo-500': isDarkMode,
-        'bg-slate-100 border-slate-200 text-slate-800 focus:bg-white focus:border-indigo-600': !isDarkMode
+        'bg-slate-100 border-slate-200 text-slate-800 focus:bg-saowari-surface focus:border-indigo-600': !isDarkMode
       }"
       class="flex-1 rounded-xl px-3 py-2 text-sm focus:outline-none transition-colors">
 

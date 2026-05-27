@@ -1,6 +1,6 @@
 <div class="bg-saowari-surface-alt min-h-screen pt-24 pb-12">
   <div class="container mx-auto px-4">
-    
+
     <!-- Page Header -->
     <div class="mb-8">
       <h1 class="text-3xl font-heading font-bold text-saowari-text-primary">My Bookings</h1>
@@ -8,9 +8,15 @@
     </div>
 
     <!-- Tabs -->
-    <div class="tabs tabs-boxed bg-white shadow-sm rounded-xl p-1 mb-6 inline-flex gap-1">
+    <div class="tabs tabs-boxed bg-saowari-surface shadow-sm rounded-xl p-1 mb-6 inline-flex gap-1 flex-wrap">
       <button class="tab tab-sm font-semibold" [ngClass]="activeTab === 'upcoming' ? 'tab-active' : ''" (click)="activeTab = 'upcoming'">
         <i class="fas fa-calendar-alt mr-2"></i> Upcoming
+      </button>
+      <!-- Action Required Tab — shows when customer has an OTP pending or refund pending -->
+      <button class="tab tab-sm font-semibold relative" [ngClass]="activeTab === 'pending' ? 'tab-active !bg-amber-500 !text-white' : 'text-amber-600'"
+              (click)="activeTab = 'pending'" *ngIf="pendingCancellationCount > 0 || activeTab === 'pending'">
+        <i class="fas fa-clock mr-2"></i> Action Required
+        <span class="badge badge-xs bg-red-500 border-none text-white ml-1 animate-pulse">{{ pendingCancellationCount }}</span>
       </button>
       <button class="tab tab-sm font-semibold" [ngClass]="activeTab === 'completed' ? 'tab-active' : ''" (click)="activeTab = 'completed'">
         <i class="fas fa-check-circle mr-2"></i> Completed
@@ -22,7 +28,7 @@
 
     <!-- Loading State -->
     <div *ngIf="isLoading" class="space-y-4">
-      <div *ngFor="let i of [1,2,3]" class="bg-white rounded-xl p-6 shadow-sm animate-pulse h-28 flex gap-6">
+      <div *ngFor="let i of [1,2,3]" class="bg-saowari-surface rounded-xl p-6 shadow-sm animate-pulse h-28 flex gap-6">
         <div class="w-1/4 bg-gray-200 rounded-lg"></div>
         <div class="flex-1 space-y-3 py-2">
           <div class="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -32,7 +38,7 @@
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="!isLoading && filteredBookings.length === 0" class="bg-white rounded-xl p-16 shadow-sm text-center border border-gray-100">
+    <div *ngIf="!isLoading && filteredBookings.length === 0" class="bg-saowari-surface rounded-xl p-16 shadow-sm text-center border border-saowari-border">
       <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-4xl">
         <i class="fas fa-clipboard-list"></i>
       </div>
@@ -44,140 +50,291 @@
     <!-- Booking Cards -->
     <div *ngIf="!isLoading" class="space-y-4">
       <div *ngFor="let b of filteredBookings"
-           class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow overflow-hidden">
-        <div class="flex flex-col md:flex-row">
+           class="bg-saowari-surface rounded-xl shadow-sm border overflow-hidden transition-shadow hover:shadow-md"
+           [class.border-amber-300]="b.hasPendingCancellation"
+           [class.border-saowari-border]="!b.hasPendingCancellation">
+
+        <!-- Pending Banners -->
+        <ng-container *ngIf="b.hasPendingCancellation || b.latestRefundStatusId === 1 || b.latestRefundStatusId === 2">
           
+          <!-- Cancellation OTP Banner -->
+          <div *ngIf="b.hasPendingCancellation"
+               class="bg-amber-50 border-b border-amber-200 px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-exclamation-circle text-amber-500 text-lg"></i>
+              <div>
+                <p class="text-sm font-bold text-amber-800">Action Required: Enter OTP to Confirm Cancellation</p>
+                <p class="text-xs text-amber-600 mt-0.5">A cancellation OTP was sent to your email. Enter it below to cancel this booking and free your seat.</p>
+              </div>
+            </div>
+            <button (click)="openCancelModal(b)"
+                    class="btn btn-sm bg-amber-500 hover:bg-amber-600 text-white border-none flex-shrink-0 px-5">
+              <i class="fas fa-key mr-2"></i> Enter OTP
+            </button>
+          </div>
+
+          <!-- Refund Pending Admin Approval Banner -->
+          <div *ngIf="b.latestRefundStatusId === 1"
+               class="bg-blue-50 border-b border-blue-200 px-5 py-3 flex items-center gap-3">
+            <i class="fas fa-hourglass-half text-blue-500 text-lg"></i>
+            <div>
+              <p class="text-sm font-bold text-blue-800">Refund Requested - Pending Admin Approval</p>
+              <p class="text-xs text-blue-600 mt-0.5">Your refund request has been sent to the admin. You will receive an email once it is approved.</p>
+            </div>
+          </div>
+
+          <!-- Refund OTP Banner -->
+          <div *ngIf="b.latestRefundStatusId === 2"
+               class="bg-emerald-50 border-b border-emerald-200 px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check-circle text-emerald-500 text-lg"></i>
+              <div>
+                <p class="text-sm font-bold text-emerald-800">Refund Approved: Enter OTP to Complete</p>
+                <p class="text-xs text-emerald-600 mt-0.5">An OTP was sent to your email. Enter it to finalize your refund and release your seat.</p>
+              </div>
+            </div>
+            <button (click)="openRefundOtpModal(b)"
+                    class="btn btn-sm bg-emerald-500 hover:bg-emerald-600 text-white border-none flex-shrink-0 px-5">
+              <i class="fas fa-key mr-2"></i> Enter OTP
+            </button>
+          </div>
+
+        </ng-container>
+
+        <div class="flex flex-col md:flex-row">
           <!-- Route & Date -->
-          <div class="p-5 md:w-1/3 border-b md:border-b-0 md:border-r border-gray-100">
+          <div class="p-5 md:w-1/3 border-b md:border-b-0 md:border-r border-saowari-border">
             <div class="flex items-center gap-2 mb-2">
               <span [class]="'badge badge-sm ' + getStatusClass(b.bookingStatus)">{{ b.bookingStatus }}</span>
+              <span *ngIf="b.hasPendingCancellation" class="badge badge-sm bg-amber-100 text-amber-700 border-none">OTP Pending</span>
             </div>
             <h3 class="font-bold text-lg text-saowari-text-primary">{{ b.fromLocation }} → {{ b.toLocation }}</h3>
-            <p class="text-sm text-gray-500 mt-1"><i class="far fa-calendar-alt mr-1"></i>{{ formatDate(b.departureDateTime) }}</p>
-            <p class="text-sm text-gray-500"><i class="far fa-clock mr-1"></i>{{ formatTime(b.departureDateTime) }}</p>
+            <p class="text-sm text-saowari-text-secondary mt-1"><i class="far fa-calendar-alt mr-1"></i>{{ formatDate(b.departureDateTime) }}</p>
+            <p class="text-sm text-saowari-text-secondary"><i class="far fa-clock mr-1"></i>{{ formatTime(b.departureDateTime) }}</p>
           </div>
 
           <!-- Vehicle & Seats -->
-          <div class="p-5 md:w-1/3 border-b md:border-b-0 md:border-r border-gray-100 flex flex-col justify-center">
+          <div class="p-5 md:w-1/3 border-b md:border-b-0 md:border-r border-saowari-border flex flex-col justify-center">
             <p class="font-semibold text-gray-700">{{ b.vehicleName }}</p>
-            <p class="text-sm text-gray-500 mt-1">{{ b.numberOfSeats }} seat(s) booked <span *ngIf="b.seatNumbers" class="font-medium text-saowari-primary">({{ b.seatNumbers }})</span></p>
+            <p class="text-sm text-saowari-text-secondary mt-1">{{ b.numberOfSeats }} seat(s) <span *ngIf="b.seatNumbers" class="font-medium text-saowari-primary">({{ b.seatNumbers }})</span></p>
             <p class="text-sm font-mono text-gray-400 mt-2">{{ b.bookingCode }}</p>
           </div>
 
           <!-- Price & Actions -->
           <div class="p-5 md:w-1/3 flex flex-col justify-center items-start md:items-end">
             <p class="text-2xl font-bold text-saowari-primary mb-3">৳{{ b.finalAmount }}</p>
-            <div class="flex gap-2">
-              <a [routerLink]="['/ticket', b.bookingID || b.bookingId || b.id]" target="_blank" class="btn btn-sm btn-outline btn-primary gap-1">
-                <i class="fas fa-ticket-alt"></i> Tickets
+            <div class="flex gap-2 flex-wrap justify-end">
+              <a *ngIf="b.bookingStatus !== 'Cancelled' && b.bookingStatus !== 'Refunded'"
+                 [routerLink]="['/ticket', b.bookingID || b.bookingId || b.id]" target="_blank"
+                 class="btn btn-sm btn-outline btn-primary gap-1">
+                <i class="fas fa-ticket-alt"></i> Ticket
               </a>
-              <button *ngIf="activeTab === 'upcoming'" (click)="requestRefund(b)" class="btn btn-sm btn-outline btn-error gap-1">
+              <!-- Request Refund button for upcoming bookings -->
+              <button *ngIf="activeTab === 'upcoming' && !b.hasPendingCancellation && b.latestRefundStatusId !== 1 && b.latestRefundStatusId !== 2"
+                      (click)="requestRefund(b)"
+                      class="btn btn-sm btn-outline btn-warning gap-1">
                 <i class="fas fa-undo"></i> Refund
+              </button>
+              <!-- Enter OTP for pending cancellations -->
+              <button *ngIf="b.hasPendingCancellation"
+                      (click)="openCancelModal(b)"
+                      class="btn btn-sm bg-amber-500 hover:bg-amber-600 text-white border-none gap-1">
+                <i class="fas fa-key"></i> Cancel OTP
+              </button>
+              <!-- Enter OTP for pending refunds -->
+              <button *ngIf="b.latestRefundStatusId === 2"
+                      (click)="openRefundOtpModal(b)"
+                      class="btn btn-sm bg-emerald-500 hover:bg-emerald-600 text-white border-none gap-1">
+                <i class="fas fa-key"></i> Refund OTP
               </button>
             </div>
           </div>
-
         </div>
+
       </div>
     </div>
 
   </div>
+</div>
 
-  <!-- Refund Modal -->
-  <div *ngIf="isRefundModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-    <div class="flex flex-col max-h-[90vh] bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 transform transition-all scale-100">
-      
-      <!-- Modal Header -->
-      <div class="bg-gradient-to-r from-red-500 to-rose-600 p-6 text-white flex justify-between items-center shrink-0">
-        <div>
-          <h3 class="text-xl font-heading font-bold flex items-center gap-2">
-            <i class="fas fa-undo-alt"></i> Request Ticket Refund
-          </h3>
-          <p class="text-white/80 text-sm mt-1">Booking Ref: {{ selectedBookingForRefund?.bookingCode }}</p>
-        </div>
-        <button (click)="closeRefundModal()" class="text-white hover:text-gray-200 transition-colors text-2xl font-bold">&times;</button>
-      </div>
+<!-- ===== Cancel via OTP Modal ===== -->
+<div *ngIf="isCancelOtpModalOpen"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+     (click)="closeCancelModal()">
+  <div class="bg-saowari-surface rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+       (click)="$event.stopPropagation()">
 
-      <!-- Modal Body -->
-      <div class="p-6 overflow-y-auto flex-1">
-        
-        <!-- Loading Calc -->
-        <div *ngIf="isCalculatingRefund" class="py-12 text-center">
-          <span class="loading loading-spinner loading-lg text-rose-500"></span>
-          <p class="text-gray-500 mt-4 font-medium">Calculating eligible refund based on policies...</p>
-        </div>
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-red-500 to-rose-600 px-6 py-5 text-white">
+      <h3 class="text-xl font-bold flex items-center gap-2">
+        <i class="fas fa-times-circle" *ngIf="otpMode === 'cancel'"></i>
+        <i class="fas fa-check-circle" *ngIf="otpMode === 'refund'"></i>
+        {{ otpMode === 'refund' ? 'Complete Refund' : 'Cancel Booking' }}
+      </h3>
+      <p class="text-white/80 text-sm mt-1">{{ selectedBookingForCancel?.bookingCode }}</p>
+      <p class="text-white/80 text-sm">{{ selectedBookingForCancel?.fromLocation }} → {{ selectedBookingForCancel?.toLocation }}</p>
+    </div>
 
-        <!-- Calculated Details -->
-        <div *ngIf="!isCalculatingRefund && refundPreview" class="space-y-6">
-          
-          <!-- Trip Short Summary -->
-          <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-            <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Trip Details</div>
-            <h4 class="font-bold text-gray-800 text-base mt-1">
-              {{ selectedBookingForRefund?.fromLocation }} → {{ selectedBookingForRefund?.toLocation }}
-            </h4>
-            <p class="text-sm text-gray-500 mt-1">
-              Departure: {{ formatDate(selectedBookingForRefund?.departureDateTime) }} at {{ formatTime(selectedBookingForRefund?.departureDateTime) }}
-            </p>
-          </div>
+    <div class="p-6">
 
-          <!-- Calculated Math -->
-          <div class="grid grid-cols-2 gap-4">
-            <div class="bg-blue-50/50 rounded-xl p-4 border border-blue-100/50">
-              <div class="text-xs text-blue-600 font-semibold uppercase tracking-wider">Paid Amount</div>
-              <p class="text-2xl font-extrabold text-blue-900 mt-1">৳{{ refundPreview.originalAmount }}</p>
-            </div>
-            <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
-              <div class="text-xs text-emerald-600 font-semibold uppercase tracking-wider">Eligible Refund</div>
-              <p class="text-2xl font-extrabold text-emerald-900 mt-1">৳{{ refundPreview.eligibleRefundAmount }}</p>
-            </div>
-          </div>
-
-          <!-- Refund Info Badge -->
-          <div class="flex items-center gap-3 bg-gray-50 rounded-xl p-4 border border-gray-100">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg"
-                 [ngClass]="refundPreview.refundPercentage > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'">
-              {{ refundPreview.refundPercentage }}%
-            </div>
-            <div>
-              <p class="font-bold text-gray-800 text-sm">{{ refundPreview.policyName }}</p>
-              <p class="text-xs text-gray-500 mt-0.5">{{ refundPreview.message }}</p>
-            </div>
-          </div>
-
-          <!-- Warn Notice -->
-          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-900 text-xs flex gap-3">
-            <i class="fas fa-exclamation-triangle text-amber-600 text-lg mt-0.5"></i>
-            <div>
-              <span class="font-bold">Important Notice:</span> By submitting this request, your booking will be permanently cancelled, and your reserved seat(s) (<span class="font-mono font-bold">{{ selectedBookingForRefund?.seatNumbers }}</span>) will be immediately released back to the general public.
-            </div>
-          </div>
-
-          <!-- Remarks Form -->
-          <div *ngIf="refundPreview.refundPercentage > 0" class="form-control">
-            <label class="label">
-              <span class="label-text font-bold text-gray-700">Reason for Cancellation / Refund Remarks</span>
-            </label>
-            <textarea [(ngModel)]="refundRemarks" placeholder="Please let us know the reason for cancellation..." 
-                      class="textarea textarea-bordered focus:border-rose-500 focus:ring focus:ring-rose-200 focus:outline-none w-full h-24 text-gray-800 rounded-xl"></textarea>
-          </div>
-
+      <!-- STEP 1: Request OTP (shown if OTP not yet requested) -->
+      <div *ngIf="!otpRequested">
+        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-5">
+          <p class="text-sm font-bold text-rose-800 flex items-center gap-2">
+            <i class="fas fa-exclamation-triangle"></i> This action is irreversible!
+          </p>
+          <p class="text-xs text-rose-600 mt-1">
+            Cancelling will permanently release your seat(s)
+            <strong>{{ selectedBookingForCancel?.seatNumbers }}</strong>
+            and they will become available for others to book.
+          </p>
         </div>
 
-      </div>
+        <div class="bg-saowari-surface-alt rounded-xl p-4 border border-saowari-border mb-5">
+          <p class="text-sm font-semibold text-gray-700 mb-1">Booking Details</p>
+          <p class="text-sm text-saowari-text-secondary">Seats: <strong>{{ selectedBookingForCancel?.seatNumbers }}</strong></p>
+          <p class="text-sm text-saowari-text-secondary">Departure: <strong>{{ formatDate(selectedBookingForCancel?.departureDateTime) }}</strong></p>
+          <p class="text-sm text-saowari-text-secondary">Amount Paid: <strong class="text-saowari-primary">৳{{ selectedBookingForCancel?.finalAmount }}</strong></p>
+        </div>
 
-      <!-- Modal Footer -->
-      <div class="bg-gray-50 p-4 border-t border-gray-100 flex justify-end gap-3 shrink-0">
-        <button (click)="closeRefundModal()" class="btn btn-ghost rounded-full px-6">Close</button>
-        <button *ngIf="!isCalculatingRefund && refundPreview" 
-                [disabled]="isSubmittingRefund"
-                (click)="submitRefundRequest()" 
-                class="btn rounded-full px-6 text-white bg-gradient-to-r from-red-500 to-rose-600 border-none hover:from-red-600 hover:to-rose-700 min-w-[140px]">
-          <span *ngIf="isSubmittingRefund" class="loading loading-spinner loading-xs mr-2"></span>
-          Confirm Cancel & Refund
+        <p class="text-sm text-saowari-text-secondary mb-4 text-center">
+          Click below to send a cancellation OTP to your registered email address. You must enter it to confirm the cancellation.
+        </p>
+
+        <button (click)="requestCancellationOtp()"
+                [disabled]="isRequestingOtp"
+                class="btn w-full bg-red-500 hover:bg-red-600 text-white border-none h-12">
+          <span *ngIf="isRequestingOtp" class="loading loading-spinner loading-sm mr-2"></span>
+          <i *ngIf="!isRequestingOtp" class="fas fa-envelope mr-2"></i>
+          {{ isRequestingOtp ? 'Sending OTP...' : 'Send Cancellation OTP to My Email' }}
         </button>
       </div>
 
+      <!-- STEP 2: Enter OTP (shown after OTP requested) -->
+      <div *ngIf="otpRequested">
+        <div class="flex flex-col items-center mb-6">
+          <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 text-2xl mb-3">
+            <i class="fas fa-envelope-open-text"></i>
+          </div>
+          <h4 class="font-bold text-saowari-text-primary text-lg">Check Your Email</h4>
+          <p class="text-sm text-saowari-text-secondary text-center mt-1">
+            We sent a 6-digit OTP to your registered email. Enter it below to confirm the cancellation.
+          </p>
+        </div>
+
+        <div class="mb-5">
+          <label class="block text-sm font-semibold text-gray-700 mb-2 text-center">6-Digit OTP Code</label>
+          <input type="text"
+                 [(ngModel)]="cancelOtp"
+                 maxlength="6"
+                 placeholder="e.g. 482610"
+                 class="input input-bordered w-full text-center text-3xl tracking-[0.5em] font-bold py-4 focus:border-red-400">
+        </div>
+
+        <button (click)="verifyOtp()"
+                [disabled]="isVerifyingOtp || cancelOtp.length !== 6"
+                class="btn w-full bg-red-500 hover:bg-red-600 text-white border-none h-12 mb-3">
+          <span *ngIf="isVerifyingOtp" class="loading loading-spinner loading-sm mr-2"></span>
+          <i *ngIf="!isVerifyingOtp" class="fas fa-check mr-2"></i>
+          {{ isVerifyingOtp ? 'Verifying...' : 'Confirm Cancellation' }}
+        </button>
+
+        <button (click)="requestCancellationOtp()"
+                [disabled]="isRequestingOtp"
+                class="btn btn-ghost w-full text-sm text-saowari-text-secondary">
+          <i class="fas fa-redo mr-1"></i> Resend OTP
+        </button>
+
+        <p class="text-xs text-gray-400 text-center mt-3">
+          <i class="fas fa-clock mr-1"></i> OTP is valid for 15 minutes.
+        </p>
+      </div>
+
     </div>
+
+    <div class="bg-saowari-surface-alt px-6 py-3 border-t border-saowari-border text-right">
+      <button (click)="closeCancelModal()" class="btn btn-ghost btn-sm">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Refund Modal ===== -->
+<div *ngIf="isRefundModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+  <div class="flex flex-col max-h-[90vh] bg-saowari-surface rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-saowari-border">
+
+    <div class="bg-gradient-to-r from-red-500 to-rose-600 p-6 text-white flex justify-between items-center shrink-0">
+      <div>
+        <h3 class="text-xl font-heading font-bold flex items-center gap-2">
+          <i class="fas fa-undo-alt"></i> Request Ticket Refund
+        </h3>
+        <p class="text-white/80 text-sm mt-1">Booking Ref: {{ selectedBookingForRefund?.bookingCode }}</p>
+      </div>
+      <button (click)="closeRefundModal()" class="text-white hover:text-gray-200 transition-colors text-2xl font-bold">&times;</button>
+    </div>
+
+    <div class="p-6 overflow-y-auto flex-1">
+      <div *ngIf="isCalculatingRefund" class="py-12 text-center">
+        <span class="loading loading-spinner loading-lg text-rose-500"></span>
+        <p class="text-saowari-text-secondary mt-4 font-medium">Calculating eligible refund based on policies...</p>
+      </div>
+
+      <div *ngIf="!isCalculatingRefund && refundPreview" class="space-y-6">
+        <div class="bg-saowari-surface-alt rounded-xl p-4 border border-saowari-border">
+          <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Trip Details</div>
+          <h4 class="font-bold text-saowari-text-primary text-base mt-1">{{ selectedBookingForRefund?.fromLocation }} → {{ selectedBookingForRefund?.toLocation }}</h4>
+          <p class="text-sm text-saowari-text-secondary mt-1">Departure: {{ formatDate(selectedBookingForRefund?.departureDateTime) }} at {{ formatTime(selectedBookingForRefund?.departureDateTime) }}</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-blue-50/50 rounded-xl p-4 border border-blue-100/50">
+            <div class="text-xs text-blue-600 font-semibold uppercase tracking-wider">Paid Amount</div>
+            <p class="text-2xl font-extrabold text-blue-900 mt-1">৳{{ refundPreview.originalAmount }}</p>
+          </div>
+          <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+            <div class="text-xs text-emerald-600 font-semibold uppercase tracking-wider">Eligible Refund</div>
+            <p class="text-2xl font-extrabold text-emerald-900 mt-1">৳{{ refundPreview.eligibleRefundAmount }}</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 bg-saowari-surface-alt rounded-xl p-4 border border-saowari-border">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg"
+               [ngClass]="refundPreview.refundPercentage > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'">
+            {{ refundPreview.refundPercentage }}%
+          </div>
+          <div>
+            <p class="font-bold text-saowari-text-primary text-sm">{{ refundPreview.policyName }}</p>
+            <p class="text-xs text-saowari-text-secondary mt-0.5">{{ refundPreview.message }}</p>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-900 text-xs flex gap-3">
+          <i class="fas fa-exclamation-triangle text-amber-600 text-lg mt-0.5"></i>
+          <div>
+            <span class="font-bold">Important: </span>
+            Submitting a refund request will cancel your booking and permanently release your seat(s) (<span class="font-mono font-bold">{{ selectedBookingForRefund?.seatNumbers }}</span>).
+          </div>
+        </div>
+
+        <div *ngIf="refundPreview.refundPercentage > 0" class="form-control">
+          <label class="label">
+            <span class="label-text font-bold text-gray-700">Reason for Cancellation / Refund Remarks</span>
+          </label>
+          <textarea [(ngModel)]="refundRemarks" placeholder="Please let us know the reason for cancellation..."
+                    class="textarea textarea-bordered focus:border-rose-500 w-full h-24 text-saowari-text-primary rounded-xl"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-saowari-surface-alt p-4 border-t border-saowari-border flex justify-end gap-3 shrink-0">
+      <button (click)="closeRefundModal()" class="btn btn-ghost rounded-full px-6">Close</button>
+      <button *ngIf="!isCalculatingRefund && refundPreview"
+              [disabled]="isSubmittingRefund"
+              (click)="submitRefundRequest()"
+              class="btn rounded-full px-6 text-white bg-gradient-to-r from-red-500 to-rose-600 border-none hover:from-red-600 hover:to-rose-700 min-w-[140px]">
+        <span *ngIf="isSubmittingRefund" class="loading loading-spinner loading-xs mr-2"></span>
+        Confirm Cancel & Refund
+      </button>
+    </div>
+
   </div>
 </div>

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,11 +10,25 @@ import { CompanyService } from '../../../../core/services/api/company.service';
 @Component({
   selector: 'app-admin-reports',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './admin-reports.component.html',
   styleUrls: ['./admin-reports.component.css']
 })
 export class AdminReportsComponent implements OnInit {
+  pRevenue: number = 1;
+  pageSizeRevenue: number = 15;
+  get pagedRevenueData() {
+    const start = (this.pRevenue - 1) * Number(this.pageSizeRevenue);
+    return (this.revenueData || []).slice(start, start + Number(this.pageSizeRevenue));
+  }
+
+  pOccupancy: number = 1;
+  pageSizeOccupancy: number = 15;
+  get pagedOccupancyData() {
+    const start = (this.pOccupancy - 1) * Number(this.pageSizeOccupancy);
+    return (this.occupancyData || []).slice(start, start + Number(this.pageSizeOccupancy));
+  }
+
   revenueData: any[] = [];
   occupancyData: any[] = [];
   companies: any[] = [];

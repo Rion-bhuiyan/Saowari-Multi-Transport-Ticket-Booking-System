@@ -1,0 +1,214 @@
+<div class="profile-container" *ngIf="!isLoading && profile">
+  
+  <!-- Header -->
+  <div class="profile-header">
+    <a routerLink="/admin/users" class="back-btn">
+      <i class="fi fi-rr-arrow-left"></i> Back to Users
+    </a>
+    <h1 class="header-title">User Profile</h1>
+  </div>
+
+  <div class="profile-content">
+    
+    <!-- Left Sidebar: Profile Card -->
+    <div class="sidebar-card">
+      <div class="sidebar-top">
+        <div class="avatar-wrapper">
+          <img *ngIf="profile.picture" [src]="profile.picture" alt="Avatar" class="avatar-img" />
+          <div *ngIf="!profile.picture" class="avatar-initials">
+            {{ getInitials(profile.fullName) }}
+          </div>
+          <div class="status-badge" [ngClass]="profile.isActive ? 'active' : 'inactive'" 
+               [title]="profile.isActive ? 'Active User' : 'Inactive User'">
+          </div>
+        </div>
+        <h2 class="user-name">{{ profile.fullName }}</h2>
+        <span class="user-role">{{ profile.roleName || 'Customer' }}</span>
+      </div>
+
+      <div class="sidebar-body">
+        
+        <div class="info-group">
+          <span class="info-label">Contact Information</span>
+          <div class="info-item">
+            <i class="fi fi-rr-envelope"></i>
+            <span>{{ profile.email }}</span>
+          </div>
+          <div class="info-item" *ngIf="profile.phoneNumber">
+            <i class="fi fi-rr-phone-call"></i>
+            <span>{{ profile.phoneNumber }}</span>
+          </div>
+        </div>
+
+        <div class="info-group" *ngIf="profile.companyName">
+          <span class="info-label">Organization</span>
+          <div class="info-item">
+            <i class="fi fi-rr-building"></i>
+            <span>{{ profile.companyName }}</span>
+          </div>
+        </div>
+
+        <div class="info-group">
+          <span class="info-label">Account Details</span>
+          <div class="info-item">
+            <i class="fi fi-rr-calendar"></i>
+            <span>Joined {{ profile.createdAt | date:'mediumDate' }}</span>
+          </div>
+          <div class="info-item">
+            <i class="fi fi-rr-info"></i>
+            <span>User ID: #{{ profile.userId }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Main Content Tabs -->
+    <div class="main-card">
+      
+      <div class="tabs-nav">
+        <button class="tab-btn" [class.active]="activeTab === 'overview'" (click)="setTab('overview')">
+          <i class="fi fi-rr-apps"></i> Overview
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'bookings'" (click)="setTab('bookings')">
+          <i class="fi fi-rr-ticket"></i> Bookings ({{ profile.bookings?.length || 0 }})
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'security'" (click)="setTab('security')">
+          <i class="fi fi-rr-shield-check"></i> Security & Devices
+        </button>
+      </div>
+
+      <div class="tab-content">
+        
+        <!-- Tab: Overview / Timeline -->
+        <div *ngIf="activeTab === 'overview'">
+          <h3 class="mb-4 text-lg font-bold text-slate-800">Activity Timeline</h3>
+          
+          <div *ngIf="timeline.length === 0" class="empty-state">
+            <i class="fi fi-rr-time-past"></i>
+            <p>No activity recorded yet.</p>
+          </div>
+
+          <div class="timeline" *ngIf="timeline.length > 0">
+            <div class="timeline-item" *ngFor="let item of timeline" [ngClass]="item.type">
+              <div class="timeline-icon">
+                <i class="fi fi-rr-{{ item.icon }}"></i>
+              </div>
+              <div class="timeline-content">
+                <div class="tl-header">
+                  <h4 class="tl-title">{{ item.title }}</h4>
+                  <span class="tl-date">{{ item.date | date:'MMM d, y, h:mm a' }}</span>
+                </div>
+                <p class="tl-desc">
+                  {{ item.desc }}
+                  <strong *ngIf="item.amount" class="text-blue-600 ml-2">${{ item.amount }}</strong>
+                </p>
+                <!-- Interactive Bus Link for Bookings -->
+                <div *ngIf="item.type === 'booking' && item.busId" class="mt-2">
+                  <a (click)="navigateToBus(item.busId)" class="bus-link text-sm">
+                    <i class="fi fi-rr-bus"></i> View Bus: {{ item.bus }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Bookings -->
+        <div *ngIf="activeTab === 'bookings'">
+          <h3 class="mb-4 text-lg font-bold text-slate-800">Booking History</h3>
+          
+          <div *ngIf="!profile.bookings || profile.bookings.length === 0" class="empty-state">
+            <i class="fi fi-rr-ticket"></i>
+            <p>This user has no bookings.</p>
+          </div>
+
+          <div class="table-responsive" *ngIf="profile.bookings && profile.bookings.length > 0">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Booking Code</th>
+                  <th>Date</th>
+                  <th>Route</th>
+                  <th>Bus & Company</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let b of profile.bookings">
+                  <td class="font-medium text-slate-800">{{ b.bookingCode }}</td>
+                  <td>{{ b.bookingDate | date:'MMM d, y' }}</td>
+                  <td>
+                    <div class="text-sm font-medium">
+                      <a (click)="navigateToSchedule(b.scheduleId || b.scheduleID)" class="bus-link">{{ b.routeName }}</a>
+                    </div>
+                    <div class="text-xs text-slate-500">Boarding: {{ b.boardingPoint || 'N/A' }}</div>
+                  </td>
+                  <td>
+                    <a (click)="navigateToBus(b.vehicleId)" class="bus-link mb-1">
+                      {{ b.vehicleName }} <span *ngIf="b.vehiclePlateNumber">({{ b.vehiclePlateNumber }})</span>
+                    </a>
+                    <div class="text-xs text-slate-500">{{ b.companyName }}</div>
+                  </td>
+                  <td>
+                    <span class="badge-status" [ngClass]="b.bookingStatus">{{ b.bookingStatus || 'Unknown' }}</span>
+                  </td>
+                  <td class="font-semibold text-slate-800">${{ b.finalAmount | number:'1.2-2' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab: Security & Devices -->
+        <div *ngIf="activeTab === 'security'">
+          <h3 class="mb-4 text-lg font-bold text-slate-800">Device Login History</h3>
+          <p class="text-sm text-slate-500 mb-6">A record of devices and IP addresses used to access this account.</p>
+
+          <div *ngIf="!profile.loginHistory || profile.loginHistory.length === 0" class="empty-state">
+            <i class="fi fi-rr-shield-check"></i>
+            <p>No login history available.</p>
+          </div>
+
+          <div class="table-responsive" *ngIf="profile.loginHistory && profile.loginHistory.length > 0">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Device</th>
+                  <th>IP Address</th>
+                  <th>Location (Simulated)</th>
+                  <th>Login Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let l of profile.loginHistory">
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <i class="fi fi-rr-computer text-slate-400"></i>
+                      <span class="text-sm font-medium" [title]="l.deviceName">{{ parseUserAgent(l.deviceName) }}</span>
+                    </div>
+                  </td>
+                  <td class="font-mono text-sm">{{ l.ipAddress }}</td>
+                  <td>
+                    <div class="location-group">
+                      <span class="loc-country">{{ l.country }}</span>
+                      <span class="loc-details">{{ l.location }} · {{ l.isp }}</span>
+                    </div>
+                  </td>
+                  <td>{{ l.loginTime | date:'MMM d, y, h:mm a' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="flex justify-center items-center h-64">
+  <span class="loading loading-spinner loading-lg text-primary"></span>
+</div>

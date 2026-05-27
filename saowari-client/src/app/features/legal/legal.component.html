@@ -13,21 +13,21 @@
       
       <!-- Sticky Navigation Tabs -->
       <div class="w-full lg:w-1/4">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sticky top-24 space-y-1">
+        <div class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border p-4 sticky top-24 space-y-1">
           <button (click)="activeTab = 'privacy'" 
-            [ngClass]="activeTab === 'privacy' ? 'bg-saowari-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+            [ngClass]="activeTab === 'privacy' ? 'bg-saowari-primary text-white shadow-sm' : 'text-saowari-text-secondary hover:bg-saowari-surface-alt'"
             class="w-full text-left px-5 py-3 rounded-xl font-bold text-sm transition-all duration-200 flex items-center gap-3">
             <i class="fas fa-user-shield"></i> Privacy Policy
           </button>
           
           <button (click)="activeTab = 'terms'" 
-            [ngClass]="activeTab === 'terms' ? 'bg-saowari-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+            [ngClass]="activeTab === 'terms' ? 'bg-saowari-primary text-white shadow-sm' : 'text-saowari-text-secondary hover:bg-saowari-surface-alt'"
             class="w-full text-left px-5 py-3 rounded-xl font-bold text-sm transition-all duration-200 flex items-center gap-3">
             <i class="fas fa-file-contract"></i> Terms of Service
           </button>
           
           <button (click)="activeTab = 'cancellation'" 
-            [ngClass]="activeTab === 'cancellation' ? 'bg-saowari-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+            [ngClass]="activeTab === 'cancellation' ? 'bg-saowari-primary text-white shadow-sm' : 'text-saowari-text-secondary hover:bg-saowari-surface-alt'"
             class="w-full text-left px-5 py-3 rounded-xl font-bold text-sm transition-all duration-200 flex items-center gap-3">
             <i class="fas fa-undo-alt"></i> Cancellation Policy
           </button>
@@ -36,31 +36,31 @@
 
       <!-- Policy Text Content Container -->
       <div class="w-full lg:w-3/4">
-        <div class="bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-sm min-h-[500px]">
+        <div class="bg-saowari-surface rounded-3xl p-8 md:p-12 border border-saowari-border shadow-sm min-h-[500px]">
           
           <!-- PRIVACY POLICY -->
           <div *ngIf="activeTab === 'privacy'" class="space-y-6">
             <span class="text-xs font-bold uppercase tracking-wider text-saowari-accent">Compliance & Safety</span>
-            <h2 class="text-3xl font-bold text-gray-800">Privacy Policy</h2>
+            <h2 class="text-3xl font-bold text-saowari-text-primary">Privacy Policy</h2>
             <p class="text-gray-400 text-xs">Last updated: April 2026</p>
             <div class="divider"></div>
             
-            <p class="text-gray-600 leading-relaxed">
+            <p class="text-saowari-text-secondary leading-relaxed">
               At <strong>Saowari</strong>, we take the confidentiality of your personal and transaction data seriously. All sensitive passenger datasets processed during account creation, ticket checkout, or profile dashboard updates are safeguarded within highly secured infrastructures.
             </p>
 
-            <h4 class="font-bold text-lg text-gray-800">1. Information We Collect</h4>
-            <p class="text-gray-600 leading-relaxed text-sm">
+            <h4 class="font-bold text-lg text-saowari-text-primary">1. Information We Collect</h4>
+            <p class="text-saowari-text-secondary leading-relaxed text-sm">
               We collect full names, email addresses, verified mobile phone numbers, and profile photos. During checkout, secure transaction tokens are parsed from payment gateways; card or credential values are never handled nor stored by our servers.
             </p>
 
-            <h4 class="font-bold text-lg text-gray-800">2. Security Compliance Measures</h4>
-            <p class="text-gray-600 leading-relaxed text-sm">
+            <h4 class="font-bold text-lg text-saowari-text-primary">2. Security Compliance Measures</h4>
+            <p class="text-saowari-text-secondary leading-relaxed text-sm">
               All client passwords are automatically hashed using the industry-standard BCrypt database framework. Web API queries are guarded via secure, time-expiring JWT Authorization Tokens to prevent session hijack or unauthorized backend calls.
             </p>
 
-            <h4 class="font-bold text-lg text-gray-800">3. Contact for Data Access</h4>
-            <p class="text-gray-600 leading-relaxed text-sm">
+            <h4 class="font-bold text-lg text-saowari-text-primary">3. Contact for Data Access</h4>
+            <p class="text-saowari-text-secondary leading-relaxed text-sm">
               Customers can permanently update or delete personal data, saved family profiles, and notification preferences at any point from their personal dashboards, or request immediate data deletion by contacting support&#64;saowari.com.
             </p>
           </div>
@@ -68,26 +68,26 @@
           <!-- TERMS OF SERVICE -->
           <div *ngIf="activeTab === 'terms'" class="space-y-6">
             <span class="text-xs font-bold uppercase tracking-wider text-saowari-accent">Operational Terms</span>
-            <h2 class="text-3xl font-bold text-gray-800">Terms of Service</h2>
+            <h2 class="text-3xl font-bold text-saowari-text-primary">Terms of Service</h2>
             <p class="text-gray-400 text-xs">Last updated: April 2026</p>
             <div class="divider"></div>
 
-            <p class="text-gray-600 leading-relaxed">
+            <p class="text-saowari-text-secondary leading-relaxed">
               By registering an account on Saowari or completing any passenger ticket reservation, you explicitly agree to follow the standard operating guidelines and passenger terms defined herein.
             </p>
 
-            <h4 class="font-bold text-lg text-gray-800">1. Centralized Real-Time Inventory</h4>
-            <p class="text-gray-600 leading-relaxed text-sm">
+            <h4 class="font-bold text-lg text-saowari-text-primary">1. Centralized Real-Time Inventory</h4>
+            <p class="text-saowari-text-secondary leading-relaxed text-sm">
               The ticket search, seat maps, and cabin allocations are fully dynamic. Selectable inventory is tracked directly in a centralized relational database. Once a seat is selected, a short-lived transaction lock is applied. If payment fails to authorize before the lock expires, the seats are instantly returned to the public pool.
             </p>
 
-            <h4 class="font-bold text-lg text-gray-800">2. E-Ticket & QR Authentication</h4>
-            <p class="text-gray-600 leading-relaxed text-sm">
+            <h4 class="font-bold text-lg text-saowari-text-primary">2. E-Ticket & QR Authentication</h4>
+            <p class="text-saowari-text-secondary leading-relaxed text-sm">
               Successful payments generate a digital PDF e-ticket containing a unique, cryptographically signed QR code. The QR code represents your valid travel pass. Counter staff and boarding agents at departure terminals will scan the code to verify authenticity.
             </p>
 
-            <h4 class="font-bold text-lg text-gray-800">3. Boarding & Gate Restrictions</h4>
-            <p class="text-gray-600 leading-relaxed text-sm">
+            <h4 class="font-bold text-lg text-saowari-text-primary">3. Boarding & Gate Restrictions</h4>
+            <p class="text-saowari-text-secondary leading-relaxed text-sm">
               Passengers are requested to arrive at boarding docks, launch terminals, or airport check-in counters at least 30 minutes prior to scheduled departures. Failure to present a valid QR e-ticket or matching ID may result in immediate gate denial.
             </p>
           </div>
@@ -95,28 +95,28 @@
           <!-- CANCELLATION POLICY -->
           <div *ngIf="activeTab === 'cancellation'" class="space-y-6">
             <span class="text-xs font-bold uppercase tracking-wider text-saowari-accent">Refund Terms</span>
-            <h2 class="text-3xl font-bold text-gray-800">Refund & Cancellation Policy</h2>
+            <h2 class="text-3xl font-bold text-saowari-text-primary">Refund & Cancellation Policy</h2>
             <p class="text-gray-400 text-xs">Last updated: April 2026</p>
             <div class="divider"></div>
 
-            <p class="text-gray-600 leading-relaxed">
+            <p class="text-saowari-text-secondary leading-relaxed">
               Cancellations on Saowari follow a structured, policy-based automated refund model. Customers can submit cancellation requests for upcoming trips directly from their user dashboards within the policy timeline.
             </p>
 
             <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100/50 space-y-4">
               <h4 class="font-bold text-blue-900 text-base">Tiered Auto-Refund Rates</h4>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                <div class="bg-white p-4 rounded-xl shadow-xs border border-blue-100">
+                <div class="bg-saowari-surface p-4 rounded-xl shadow-xs border border-blue-100">
                   <span class="block text-xs font-bold text-gray-400 uppercase">72+ Hours Before</span>
                   <span class="block text-2xl font-extrabold text-saowari-success mt-1">100% Refund</span>
                   <span class="block text-[10px] text-gray-400 mt-1">Zero Deductions</span>
                 </div>
-                <div class="bg-white p-4 rounded-xl shadow-xs border border-blue-100">
+                <div class="bg-saowari-surface p-4 rounded-xl shadow-xs border border-blue-100">
                   <span class="block text-xs font-bold text-gray-400 uppercase">24 to 72 Hours</span>
                   <span class="block text-2xl font-extrabold text-saowari-accent mt-1">50% Refund</span>
                   <span class="block text-[10px] text-gray-400 mt-1">Half Fare Retained</span>
                 </div>
-                <div class="bg-white p-4 rounded-xl shadow-xs border border-blue-100">
+                <div class="bg-saowari-surface p-4 rounded-xl shadow-xs border border-blue-100">
                   <span class="block text-xs font-bold text-gray-400 uppercase">Under 24 Hours</span>
                   <span class="block text-2xl font-extrabold text-saowari-danger mt-1">0% Refund</span>
                   <span class="block text-[10px] text-gray-400 mt-1">Non-Refundable</span>
@@ -124,8 +124,8 @@
               </div>
             </div>
 
-            <h4 class="font-bold text-lg text-gray-800">Processing Window</h4>
-            <p class="text-gray-600 leading-relaxed text-sm">
+            <h4 class="font-bold text-lg text-saowari-text-primary">Processing Window</h4>
+            <p class="text-saowari-text-secondary leading-relaxed text-sm">
               Once an auto-refund is successfully confirmed, the transaction is routed back to your original payment method (bKash, credit/debit card, or bank transfer). Crediting typically completes within 3 to 7 working days based on your bank's operational policies.
             </p>
           </div>

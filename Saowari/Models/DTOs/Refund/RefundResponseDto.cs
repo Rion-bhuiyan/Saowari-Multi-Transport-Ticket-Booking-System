@@ -23,5 +23,6 @@ namespace Saowari.Models.DTOs.Refund
         public string? RefundStatusName { get; set; }
         public string? UpdatedByUserName { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public bool RequiresOtp { get; set; }
     }
 }

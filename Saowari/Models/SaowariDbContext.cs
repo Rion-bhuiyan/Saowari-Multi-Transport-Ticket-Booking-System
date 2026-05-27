@@ -55,8 +55,9 @@ namespace Saowari.Data
         public DbSet<Ticket> Tickets { get; set; }
 
         // User
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserRole> UserRoles { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<UserLoginHistory> UserLoginHistories { get; set; }
+        public virtual DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<AdminNotificationPreference> AdminNotificationPreferences { get; set; }
         public DbSet<Banner> Banners { get; set; } = null!;
@@ -73,6 +74,7 @@ namespace Saowari.Data
         // Vehicle
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<VehicleType> VehicleTypes { get; set; }
+        public DbSet<SystemSetting> SystemSettings { get; set; }
 
         // Home Slider
         public DbSet<SliderImage> SliderImages { get; set; }

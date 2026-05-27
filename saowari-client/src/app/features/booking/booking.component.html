@@ -166,7 +166,7 @@
             </div>
 
             <!-- Conditional Input fields based on payment method -->
-            <div class="payment-inputs-area mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
+            <div *ngIf="paymentMethod.toLowerCase() !== 'bkash' && paymentMethod.toLowerCase() !== 'nagad' && paymentMethod.toLowerCase() !== 'rocket'" class="payment-inputs-area mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
               
               <!-- Cash / Counter Method -->
               <div *ngIf="paymentMethod.toLowerCase() === 'cash' || paymentMethod.toLowerCase() === 'counter'" class="space-y-2">
@@ -206,7 +206,7 @@
               </div>
 
               <!-- Mobile Financial Services (MFS) e.g., bKash, Nagad, Rocket -->
-              <div *ngIf="paymentMethod.toLowerCase() !== 'cash' && paymentMethod.toLowerCase() !== 'counter' && !paymentMethod.toLowerCase().includes('card')" class="space-y-4">
+              <div *ngIf="paymentMethod.toLowerCase() !== 'cash' && paymentMethod.toLowerCase() !== 'counter' && !paymentMethod.toLowerCase().includes('card') && paymentMethod.toLowerCase() !== 'bkash' && paymentMethod.toLowerCase() !== 'nagad' && paymentMethod.toLowerCase() !== 'rocket'" class="space-y-4">
                 <div class="alert bg-pink-50 text-pink-900 text-xs border border-pink-100 flex gap-2 p-3 rounded-lg">
                   <span>📱</span>
                   <span>Please send exactly <strong>৳{{ getFinalFare() | number:'1.0-2' }}</strong> to merchant <strong>01800-SAOWARI</strong> and input the reference/transaction ID below to verify.</span>
@@ -230,7 +230,7 @@
             <button (click)="prevStep()" class="btn btn-outline btn-ghost gap-2">
               <i class="fas fa-arrow-left"></i> Back
             </button>
-            <button (click)="confirmBooking()" [disabled]="isProcessing || (paymentMethod.toLowerCase() !== 'cash' && !transactionId && !paymentMethod.toLowerCase().includes('card'))" class="btn btn-saowari px-8 gap-2 shadow-lg shadow-primary/20">
+            <button (click)="confirmBooking()" [disabled]="isProcessing || (paymentMethod.toLowerCase() !== 'cash' && paymentMethod.toLowerCase() !== 'bkash' && paymentMethod.toLowerCase() !== 'nagad' && paymentMethod.toLowerCase() !== 'rocket' && !transactionId && !paymentMethod.toLowerCase().includes('card'))" class="btn btn-saowari px-8 gap-2 shadow-lg shadow-primary/20">
               <span *ngIf="isProcessing" class="loading loading-spinner loading-sm"></span>
               <i *ngIf="!isProcessing" class="fas fa-lock"></i>
               {{ isProcessing ? 'Confirming...' : 'Confirm & Pay ৳' + (getFinalFare() | number:'1.0-2') }}
@@ -276,9 +276,19 @@
             </div>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-              <button (click)="downloadTicket()" class="btn btn-saowari gap-2 px-8">
-                <i class="fas fa-ticket-alt"></i> View My Tickets
-              </button>
+              <ng-container *ngIf="isRoundTrip && returnConfirmationCode; else singleTicketBtn">
+                <button (click)="downloadTicket(outboundConfirmationCode)" class="btn btn-saowari gap-2 px-8">
+                  <i class="fas fa-plane-departure"></i> View Outbound Ticket
+                </button>
+                <button (click)="downloadTicket(returnConfirmationCode)" class="btn btn-saowari gap-2 px-8 bg-blue-700 hover:bg-blue-800 border-none text-white">
+                  <i class="fas fa-plane-arrival"></i> View Return Ticket
+                </button>
+              </ng-container>
+              <ng-template #singleTicketBtn>
+                <button (click)="downloadTicket(outboundConfirmationCode)" class="btn btn-saowari gap-2 px-8">
+                  <i class="fas fa-ticket-alt"></i> View My Ticket
+                </button>
+              </ng-template>
               <button (click)="goHome()" class="btn btn-outline btn-primary gap-2 px-8">
                 <i class="fas fa-home"></i> Go Home
               </button>
@@ -404,3 +414,26 @@
     </div>
   </div>
 </div>
+
+<app-bkash-payment-modal *ngIf="showBkashModal"
+  [amount]="getFinalFare()"
+  [logoUrl]="selectedMethod?.logoUrl"
+  (paymentSuccess)="onBkashPaymentSuccess($event)"
+  (paymentCancel)="onBkashPaymentCancel()">
+</app-bkash-payment-modal>
+
+<app-nagad-payment-modal *ngIf="showNagadModal"
+  [amount]="getFinalFare()"
+  [logoUrl]="selectedMethod?.logoUrl"
+  [invoiceNo]="'SAO' + (getFinalFare() * 1000 | number:'1.0-0')"
+  (paymentSuccess)="onNagadPaymentSuccess($event)"
+  (paymentCancel)="onNagadPaymentCancel()">
+</app-nagad-payment-modal>
+
+<app-rocket-payment-modal *ngIf="showRocketModal"
+  [amount]="getFinalFare()"
+  [logoUrl]="selectedMethod?.logoUrl"
+  [invoiceNo]="'SAO' + (getFinalFare() * 1000 | number:'1.0-0')"
+  (paymentSuccess)="onRocketPaymentSuccess($event)"
+  (paymentCancel)="onRocketPaymentCancel()">
+</app-rocket-payment-modal>

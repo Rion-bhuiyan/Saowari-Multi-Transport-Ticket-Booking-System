@@ -10,7 +10,9 @@ export class LoadingInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // Exclude certain endpoints from loading spinner
-    if (request.url.includes('/auth/refresh-token') || request.url.includes('/dashboard/summary')) {
+    if (request.url.includes('/auth/refresh-token') || 
+        request.url.includes('/dashboard/summary') ||
+        request.url.includes('/notifications')) {
       return next.handle(request);
     }
 

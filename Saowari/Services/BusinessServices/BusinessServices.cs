@@ -64,27 +64,34 @@ namespace Saowari.Services.BusinessServices
 
         public async Task<ApiResponse<object>> GetSeatMapAsync(int scheduleId)
         {
-            // Lazy-initialize: if no seat statuses exist for this schedule, create them now
-            bool hasStatuses = await _context.ScheduleSeatStatuses.AnyAsync(s => s.ScheduleID == scheduleId);
-            if (!hasStatuses)
+            var schedule = await _context.Schedules
+                .Include(s => s.Vehicle).ThenInclude(v => v.Seats)
+                .FirstOrDefaultAsync(s => s.ScheduleID == scheduleId);
+
+            if (schedule != null && schedule.Vehicle?.Seats?.Any() == true)
             {
-                var schedule = await _context.Schedules
-                    .Include(s => s.Vehicle).ThenInclude(v => v.Seats)
-                    .FirstOrDefaultAsync(s => s.ScheduleID == scheduleId);
-
                 var availableStatus = await _context.SeatStatuses.FirstOrDefaultAsync(s => s.StatusName == "Available");
-
-                if (schedule != null && availableStatus != null && schedule.Vehicle?.Seats?.Any() == true)
+                if (availableStatus != null)
                 {
-                    var newStatuses = schedule.Vehicle.Seats.Select(seat => new ScheduleSeatStatus
+                    var existingSeatIds = await _context.ScheduleSeatStatuses
+                        .Where(s => s.ScheduleID == scheduleId)
+                        .Select(s => s.SeatID)
+                        .ToListAsync();
+
+                    var missingSeats = schedule.Vehicle.Seats.Where(s => !existingSeatIds.Contains(s.SeatID)).ToList();
+                    
+                    if (missingSeats.Any())
                     {
-                        ScheduleID = scheduleId,
-                        SeatID = seat.SeatID,
-                        SeatStatusId = availableStatus.SeatStatusId,
-                        BookingID = null
-                    });
-                    _context.ScheduleSeatStatuses.AddRange(newStatuses);
-                    await _context.SaveChangesAsync();
+                        var newStatuses = missingSeats.Select(seat => new ScheduleSeatStatus
+                        {
+                            ScheduleID = scheduleId,
+                            SeatID = seat.SeatID,
+                            SeatStatusId = availableStatus.SeatStatusId,
+                            BookingID = null
+                        });
+                        _context.ScheduleSeatStatuses.AddRange(newStatuses);
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
 
@@ -449,29 +456,7 @@ namespace Saowari.Services.BusinessServices
 
             _context.Refunds.Add(refund);
 
-            var seatStatuses = await _context.ScheduleSeatStatuses
-                .Where(sss => sss.BookingID == bookingId)
-                .ToListAsync();
-
-            var availableSeatStatus = await _context.SeatStatuses.FirstOrDefaultAsync(s => s.StatusName == "Available");
-            if (availableSeatStatus != null)
-            {
-                foreach (var ss in seatStatuses)
-                {
-                    ss.BookingID = null;
-                    ss.SeatStatusId = availableSeatStatus.SeatStatusId;
-                }
-            }
-
-            var cancelledBookingStatus = await _context.BookingStatuses.FirstOrDefaultAsync(bs => bs.BookingStatusName == "Cancelled");
-            if (cancelledBookingStatus != null)
-            {
-                booking.BookingStatusId = cancelledBookingStatus.BookingStatusId;
-            }
-            else
-            {
-                booking.BookingStatusId = 3;
-            }
+            // Seats remain booked and BookingStatus remains unchanged while refund is pending approval.
 
             await _context.SaveChangesAsync();
 
@@ -568,6 +553,8 @@ namespace Saowari.Services.BusinessServices
                 .Include(t => t.Booking)
                     .ThenInclude(b => b!.Schedule)
                         .ThenInclude(s => s!.Vehicle)
+                .Include(t => t.Booking)
+                    .ThenInclude(b => b!.BookingStatus)
                 .FirstOrDefaultAsync(t => t.TicketCode == ticketCode);
 
             if (ticket == null)
@@ -581,6 +568,17 @@ namespace Saowari.Services.BusinessServices
             var booking  = ticket.Booking!;
             var schedule = booking.Schedule!;
             var route    = schedule.Route!;
+
+            if (booking.BookingStatus != null && 
+                (booking.BookingStatus.BookingStatusName == "Cancelled" || booking.BookingStatus.BookingStatusName == "Refunded"))
+            {
+                return ApiResponse<TicketVerificationDto>.Ok(new TicketVerificationDto
+                {
+                    IsValid    = false,
+                    TicketCode = ticketCode,
+                    Status     = "Invalid — ticket has been cancelled or refunded"
+                }, "Ticket is cancelled");
+            }
 
             var seatNumbers = booking.BookingSeats
                 .Select(bs => bs.Seat?.SeatNumber ?? bs.SeatId.ToString())
@@ -607,10 +605,16 @@ namespace Saowari.Services.BusinessServices
         public async Task<ApiResponse<object>> ScanTicketAsync(string ticketCode)
         {
             var ticket = await _context.Tickets
+                .Include(t => t.Booking)
+                    .ThenInclude(b => b!.BookingStatus)
                 .FirstOrDefaultAsync(t => t.TicketCode == ticketCode);
 
             if (ticket == null)
                 return ApiResponse<object>.Fail("Ticket not found");
+
+            if (ticket.Booking?.BookingStatus != null && 
+                (ticket.Booking.BookingStatus.BookingStatusName == "Cancelled" || ticket.Booking.BookingStatus.BookingStatusName == "Refunded"))
+                return ApiResponse<object>.Fail("Ticket is invalid (Cancelled/Refunded)");
 
             if (ticket.IsUsed)
                 return ApiResponse<object>.Fail($"Ticket already scanned at {ticket.UsedAt:yyyy-MM-dd HH:mm} UTC");

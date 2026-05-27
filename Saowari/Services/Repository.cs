@@ -43,7 +43,9 @@ namespace Saowari.Services
                 }
             }
 
-            return await query.ToListAsync();
+            var list = await query.ToListAsync();
+            list.Reverse();
+            return list;
         }
 
         public async Task<T?> GetByIdAsync(int id)

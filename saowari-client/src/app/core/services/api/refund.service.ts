@@ -39,6 +39,14 @@ export class RefundService {
     return this.http.patch<ApiResponse<boolean>>(`${this.apiUrl}/${id}/status`, { statusId });
   }
 
+  resetToOtpPending(id: number): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/${id}/reset-to-otp-pending`, {});
+  }
+
+  verifyRefundOtp(refundId: number, otpCode: string): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/${refundId}/verify-otp`, { otpCode });
+  }
+
   calculate(bookingId: number): Observable<ApiResponse<RefundPreview>> {
     return this.http.get<ApiResponse<RefundPreview>>(`${this.apiUrl}/calculate?bookingId=${bookingId}`);
   }

@@ -59,7 +59,11 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<bool>>> Delete(int id)
         {
             var result = await _service.DeleteAsync(id);
-            if (!result.Success) return NotFound(result);
+            if (!result.Success)
+            {
+                if (result.Message == "Not found") return NotFound(result);
+                return BadRequest(result);
+            }
             return Ok(result);
         }
 

@@ -2,13 +2,13 @@
   
   <!-- Modern Header Banner -->
   <div class="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-6 sm:p-8 shadow-xl overflow-hidden mb-8 border border-white/10">
-    <div class="absolute -right-16 -top-16 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+    <div class="absolute -right-16 -top-16 w-64 h-64 bg-saowari-surface/10 rounded-full blur-3xl"></div>
     <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-purple-900/30 rounded-full blur-3xl"></div>
     
     <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-3">
-          <div class="p-2.5 bg-white/15 rounded-2xl backdrop-blur-md border border-white/20">
+          <div class="p-2.5 bg-saowari-surface/15 rounded-2xl backdrop-blur-md border border-white/20">
             <i class="fas fa-bell text-2xl text-white animate-bounce-slow"></i>
           </div>
           <h1 class="text-3xl font-extrabold text-white tracking-tight">System Notifications</h1>
@@ -22,13 +22,13 @@
       <div class="flex flex-wrap gap-2.5">
         <button 
           *ngIf="authService.isAdmin()" 
-          class="btn border border-white/20 bg-white/10 hover:bg-white/20 text-white rounded-2xl px-5 py-2.5 font-semibold text-sm transition-all duration-300 backdrop-blur-md shadow-lg flex items-center gap-2"
+          class="btn border border-white/20 bg-saowari-surface/10 hover:bg-saowari-surface/20 text-white rounded-2xl px-5 py-2.5 font-semibold text-sm transition-all duration-300 backdrop-blur-md shadow-lg flex items-center gap-2"
           (click)="showPrefsModal = true">
           <i class="fas fa-sliders-h"></i>
           Preference Routing
         </button>
         <button 
-          class="btn border border-white/20 bg-white/10 hover:bg-white/20 text-white rounded-2xl px-5 py-2.5 font-semibold text-sm transition-all duration-300 backdrop-blur-md shadow-lg flex items-center gap-2"
+          class="btn border border-white/20 bg-saowari-surface/10 hover:bg-saowari-surface/20 text-white rounded-2xl px-5 py-2.5 font-semibold text-sm transition-all duration-300 backdrop-blur-md shadow-lg flex items-center gap-2"
           [disabled]="unreadCount === 0"
           (click)="markAllAsRead()">
           <i class="fas fa-check-double"></i>
@@ -48,7 +48,7 @@
   <!-- Real-time Stats Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
     <!-- Stat 1: Unread Alerts -->
-    <div class="relative bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
+    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl p-6 shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
       <div class="absolute -right-4 -bottom-4 text-rose-500/10 text-8xl group-hover:scale-110 transition-transform duration-300">
         <i class="fas fa-envelope-open-text"></i>
       </div>
@@ -64,7 +64,7 @@
     </div>
 
     <!-- Stat 2: Total Logs -->
-    <div class="relative bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
+    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl p-6 shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
       <div class="absolute -right-4 -bottom-4 text-indigo-500/10 text-8xl group-hover:scale-110 transition-transform duration-300">
         <i class="fas fa-database"></i>
       </div>
@@ -80,7 +80,7 @@
     </div>
 
     <!-- Stat 3: Company Filter Scope -->
-    <div class="relative bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
+    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl p-6 shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
       <div class="absolute -right-4 -bottom-4 text-emerald-500/10 text-8xl group-hover:scale-110 transition-transform duration-300">
         <i class="fas fa-bus-alt"></i>
       </div>
@@ -97,16 +97,16 @@
   </div>
 
   <!-- Core Content Row -->
-  <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+  <div class="bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
     
     <!-- Premium Filters Toolbar -->
-    <div class="p-5 border-b border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="p-5 border-b border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-saowari-surface-alt/50 backdrop-blur-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
       
       <!-- Status Tabs Switcher -->
       <div class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl max-w-xs">
         <button 
           class="flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all duration-300"
-          [class.bg-white]="activeTab === 'all'"
+          [class.bg-saowari-surface]="activeTab === 'all'"
           [class.dark:bg-slate-700]="activeTab === 'all'"
           [class.shadow-md]="activeTab === 'all'"
           [class.text-indigo-600]="activeTab === 'all'"
@@ -117,7 +117,7 @@
         </button>
         <button 
           class="flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-1.5"
-          [class.bg-white]="activeTab === 'unread'"
+          [class.bg-saowari-surface]="activeTab === 'unread'"
           [class.dark:bg-slate-700]="activeTab === 'unread'"
           [class.shadow-md]="activeTab === 'unread'"
           [class.text-indigo-600]="activeTab === 'unread'"
@@ -250,10 +250,10 @@
        ========================================== -->
   <div *ngIf="showPrefsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
     <!-- Backdrop -->
-    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" (click)="showPrefsModal = false"></div>
+    <div class="fixed inset-0 bg-saowari-surface-alt/60 backdrop-blur-sm" (click)="showPrefsModal = false"></div>
     
     <!-- Modal Wrapper -->
-    <div class="relative bg-white dark:bg-slate-900 w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 animate-scale-in">
+    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 animate-scale-in">
       
       <!-- Modal Header -->
       <div class="p-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white relative">
@@ -266,7 +266,7 @@
         </p>
         <button 
           (click)="showPrefsModal = false"
-          class="absolute top-6 right-6 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white border-0 transition-colors">
+          class="absolute top-6 right-6 w-8 h-8 rounded-full bg-saowari-surface/10 hover:bg-saowari-surface/20 flex items-center justify-center text-white border-0 transition-colors">
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -304,7 +304,7 @@
                   (change)="togglePreference(pref.companyId, pref.isEnabled)"
                   [disabled]="isSavingPreference"
                   class="sr-only peer">
-                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none dark:bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-350 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none dark:bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-saowari-surface after:border-slate-350 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
               </label>
             </div>
 

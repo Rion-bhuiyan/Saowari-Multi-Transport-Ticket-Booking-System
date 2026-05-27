@@ -133,6 +133,49 @@
             </label>
             <input type="tel" name="contactPhone" [(ngModel)]="model.contactPhone" required placeholder="e.g. 01XXXXXXXXX" class="input input-bordered w-full focus:border-saowari-primary focus:ring-1 focus:ring-saowari-primary" />
           </div>
+          <!-- Ticket Background Image -->
+          <div class="form-control w-full mb-5">
+            <label class="label">
+              <span class="label-text font-semibold text-gray-700">Ticket Background Design</span>
+            </label>
+            <div class="mt-1 flex justify-center px-6 pt-6 pb-6 border-2 border-saowari-border border-dashed rounded-xl hover:border-saowari-primary transition-colors bg-saowari-surface-alt relative group cursor-pointer"
+                 (click)="ticketBgInput.click()">
+              <input #ticketBgInput type="file" (change)="onTicketBgSelected($event)" accept="image/*" class="hidden" />
+              <div class="space-y-1 text-center" *ngIf="!ticketBgPreview">
+                <i class="fas fa-palette text-4xl text-gray-400 group-hover:text-saowari-primary transition-colors mb-2"></i>
+                <div class="flex text-sm text-saowari-text-secondary justify-center">
+                  <span class="font-medium text-saowari-primary">Upload ticket design</span>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">This image will appear as the ticket background</p>
+              </div>
+              <div *ngIf="ticketBgPreview" class="flex flex-col items-center">
+                <div class="relative w-40 h-24 rounded-xl overflow-hidden border border-saowari-border shadow-sm bg-white">
+                  <img [src]="ticketBgPreview" alt="Ticket BG Preview" class="object-cover w-full h-full" [style.opacity]="model.ticketBackgroundOpacity || 0.1" />
+                  <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i class="fas fa-pen text-white"></i>
+                  </div>
+                </div>
+                <p class="text-xs text-saowari-text-secondary mt-3 font-medium group-hover:text-saowari-primary transition-colors">Click to change ticket design</p>
+              </div>
+            </div>
+          </div>
+          <!-- Ticket Background Opacity -->
+          <div class="form-control w-full mb-5">
+            <label class="label">
+              <span class="label-text font-semibold text-gray-700">Ticket Background Opacity</span>
+              <span class="label-text-alt text-saowari-primary font-bold">{{ (model.ticketBackgroundOpacity || 0.1) * 100 | number:'1.0-0' }}%</span>
+            </label>
+            <input type="range" name="ticketBackgroundOpacity" [(ngModel)]="model.ticketBackgroundOpacity"
+                   min="0" max="1" step="0.05"
+                   class="range range-primary range-sm" />
+            <div class="flex justify-between text-xs text-gray-400 mt-1 px-1">
+              <span>0%</span>
+              <span>25%</span>
+              <span>50%</span>
+              <span>75%</span>
+              <span>100%</span>
+            </div>
+          </div>
           <div class="form-control w-full mb-6">
             <label class="cursor-pointer label justify-start gap-4">
               <input type="checkbox" name="isActive" [(ngModel)]="model.isActive" class="toggle toggle-primary" />

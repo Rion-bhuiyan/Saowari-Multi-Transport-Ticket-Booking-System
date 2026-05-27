@@ -13,7 +13,7 @@
     </div>
 
     <!-- Main Workspace Container -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-xl overflow-hidden flex h-[600px]">
+    <div class="bg-saowari-surface rounded-2xl border border-slate-100 shadow-xl overflow-hidden flex h-[600px]">
       
       <!-- Left side: Booked Schedules list -->
       <div class="w-80 border-r border-slate-100 flex flex-col bg-slate-50/50">
@@ -55,7 +55,7 @@
       </div>
 
       <!-- Right side: Active Chat Box -->
-      <div class="flex-1 flex flex-col bg-white">
+      <div class="flex-1 flex flex-col bg-saowari-surface">
         <ng-container *ngIf="selectedSchedule; else noSelectedView">
           
           <!-- Chat Header -->
@@ -82,7 +82,7 @@
               <div 
                 [ngClass]="{
                   'bg-indigo-600 text-white rounded-br-none': isCurrentUser(msg.senderId),
-                  'bg-white text-slate-800 border border-slate-100 rounded-bl-none shadow-sm': !isCurrentUser(msg.senderId)
+                  'bg-saowari-surface text-slate-800 border border-slate-100 rounded-bl-none shadow-sm': !isCurrentUser(msg.senderId)
                 }"
                 class="max-w-[70%] p-3.5 rounded-2xl shadow-sm text-sm">
                 

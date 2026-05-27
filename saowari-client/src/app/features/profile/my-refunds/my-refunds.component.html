@@ -1,20 +1,20 @@
 <div class="bg-saowari-surface-alt min-h-screen pt-24 pb-12">
-  <div class="container mx-auto px-4">
+  <div class="container mx-auto px-4 max-w-3xl">
 
     <!-- Page Header -->
     <div class="mb-8">
       <h1 class="text-3xl font-heading font-bold text-saowari-text-primary">My Refunds</h1>
-      <p class="text-saowari-text-secondary mt-1">Track the status of your refund requests.</p>
+      <p class="text-saowari-text-secondary mt-1">Track and complete your refund requests.</p>
     </div>
 
     <!-- Loading State -->
     <div *ngIf="isLoading" class="space-y-4">
-      <div *ngFor="let i of [1,2]" class="bg-white rounded-xl p-6 shadow-sm animate-pulse h-28"></div>
+      <div *ngFor="let i of [1,2]" class="bg-saowari-surface rounded-xl p-6 shadow-sm animate-pulse h-28"></div>
     </div>
 
     <!-- Empty State -->
     <div *ngIf="!isLoading && refunds.length === 0"
-         class="bg-white rounded-xl p-16 shadow-sm text-center border border-gray-100">
+         class="bg-saowari-surface rounded-xl p-16 shadow-sm text-center border border-saowari-border">
       <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-4xl">
         <i class="fas fa-undo-alt"></i>
       </div>
@@ -25,31 +25,113 @@
     <!-- Refund Cards -->
     <div *ngIf="!isLoading && refunds.length > 0" class="space-y-4">
       <div *ngFor="let refund of refunds"
-           class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-full bg-saowari-primary-light flex items-center justify-center flex-shrink-0 text-saowari-primary text-xl">
-            <i class="fas fa-undo-alt"></i>
+           class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border overflow-hidden transition-all duration-200">
+
+        <!-- Card Body -->
+        <div class="p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+
+          <div class="flex items-start gap-4">
+            <!-- Icon -->
+            <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-xl"
+                 [class]="refund.requiresOtp ? 'bg-amber-100 text-amber-600' : 'bg-saowari-primary-light text-saowari-primary'">
+              <i [class]="refund.requiresOtp ? 'fas fa-key' : 'fas fa-undo-alt'"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-saowari-text-primary">Refund #{{ refund.refundID }}</h4>
+              <p class="text-sm text-saowari-text-secondary mt-0.5">
+                Booking: <span class="font-medium">{{ refund.bookingCode || ('ID: ' + refund.bookingId) }}</span>
+              </p>
+              <p class="text-sm text-gray-400 mt-0.5">Requested: {{ formatDate(refund.requestedAt) }}</p>
+            </div>
           </div>
-          <div>
-            <h4 class="font-bold text-gray-800">Refund #{{ refund.refundId }}</h4>
-            <p class="text-sm text-gray-500 mt-0.5">Booking: {{ refund.confirmationCode || ('ID: ' + refund.bookingId) }}</p>
-            <p class="text-sm text-gray-400 mt-0.5">Requested on {{ formatDate(refund.requestDate) }}</p>
+
+          <div class="flex items-center gap-6 ml-16 md:ml-0">
+            <div class="text-center">
+              <p class="text-xs text-gray-400 uppercase font-semibold">Amount</p>
+              <p class="font-bold text-xl text-saowari-primary">৳{{ refund.refundAmount | number }}</p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-400 uppercase font-semibold">Status</p>
+              <span [class]="'badge badge-sm mt-1 ' + getStatusClass(refund.refundStatusId, refund.requiresOtp)">
+                {{ getStatusLabel(refund.refundStatusName, refund.requiresOtp) }}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div class="flex items-center gap-6 ml-16 md:ml-0">
-          <div class="text-center">
-            <p class="text-xs text-gray-400 uppercase font-semibold">Amount</p>
-            <p class="font-bold text-xl text-saowari-primary">৳{{ refund.refundAmount }}</p>
+        <!-- OTP Action Banner - shows only when refund is approved but not yet verified -->
+        <div *ngIf="refund.requiresOtp"
+             class="border-t border-amber-200 bg-amber-50 px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-exclamation-circle text-amber-500 text-lg"></i>
+            <div>
+              <p class="text-sm font-semibold text-amber-800">Action Required: Verify OTP to Receive Refund</p>
+              <p class="text-xs text-amber-600 mt-0.5">Your refund has been approved. Enter the OTP sent to your email to complete the transfer.</p>
+            </div>
           </div>
-          <div class="text-center">
-            <p class="text-xs text-gray-400 uppercase font-semibold">Status</p>
-            <span [class]="'badge badge-sm mt-1 ' + getStatusClass(refund.refundStatus)">{{ refund.refundStatus }}</span>
-          </div>
+          <button (click)="openOtpModal(refund)"
+                  class="btn btn-sm bg-amber-500 hover:bg-amber-600 text-white border-none flex-shrink-0 px-5">
+            <i class="fas fa-key mr-2"></i> Enter OTP
+          </button>
         </div>
+
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- OTP Verification Modal -->
+<div *ngIf="showOtpModal"
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+     (click)="closeOtpModal()">
+  <div class="bg-saowari-surface rounded-2xl shadow-2xl w-full max-w-md p-8 relative"
+       (click)="$event.stopPropagation()">
+
+    <!-- Close button -->
+    <button (click)="closeOtpModal()"
+            class="absolute top-4 right-4 text-gray-400 hover:text-saowari-text-secondary transition-colors">
+      <i class="fas fa-times text-lg"></i>
+    </button>
+
+    <!-- Modal Icon -->
+    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+      <i class="fas fa-shield-alt text-green-600 text-2xl"></i>
+    </div>
+
+    <h3 class="text-2xl font-heading font-bold text-saowari-text-primary text-center mb-2">Verify Your Refund</h3>
+    <p class="text-saowari-text-secondary text-center text-sm mb-1">
+      Booking: <strong>{{ selectedRefund?.bookingCode }}</strong>
+    </p>
+    <p class="text-saowari-text-secondary text-center text-sm mb-6">
+      Amount: <strong class="text-green-600">৳{{ selectedRefund?.refundAmount | number }}</strong>
+    </p>
+
+    <p class="text-saowari-text-secondary text-center text-sm mb-6">
+      Enter the 6-digit OTP code sent to your registered email address to complete and receive your refund.
+    </p>
+
+    <!-- OTP Input -->
+    <div class="mb-6">
+      <label class="block text-sm font-semibold text-gray-700 mb-2 text-center">6-Digit OTP Code</label>
+      <input type="text"
+             [(ngModel)]="otpCode"
+             maxlength="6"
+             placeholder="e.g. 482610"
+             class="input input-bordered w-full text-center text-3xl tracking-[0.5em] font-bold py-4 focus:border-green-500 focus:ring-1 focus:ring-green-500">
+    </div>
+
+    <!-- Verify Button -->
+    <button (click)="verifyOtp()"
+            [disabled]="isVerifying || otpCode.length !== 6"
+            class="btn w-full bg-green-600 hover:bg-green-700 text-white border-none h-12 text-base">
+      <span *ngIf="isVerifying" class="loading loading-spinner loading-sm mr-2"></span>
+      <i *ngIf="!isVerifying" class="fas fa-check-circle mr-2"></i>
+      {{ isVerifying ? 'Verifying...' : 'Confirm & Complete Refund' }}
+    </button>
+
+    <p class="text-xs text-gray-400 text-center mt-4">
+      <i class="fas fa-clock mr-1"></i> OTP expires in 30 minutes from when it was sent.
+    </p>
   </div>
 </div>

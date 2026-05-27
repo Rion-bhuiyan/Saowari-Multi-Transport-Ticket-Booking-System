@@ -20,6 +20,7 @@ namespace Saowari.Models.DTOs.Booking
 
         public string SaowariLogoUrl { get; set; } = string.Empty;
         public string? TicketBackgroundUrl { get; set; }
+        public decimal TicketBackgroundOpacity { get; set; }
         public string CompanyName { get; set; } = string.Empty;
         public string CompanyLogoUrl { get; set; } = string.Empty;
         public string VehicleName { get; set; } = string.Empty;

@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 using Saowari.Data;
+using Saowari.Hubs;
 using Saowari.Interfaces;
 using Saowari.Models.Entities;
 
@@ -8,10 +10,12 @@ namespace Saowari.Services
     public class NotificationService : INotificationService
     {
         private readonly SaowariDbContext _context;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public NotificationService(SaowariDbContext context)
+        public NotificationService(SaowariDbContext context, IHubContext<NotificationHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         // ─── Core helpers ──────────────────────────────────────────────────────
@@ -40,7 +44,7 @@ namespace Saowari.Services
                     if (pref != null && !pref.IsEnabled) continue;
                 }
 
-                await _context.Notifications.AddAsync(new Notification
+                var notification = new Notification
                 {
                     UserId = admin.UserID,
                     CompanyId = companyId,
@@ -53,6 +57,23 @@ namespace Saowari.Services
                     EntityId = entityId,
                     IsRead = false,
                     CreatedAt = DateTime.UtcNow
+                };
+                await _context.Notifications.AddAsync(notification);
+                
+                await _hubContext.Clients.User(admin.UserID.ToString()).SendAsync("ReceiveNotification", new
+                {
+                    Id = notification.Id,
+                    UserId = notification.UserId,
+                    CompanyId = notification.CompanyId,
+                    Title = notification.Title,
+                    Message = notification.Message,
+                    Type = notification.Type,
+                    Icon = notification.Icon,
+                    ColorClass = notification.ColorClass,
+                    EntityType = notification.EntityType,
+                    EntityId = notification.EntityId,
+                    IsRead = notification.IsRead,
+                    CreatedAt = notification.CreatedAt
                 });
             }
 
@@ -73,7 +94,7 @@ namespace Saowari.Services
 
             foreach (var agent in agents)
             {
-                await _context.Notifications.AddAsync(new Notification
+                var notification = new Notification
                 {
                     UserId = agent.UserID,
                     CompanyId = companyId,
@@ -86,6 +107,23 @@ namespace Saowari.Services
                     EntityId = entityId,
                     IsRead = false,
                     CreatedAt = DateTime.UtcNow
+                };
+                await _context.Notifications.AddAsync(notification);
+                
+                await _hubContext.Clients.User(agent.UserID.ToString()).SendAsync("ReceiveNotification", new
+                {
+                    Id = notification.Id,
+                    UserId = notification.UserId,
+                    CompanyId = notification.CompanyId,
+                    Title = notification.Title,
+                    Message = notification.Message,
+                    Type = notification.Type,
+                    Icon = notification.Icon,
+                    ColorClass = notification.ColorClass,
+                    EntityType = notification.EntityType,
+                    EntityId = notification.EntityId,
+                    IsRead = notification.IsRead,
+                    CreatedAt = notification.CreatedAt
                 });
             }
 
@@ -98,6 +136,43 @@ namespace Saowari.Services
         {
             await CreateForCompanyAgentsAsync(companyId, title, message, type, icon, colorClass, entityType, entityId);
             await CreateForAdminsAsync(title, message, type, icon, colorClass, companyId, entityType, entityId);
+        }
+
+        /// <summary>Send a real-time notification to a specific user (e.g. passenger/customer).</summary>
+        public async Task CreateForUserAsync(int userId, string title, string message, string type, string icon, string colorClass, string? entityType = null, int? entityId = null)
+        {
+            var notification = new Notification
+            {
+                UserId = userId,
+                Title = title,
+                Message = message,
+                Type = type,
+                Icon = icon,
+                ColorClass = colorClass,
+                EntityType = entityType,
+                EntityId = entityId,
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _context.Notifications.AddAsync(notification);
+            await _context.SaveChangesAsync();
+
+            await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveNotification", new
+            {
+                Id = notification.Id,
+                UserId = notification.UserId,
+                CompanyId = notification.CompanyId,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type,
+                Icon = notification.Icon,
+                ColorClass = notification.ColorClass,
+                EntityType = notification.EntityType,
+                EntityId = notification.EntityId,
+                IsRead = notification.IsRead,
+                CreatedAt = notification.CreatedAt
+            });
         }
 
         // ─── Domain-specific triggers ──────────────────────────────────────────
@@ -132,6 +207,16 @@ namespace Saowari.Services
                     "booking", "fas fa-ticket-alt", "bg-green-100 text-green-600",
                     null, "Booking", booking.BookingID);
             }
+
+            // Also notify the customer!
+            if (booking.UserID > 0)
+            {
+                await CreateForUserAsync(booking.UserID, 
+                    "Ticket Purchased", 
+                    $"Your ticket for {route} has been successfully booked (Booking #{booking.BookingCode}).",
+                    "booking", "fas fa-ticket-alt", "bg-blue-100 text-blue-600",
+                    "Booking", booking.BookingID);
+            }
         }
 
         public async Task NotifyBookingCancelledAsync(Booking booking)
@@ -156,6 +241,15 @@ namespace Saowari.Services
                     "cancellation", "fas fa-times-circle", "bg-red-100 text-red-600",
                     null, "Booking", booking.BookingID);
             }
+
+            if (booking.UserID > 0)
+            {
+                await CreateForUserAsync(booking.UserID, 
+                    "Booking Cancelled", 
+                    $"Your booking #{booking.BookingCode} has been cancelled.",
+                    "cancellation", "fas fa-times-circle", "bg-red-100 text-red-600",
+                    "Booking", booking.BookingID);
+            }
         }
 
         public async Task NotifyRefundRequestedAsync(Refund refund)
@@ -179,6 +273,15 @@ namespace Saowari.Services
                 await CreateForAdminsAsync(title, message,
                     "refund", "fas fa-undo-alt", "bg-yellow-100 text-yellow-600",
                     null, "Refund", refund.RefundID);
+            }
+
+            if (booking != null && booking.UserID > 0)
+            {
+                await CreateForUserAsync(booking.UserID, 
+                    "Refund Requested", 
+                    $"We have received your refund request for booking #{booking.BookingCode}.",
+                    "refund", "fas fa-undo-alt", "bg-yellow-100 text-yellow-600",
+                    "Refund", refund.RefundID);
             }
         }
 
@@ -212,6 +315,15 @@ namespace Saowari.Services
                 await CreateForAdminsAsync(title, message,
                     "refund", "fas fa-check-circle", "bg-purple-100 text-purple-600",
                     null, "Refund", refund.RefundID);
+            }
+
+            if (booking != null && booking.UserID > 0)
+            {
+                await CreateForUserAsync(booking.UserID, 
+                    title, 
+                    $"Your refund for booking #{booking.BookingCode} has been {statusName.ToLower()}.",
+                    "refund", "fas fa-check-circle", "bg-purple-100 text-purple-600",
+                    "Refund", refund.RefundID);
             }
         }
 
@@ -273,5 +385,18 @@ namespace Saowari.Services
             await CreateForAdminsAsync(title, message, "system",
                 "fas fa-cog", "bg-gray-100 text-gray-600");
         }
+
+        public async Task NotifyBookingCancellationOtpAsync(Booking booking, string otp)
+        {
+            if (booking.UserID > 0)
+            {
+                await CreateForUserAsync(booking.UserID, 
+                    "Cancellation OTP", 
+                    $"Your OTP to cancel booking #{booking.BookingCode} is {otp}.",
+                    "cancellation", "fas fa-key", "bg-orange-100 text-orange-600",
+                    "Booking", booking.BookingID);
+            }
+        }
     }
 }
+

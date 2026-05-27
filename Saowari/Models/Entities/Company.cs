@@ -39,6 +39,14 @@ namespace Saowari.Models.Entities
 
         public bool IsActive { get; set; } = true;
 
+        [MaxLength(500)]
+        [Url]
+        public string? TicketBackgroundUrl { get; set; }
+
+        [Column(TypeName = "decimal(3,2)")]
+        [Range(0.0, 1.0)]
+        public decimal TicketBackgroundOpacity { get; set; } = 0.1m;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public virtual CompanyType? CompanyType { get; set; }

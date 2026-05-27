@@ -9,6 +9,10 @@ using Saowari.Models.DTOs.User;
 using Saowari.Models.Entities;
 using Saowari.Models.Responses;
 using System.Security.Claims;
+using Saowari.Services;
+using System.Text.Json;
+using System.Linq;
+using System.Net.Http;
 
 namespace Saowari.Controllers
 {
@@ -21,12 +25,15 @@ namespace Saowari.Controllers
         private readonly IMapper _mapper;
         private readonly INotificationService _notificationService;
 
-        public AuthController(SaowariDbContext context, IJwtService jwtService, IMapper mapper, INotificationService notificationService)
+        private readonly IEmailService _emailService;
+
+        public AuthController(SaowariDbContext context, IJwtService jwtService, IMapper mapper, INotificationService notificationService, IEmailService emailService)
         {
             _context = context;
             _jwtService = jwtService;
             _mapper = mapper;
             _notificationService = notificationService;
+            _emailService = emailService;
         }
 
         [HttpPost("register")]
@@ -57,27 +64,30 @@ namespace Saowari.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            var accessToken = _jwtService.GenerateAccessToken(user);
-            var refreshToken = _jwtService.GenerateRefreshToken();
-
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpireTime = DateTime.UtcNow.AddDays(7);
+            var otpCode = new Random().Next(100000, 999999).ToString();
+            user.RegistrationOtpCode = otpCode;
+            user.RegistrationOtpExpireTime = DateTime.UtcNow.AddMinutes(15);
             await _context.SaveChangesAsync();
 
-            var response = new AuthResponseDto
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken,
-                User = _mapper.Map<UserResponseDto>(user)
-            };
+            var emailBody = $@"
+                <div style='font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;'>
+                    <h2 style='color: #0369a1;'>Welcome to Saowari, {user.FullName}!</h2>
+                    <p>Please verify your email address to complete your registration.</p>
+                    <p>Your 6-digit verification code is:</p>
+                    <h3 style='background-color: #f3f4f6; padding: 12px; display: inline-block; letter-spacing: 4px; font-size: 24px; color: #1d4ed8; border-radius: 4px;'>{otpCode}</h3>
+                    <p style='color: #6b7280; font-size: 14px;'>This code will expire in 15 minutes.</p>
+                </div>";
+            
+            var textBody = $"Welcome to Saowari! Your verification code is: {otpCode}";
 
             try
             {
+                await _emailService.SendEmailAsync(user.Email, "Verify your Saowari account", emailBody, textBody);
                 await _notificationService.NotifyNewUserRegisteredAsync(user);
             }
             catch (System.Exception) { /* Fail-safe */ }
 
-            return Ok(ApiResponse<AuthResponseDto>.Ok(response, "Registration successful"));
+            return Ok(ApiResponse<AuthResponseDto>.Fail("OTP_REQUIRED"));
         }
 
         [HttpPost("login")]
@@ -89,7 +99,7 @@ namespace Saowari.Controllers
                 .Include(u => u.Company)
                 .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+            if (user == null)
             {
                 return Unauthorized(ApiResponse<AuthResponseDto>.Fail("Invalid credentials."));
             }
@@ -99,9 +109,186 @@ namespace Saowari.Controllers
                 return Unauthorized(ApiResponse<AuthResponseDto>.Fail("User account is inactive."));
             }
 
+            // Check if account is locked out
+            if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTime.UtcNow)
+            {
+                return Unauthorized(ApiResponse<AuthResponseDto>.Fail("Account is locked due to multiple failed login attempts. Please use the unlock endpoint or wait."));
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+            {
+                user.FailedLoginAttempts++;
+                
+                if (user.FailedLoginAttempts >= 5)
+                {
+                    user.LockoutEnd = DateTime.UtcNow.AddMinutes(30); // Lock for 30 mins or until OTP
+                    user.OtpCode = new Random().Next(100000, 999999).ToString();
+                    user.OtpExpireTime = DateTime.UtcNow.AddMinutes(15);
+                    
+                    var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
+                    var emailIp = ip == "::1" ? "Localhost (127.0.0.1)" : ip;
+                    var emailDevice = ParseUserAgent(HttpContext.Request.Headers["User-Agent"].ToString());
+                    var locationInfo = await GetLocationFromIpAsync(ip);
+
+                    var alertBody = $@"
+                        <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                            <h2>Suspicious Login Attempts</h2>
+                            <p>Hello {user.FullName},</p>
+                            <p>Your account has been locked due to 5 consecutive failed login attempts from:</p>
+                            <ul>
+                                <li><b>IP Address:</b> {emailIp}</li>
+                                <li><b>Location:</b> {locationInfo}</li>
+                                <li><b>Device:</b> {emailDevice}</li>
+                                <li><b>Time:</b> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC</li>
+                            </ul>
+                            <p>To unlock your account immediately, please use the following 6-digit OTP code:</p>
+                            <h3 style='background-color: #f3f4f6; padding: 10px; display: inline-block; letter-spacing: 2px;'>{user.OtpCode}</h3>
+                            <p>If this was not you, someone is trying to access your account. Your password remains safe.</p>
+                        </div>";
+
+                    var plainAlert = $"Your account has been locked due to 5 failed logins from IP {emailIp}, Device: {emailDevice}. Your unlock OTP is {user.OtpCode}.";
+
+                    try
+                    {
+                        await _emailService.SendEmailAsync(user.Email, "Security Alert: Account Locked", alertBody, plainAlert);
+                    }
+                    catch { /* Fail-safe */ }
+                }
+
+                await _context.SaveChangesAsync();
+                return Unauthorized(ApiResponse<AuthResponseDto>.Fail(user.FailedLoginAttempts >= 5 ? "Account locked due to 5 failed attempts. Please check your email for the unlock code." : "Invalid credentials."));
+            }
+
+            // Successful login -> Reset failed attempts
+            user.FailedLoginAttempts = 0;
+            user.LockoutEnd = null;
+            user.OtpCode = null;
+            user.OtpExpireTime = null;
+
+            if (!user.IsEmailVerified)
+            {
+                // Generate a new registration OTP if needed
+                var otpCode = new Random().Next(100000, 999999).ToString();
+                user.RegistrationOtpCode = otpCode;
+                user.RegistrationOtpExpireTime = DateTime.UtcNow.AddMinutes(15);
+                await _context.SaveChangesAsync();
+
+                var emailBody = $@"
+                    <div style='font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;'>
+                        <h2 style='color: #0369a1;'>Verify Your Email</h2>
+                        <p>You need to verify your email address before logging in.</p>
+                        <p>Your 6-digit verification code is:</p>
+                        <h3 style='background-color: #f3f4f6; padding: 12px; display: inline-block; letter-spacing: 4px; font-size: 24px; color: #1d4ed8; border-radius: 4px;'>{otpCode}</h3>
+                        <p style='color: #6b7280; font-size: 14px;'>This code will expire in 15 minutes.</p>
+                    </div>";
+                var textBody = $"Your verification code is: {otpCode}";
+
+                try
+                {
+                    await _emailService.SendEmailAsync(user.Email, "Verify your Saowari account", emailBody, textBody);
+                }
+                catch (System.Exception) { /* Fail-safe */ }
+
+                return Ok(ApiResponse<AuthResponseDto>.Fail("UNVERIFIED_EMAIL_OTP_SENT"));
+            }
+
+            // Track New Device Login
+            var currentIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
+            var currentDevice = HttpContext.Request.Headers["User-Agent"].ToString();
+
+            var previousLogin = await _context.UserLoginHistories
+                .Where(h => h.UserId == user.UserID && h.IpAddress == currentIp && h.DeviceName == currentDevice)
+                .FirstOrDefaultAsync();
+
+            if (previousLogin == null)
+            {
+                var emailCurrentIp = currentIp == "::1" ? "Localhost (127.0.0.1)" : currentIp;
+                var emailCurrentDevice = ParseUserAgent(currentDevice);
+                var locationInfo = await GetLocationFromIpAsync(currentIp);
+
+                // New device/IP — generate a login OTP and block login until verified
+                var loginOtp = new Random().Next(100000, 999999).ToString();
+                user.LoginOtpCode = loginOtp;
+                user.LoginOtpExpireTime = DateTime.UtcNow.AddMinutes(10);
+                await _context.SaveChangesAsync();
+
+                var otpHtmlBody = $@"
+                    <div style='font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;'>
+                        <h2 style='color: #dc2626;'>🔐 New Login Attempt Detected</h2>
+                        <p>Hello {user.FullName},</p>
+                        <p>Someone (possibly you) is trying to log into your Saowari account from a <strong>new device or browser</strong>:</p>
+                        <ul>
+                            <li><b>IP Address:</b> {emailCurrentIp}</li>
+                            <li><b>Location:</b> {locationInfo}</li>
+                            <li><b>Device:</b> {emailCurrentDevice}</li>
+                            <li><b>Time:</b> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC</li>
+                        </ul>
+                        <p>To complete login, enter the following verification code on the login page:</p>
+                        <div style='text-align:center; margin: 20px 0;'>
+                            <span style='font-size: 32px; font-weight: bold; letter-spacing: 8px; background: #f3f4f6; padding: 12px 24px; border-radius: 8px; color: #1d4ed8;'>{loginOtp}</span>
+                        </div>
+                        <p style='color: #6b7280; font-size: 13px;'>This code expires in <strong>10 minutes</strong>. If this wasn't you, please change your password immediately.</p>
+                    </div>";
+
+                var otpPlainBody = $"New login attempt on your Saowari account from {emailCurrentDevice} ({emailCurrentIp}). Your verification code is: {loginOtp}. Expires in 10 minutes.";
+
+                Console.WriteLine($"\n=======================================================");
+                Console.WriteLine($"SECURITY ALERT - NEW DEVICE LOGIN OTP GENERATED");
+                Console.WriteLine($"Email: {user.Email}");
+                Console.WriteLine($"OTP Code: {loginOtp}");
+                Console.WriteLine($"=======================================================\n");
+
+                try { await _emailService.SendEmailAsync(user.Email, "Security Alert: Verify Your Login - Saowari", otpHtmlBody, otpPlainBody); }
+                catch (Exception ex) { 
+                    Console.WriteLine($"WARNING: Failed to send Login OTP email: {ex.Message}");
+                }
+
+                // Return special response telling the frontend to ask for OTP
+                return Ok(ApiResponse<AuthResponseDto>.Fail("NEW_DEVICE_OTP_REQUIRED"));
+            }
+
+            // Record this login
+            _context.UserLoginHistories.Add(new UserLoginHistory
+            {
+                UserId = user.UserID,
+                IpAddress = currentIp,
+                DeviceName = currentDevice,
+                LoginTime = DateTime.UtcNow
+            });
+
+            return Ok(ApiResponse<AuthResponseDto>.Ok(BuildAuthResponse(user), "Login successful"));
+        }
+
+        [HttpPost("verify-login-otp")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ApiResponse<AuthResponseDto>>> VerifyLoginOtp([FromBody] VerifyLoginOtpDto dto)
+        {
+            var user = await _context.Users
+                .Include(u => u.UserRole)
+                .Include(u => u.Company)
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            if (user == null)
+                return BadRequest(ApiResponse<AuthResponseDto>.Fail("Invalid request."));
+
+            if (user.LoginOtpCode != dto.OtpCode || user.LoginOtpExpireTime < DateTime.UtcNow)
+                return BadRequest(ApiResponse<AuthResponseDto>.Fail("Invalid or expired OTP code."));
+
+            // OTP verified — clear it and record this device
+            user.LoginOtpCode = null;
+            user.LoginOtpExpireTime = null;
+
+            // Record as trusted device
+            _context.UserLoginHistories.Add(new UserLoginHistory
+            {
+                UserId = user.UserID,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                DeviceName = HttpContext.Request.Headers["User-Agent"].ToString(),
+                LoginTime = DateTime.UtcNow
+            });
+
             var accessToken = _jwtService.GenerateAccessToken(user);
             var refreshToken = _jwtService.GenerateRefreshToken();
-
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpireTime = DateTime.UtcNow.AddDays(7);
             await _context.SaveChangesAsync();
@@ -114,6 +301,66 @@ namespace Saowari.Controllers
             };
 
             return Ok(ApiResponse<AuthResponseDto>.Ok(response, "Login successful"));
+        }
+
+        [HttpPost("verify-registration-otp")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ApiResponse<AuthResponseDto>>> VerifyRegistrationOtp([FromBody] VerifyRegistrationDto dto)
+        {
+            var user = await _context.Users
+                .Include(u => u.UserRole)
+                .Include(u => u.Company)
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            if (user == null)
+                return BadRequest(ApiResponse<AuthResponseDto>.Fail("Invalid request."));
+
+            if (user.RegistrationOtpCode != dto.OtpCode || user.RegistrationOtpExpireTime < DateTime.UtcNow)
+                return BadRequest(ApiResponse<AuthResponseDto>.Fail("Invalid or expired OTP code."));
+
+            // OTP verified — clear it and set as verified
+            user.RegistrationOtpCode = null;
+            user.RegistrationOtpExpireTime = null;
+            user.IsEmailVerified = true;
+
+            // Also record device as trusted for future
+            _context.UserLoginHistories.Add(new UserLoginHistory
+            {
+                UserId = user.UserID,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                DeviceName = HttpContext.Request.Headers["User-Agent"].ToString(),
+                LoginTime = DateTime.UtcNow
+            });
+
+            var accessToken = _jwtService.GenerateAccessToken(user);
+            var refreshToken = _jwtService.GenerateRefreshToken();
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpireTime = DateTime.UtcNow.AddDays(7);
+            await _context.SaveChangesAsync();
+
+            var response = new AuthResponseDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                User = _mapper.Map<UserResponseDto>(user)
+            };
+
+            return Ok(ApiResponse<AuthResponseDto>.Ok(response, "Registration verified successfully"));
+        }
+
+        private AuthResponseDto BuildAuthResponse(User user)
+        {
+            var accessToken = _jwtService.GenerateAccessToken(user);
+            var refreshToken = _jwtService.GenerateRefreshToken();
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpireTime = DateTime.UtcNow.AddDays(7);
+            _context.SaveChanges();
+            return new AuthResponseDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                User = _mapper.Map<UserResponseDto>(user)
+            };
         }
 
         [HttpPost("refresh-token")]
@@ -192,15 +439,186 @@ namespace Saowari.Controllers
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
             await _context.SaveChangesAsync();
 
+            try 
+            {
+                await _notificationService.NotifySystemEventAsync("User Password Changed", $"User {user.FullName} ({user.Email}) has changed their password from inside the app.");
+            } catch { /* fail safe */ }
+
             return Ok(ApiResponse<bool>.Ok(true, "Password changed successfully"));
         }
 
         [HttpPost("forgot-password")]
         [AllowAnonymous]
-        public ActionResult<ApiResponse<bool>> ForgotPassword()
+        public async Task<ActionResult<ApiResponse<bool>>> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
-            // Stub implementation
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (user == null)
+            {
+                // Always return success to prevent email enumeration
+                return Ok(ApiResponse<bool>.Ok(true, "If your email is registered, you will receive a password reset link shortly."));
+            }
+
+            // Using localhost instead of 127.0.0.1 because Angular ng serve binds to localhost
+            var resetToken = Guid.NewGuid().ToString();
+            var resetLink = $"http://localhost:4200/auth/reset-password?email={dto.Email}&token={resetToken}";
+
+            var htmlBody = $@"
+                <div style='font-family: ""Segoe UI"", Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background-color: #ffffff; border: 1px solid #e1e4e8; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
+                    <div style='text-align: center; margin-bottom: 25px;'>
+                        <h2 style='color: #0369a1; margin: 0; font-size: 24px;'>Saowari Account Recovery</h2>
+                    </div>
+                    <p style='color: #334155; font-size: 16px; line-height: 1.5; margin-bottom: 20px;'>Hello {user.FullName},</p>
+                    <p style='color: #334155; font-size: 16px; line-height: 1.5; margin-bottom: 20px;'>We received a request to reset the password for your Saowari account associated with this email address. If you made this request, please click the secure button below to set a new password.</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <a href='{resetLink}' style='display: inline-block; padding: 14px 28px; background-color: #0284c7; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; letter-spacing: 0.5px;'>Reset Password</a>
+                    </div>
+                    <p style='color: #475569; font-size: 14px; line-height: 1.5; margin-bottom: 10px;'>If the button doesn't work, you can copy and paste this link into your browser:</p>
+                    <p style='color: #0284c7; font-size: 13px; word-break: break-all; margin-bottom: 30px;'>{resetLink}</p>
+                    <hr style='border: none; border-top: 1px solid #e2e8f0; margin-bottom: 20px;' />
+                    <p style='color: #64748b; font-size: 12px; line-height: 1.5; text-align: center;'>If you did not request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>
+                    <p style='color: #64748b; font-size: 11px; line-height: 1.5; text-align: center; margin-top: 10px;'>Request ID: {Guid.NewGuid().ToString().Substring(0, 8)} - {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC</p>
+                </div>";
+
+            var textBody = $@"Saowari Account Recovery
+            
+Hello {user.FullName},
+
+We received a request to reset your password. Please copy and paste the link below into your browser to choose a new password:
+{resetLink}
+
+If you did not request this, please ignore this email. Your password will remain unchanged.";
+
+            try
+            {
+                var dynamicSubject = $"Password Reset Request - Saowari - {DateTime.Now:HH:mm:ss}";
+                await _emailService.SendEmailAsync(dto.Email, dynamicSubject, htmlBody, textBody);
+            }
+            catch (Exception ex)
+            {
+                // Optionally log the exception here
+                return StatusCode(500, ApiResponse<bool>.Fail("Failed to send email. " + ex.Message));
+            }
+
             return Ok(ApiResponse<bool>.Ok(true, "If your email is registered, you will receive a password reset link shortly."));
+        }
+
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ApiResponse<bool>>> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (user == null)
+            {
+                return BadRequest(ApiResponse<bool>.Fail("Invalid request."));
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            await _context.SaveChangesAsync();
+            
+            try 
+            {
+                await _notificationService.NotifySystemEventAsync("User Password Reset", $"User {user.FullName} ({user.Email}) has reset their password.");
+            } catch { /* fail safe */ }
+
+            return Ok(ApiResponse<bool>.Ok(true, "Password has been reset successfully."));
+        }
+
+        [HttpPost("unlock-account")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ApiResponse<bool>>> UnlockAccount([FromBody] UnlockAccountDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (user == null)
+            {
+                return BadRequest(ApiResponse<bool>.Fail("Invalid request."));
+            }
+
+            if (user.OtpCode != dto.OtpCode || user.OtpExpireTime < DateTime.UtcNow)
+            {
+                return BadRequest(ApiResponse<bool>.Fail("Invalid or expired OTP code."));
+            }
+
+            // Unlock the account
+            user.FailedLoginAttempts = 0;
+            user.LockoutEnd = null;
+            user.OtpCode = null;
+            user.OtpExpireTime = null;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(ApiResponse<bool>.Ok(true, "Account unlocked successfully. You can now log in."));
+        }
+
+        private string ParseUserAgent(string userAgent)
+        {
+            if (string.IsNullOrEmpty(userAgent)) return "Unknown Device";
+            
+            string browser = "Unknown Browser";
+            if (userAgent.Contains("Edg/")) browser = "Microsoft Edge";
+            else if (userAgent.Contains("Chrome/")) browser = "Google Chrome";
+            else if (userAgent.Contains("Firefox/")) browser = "Mozilla Firefox";
+            else if (userAgent.Contains("Safari/") && !userAgent.Contains("Chrome/")) browser = "Apple Safari";
+            else if (userAgent.Contains("OPR/") || userAgent.Contains("Opera/")) browser = "Opera";
+            
+            string os = "Unknown OS";
+            if (userAgent.Contains("Windows NT 10.0")) os = "Windows 10/11";
+            else if (userAgent.Contains("Windows NT 6.")) os = "Windows";
+            else if (userAgent.Contains("Mac OS X")) os = "macOS";
+            else if (userAgent.Contains("Android")) os = "Android";
+            else if (userAgent.Contains("iPhone") || userAgent.Contains("iPad")) os = "iOS";
+            else if (userAgent.Contains("Linux")) os = "Linux";
+
+            return $"{browser} on {os}";
+        }
+
+        private async Task<string> GetLocationFromIpAsync(string ipAddress)
+        {
+            if (string.IsNullOrEmpty(ipAddress) || ipAddress == "::1" || ipAddress == "127.0.0.1")
+            {
+                // Fallback trick for local testing
+                try
+                {
+                    using var client = new HttpClient();
+                    client.Timeout = TimeSpan.FromSeconds(3);
+                    var ipifyResponse = await client.GetStringAsync("https://api64.ipify.org?format=json");
+                    using var ipDoc = JsonDocument.Parse(ipifyResponse);
+                    ipAddress = ipDoc.RootElement.GetProperty("ip").GetString() ?? "";
+                }
+                catch
+                {
+                    return "Local Network";
+                }
+            }
+
+            try
+            {
+                using var client = new HttpClient();
+                client.Timeout = TimeSpan.FromSeconds(3);
+                var geoResponse = await client.GetStringAsync($"https://get.geojs.io/v1/ip/geo/{ipAddress}.json");
+                using var geoDoc = JsonDocument.Parse(geoResponse);
+                
+                var root = geoDoc.RootElement;
+                var city = root.TryGetProperty("city", out var c) ? c.GetString() : "";
+                var region = root.TryGetProperty("region", out var r) ? r.GetString() : "";
+                var country = root.TryGetProperty("country", out var cnt) ? cnt.GetString() : "";
+                
+                var location = string.Join(", ", new[] { city, region, country }.Where(s => !string.IsNullOrEmpty(s)));
+                if (string.IsNullOrEmpty(location)) location = "Unknown Location";
+                
+                var isp = root.TryGetProperty("organization_name", out var org) ? org.GetString() : 
+                          (root.TryGetProperty("organization", out var org2) ? org2.GetString() : "");
+                          
+                if (!string.IsNullOrEmpty(isp))
+                {
+                    location += $" (ISP: {isp})";
+                }
+                
+                return location;
+            }
+            catch
+            {
+                return "Unknown Location";
+            }
         }
     }
 }

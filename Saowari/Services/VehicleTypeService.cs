@@ -46,7 +46,7 @@ namespace Saowari.Services
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return ApiResponse<VehicleTypeResponseDto>.Fail("Not found");
             
-            _mapper.Map(dto, entity);
+            entity.VehicleTypeName = dto.VehicleTypeName;
             _repository.Update(entity);
             await _repository.SaveAsync();
             

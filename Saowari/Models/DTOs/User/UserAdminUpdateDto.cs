@@ -8,9 +8,10 @@ namespace Saowari.Models.DTOs.User
         public string FullName { get; set; } = null!;
         [Required, EmailAddress]
         public string Email { get; set; } = null!;
-        [Required, Phone]
+        [Required]
         public string Phone { get; set; } = null!;
         public string? Picture { get; set; }
+        public string? AdminCopyEmail { get; set; }
         
         [Required]
         public int RoleID { get; set; }

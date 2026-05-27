@@ -2,8 +2,8 @@
   <div class="flex items-center justify-between">
     <h1 class="text-2xl font-heading font-bold text-saowari-text-primary">Payments</h1>
   </div>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="p-5 border-b border-gray-100 flex gap-4 flex-wrap">
+  <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border overflow-hidden">
+    <div class="p-5 border-b border-saowari-border flex gap-4 flex-wrap">
       <div class="relative flex-1 min-w-[200px]">
         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
         <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Search by booking, amount..." class="input input-sm input-bordered w-full pl-9 focus:border-saowari-primary">
@@ -21,7 +21,7 @@
     </div>
     <div *ngIf="!isLoading && filtered.length > 0" class="overflow-x-auto">
       <table class="table table-sm w-full">
-        <thead class="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+        <thead class="bg-saowari-surface-alt/80 text-xs text-saowari-text-secondary uppercase tracking-wider">
           <tr>
             <th class="px-5 py-3 font-semibold">#ID</th>
             <th class="px-5 py-3 font-semibold">Booking</th>
@@ -33,12 +33,12 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-50">
-          <tr *ngFor="let item of filtered" class="hover:bg-gray-50/50 transition-colors">
-            <td class="px-5 py-3 text-xs font-mono text-gray-500">{{ item.paymentId || item.id }}</td>
-            <td class="px-5 py-3 font-medium text-gray-800">{{ item.bookingCode || item.bookingId }}</td>
+          <tr *ngFor="let item of pagedItems" class="hover:bg-saowari-surface-alt/50 transition-colors">
+            <td class="px-5 py-3 text-xs font-mono text-saowari-text-secondary">{{ item.paymentId || item.id }}</td>
+            <td class="px-5 py-3 font-medium text-saowari-text-primary">{{ item.bookingCode || item.bookingId }}</td>
             <td class="px-5 py-3 font-bold text-green-700">{{ item.amount | currency }}</td>
-            <td class="px-5 py-3 text-sm text-gray-600">{{ item.paymentMethod }}</td>
-            <td class="px-5 py-3 text-sm text-gray-600">{{ item.paymentDate | date:'mediumDate' }}</td>
+            <td class="px-5 py-3 text-sm text-saowari-text-secondary">{{ item.paymentMethod }}</td>
+            <td class="px-5 py-3 text-sm text-saowari-text-secondary">{{ item.paymentDate | date:'mediumDate' }}</td>
             <td class="px-5 py-3">
               <span [class]="'badge badge-sm ' + getStatusClass(item.paymentStatusName || item.paymentStatusId)">
                 {{ item.paymentStatusName || 'Status ' + item.paymentStatusId }}
@@ -52,20 +52,21 @@
           </tr>
         </tbody>
       </table>
+      <app-pagination [pageSize]="pageSize" (pageChange)="p = $event" (pageSizeChange)="pageSize = $event; p = 1" [totalItems]="(filtered || items || []).length" [currentPage]="p"></app-pagination>
     </div>
-    <div *ngIf="!isLoading" class="px-5 py-3 border-t border-gray-100 text-xs text-gray-400">
+    <div *ngIf="!isLoading" class="px-5 py-3 border-t border-saowari-border text-xs text-gray-400">
       Showing {{ filtered.length }} of {{ items.length }} records
     </div>
   </div>
 
   <dialog class="modal" [class.modal-open]="isStatusModalOpen">
-    <div class="modal-box bg-white rounded-2xl p-0 overflow-hidden shadow-2xl max-w-sm">
+    <div class="modal-box bg-saowari-surface rounded-2xl p-0 overflow-hidden shadow-2xl max-w-sm">
       <div class="bg-saowari-primary-light px-6 py-4 flex justify-between items-center border-b border-blue-100">
         <h3 class="font-bold text-lg text-saowari-primary">Update Payment Status</h3>
         <button class="btn btn-sm btn-circle btn-ghost" (click)="closeStatusModal()"><i class="fas fa-times"></i></button>
       </div>
       <div class="p-6">
-        <p class="text-sm text-gray-500 mb-4">Payment ID: <strong>{{ selectedItem?.paymentId || selectedItem?.id }}</strong></p>
+        <p class="text-sm text-saowari-text-secondary mb-4">Payment ID: <strong>{{ selectedItem?.paymentId || selectedItem?.id }}</strong></p>
         <div class="form-control w-full">
           <label class="label"><span class="label-text font-semibold text-gray-700">New Status</span></label>
           <select [(ngModel)]="newStatusId" class="select select-bordered w-full focus:border-saowari-primary">

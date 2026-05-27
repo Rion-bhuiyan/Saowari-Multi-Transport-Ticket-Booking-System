@@ -70,13 +70,10 @@ namespace Saowari.Services
                 await _context.SaveChangesAsync();
             }
 
-            var config = new SeatLayoutConfigDto 
-            { 
-                IsDoubleDecker = dto.IsDoubleDecker, 
-                ContinuousBackRow = dto.ContinuousBackRow,
-                LayoutPreset = dto.LayoutPreset
-            };
-            await GenerateSeatsAsync(entity.VehicleID, config);
+            if (dto.VisualLayout != null)
+            {
+                await GenerateSeatsAsync(entity.VehicleID, dto.VisualLayout);
+            }
 
             // Reload to get seat class pricings populated correctly in response
             entity = await _context.Vehicles
@@ -118,22 +115,16 @@ namespace Saowari.Services
                 await _context.SaveChangesAsync();
             }
             
-            // Generate seats only if layout changes to preserve custom seat classes
-            bool layoutChanged = true;
-            if (!string.IsNullOrEmpty(entity.SeatLayoutConfig))
+            bool layoutChanged = false;
+            if (dto.VisualLayout != null)
             {
                 try 
                 {
-                    var parsed = System.Text.Json.JsonDocument.Parse(entity.SeatLayoutConfig);
-                    bool oldIsDouble = parsed.RootElement.TryGetProperty("IsDoubleDecker", out var prop1) && prop1.ValueKind != System.Text.Json.JsonValueKind.Null && prop1.GetBoolean();
-                    bool oldCont = parsed.RootElement.TryGetProperty("ContinuousBackRow", out var prop2) && prop2.ValueKind != System.Text.Json.JsonValueKind.Null && prop2.GetBoolean();
-                    string oldPreset = parsed.RootElement.TryGetProperty("LayoutPreset", out var prop3) && prop3.ValueKind != System.Text.Json.JsonValueKind.Null ? prop3.GetString() : "standard";
-                    
-                    if (oldIsDouble == dto.IsDoubleDecker && 
-                        oldCont == dto.ContinuousBackRow && 
-                        (oldPreset ?? "") == (dto.LayoutPreset ?? ""))
+                    var oldLayout = entity.SeatLayoutConfig;
+                    var newLayout = System.Text.Json.JsonSerializer.Serialize(dto.VisualLayout);
+                    if (oldLayout != newLayout)
                     {
-                        layoutChanged = false;
+                        layoutChanged = true;
                     }
                 } 
                 catch { }
@@ -143,13 +134,10 @@ namespace Saowari.Services
             {
                 try 
                 {
-                    var config = new SeatLayoutConfigDto 
-                    { 
-                        IsDoubleDecker = dto.IsDoubleDecker, 
-                        ContinuousBackRow = dto.ContinuousBackRow,
-                        LayoutPreset = dto.LayoutPreset
-                    };
-                    await GenerateSeatsAsync(entity.VehicleID, config);
+                    if (dto.VisualLayout != null)
+                    {
+                        await GenerateSeatsAsync(entity.VehicleID, dto.VisualLayout);
+                    }
                 }
                 catch (Microsoft.EntityFrameworkCore.DbUpdateException)
                 {
@@ -182,130 +170,57 @@ namespace Saowari.Services
 
         public async Task<ApiResponse<bool>> GenerateSeatsAsync(int vehicleId, SeatLayoutConfigDto config)
         {
-            var vehicle = await _context.Vehicles.FindAsync(vehicleId);
+            var vehicle = await _context.Vehicles.Include(v => v.Seats).FirstOrDefaultAsync(v => v.VehicleID == vehicleId);
             if (vehicle == null) return ApiResponse<bool>.Fail("Vehicle not found");
 
-            var existingSeats = _context.Seats.Where(s => s.VehicleId == vehicleId);
-            _context.Seats.RemoveRange(existingSeats);
-
-            var defaultSeatClass = _context.SeatClasses.FirstOrDefault()?.SeatClassId ?? 1;
-            var seats = new List<Seat>();
-            var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-            int seatsPerRow = 3;
-            int aisleAfterCol = 1;
-            int backRowSeats = 4;
-
-            if (!string.IsNullOrEmpty(config.LayoutPreset))
+            var newSeatNumbers = new List<string>();
+            foreach (var deck in config.Decks)
             {
-                switch (config.LayoutPreset.ToLower())
+                foreach (var s in deck.Seats)
                 {
-                    case "economy":
-                        seatsPerRow = 4;
-                        aisleAfterCol = 2;
-                        backRowSeats = 5;
-                        break;
-                    case "sleeper":
-                        seatsPerRow = 4;
-                        aisleAfterCol = 2;
-                        backRowSeats = 5;
-                        break;
-                    case "minibus":
-                        seatsPerRow = 2;
-                        aisleAfterCol = 1;
-                        backRowSeats = 3;
-                        break;
-                    default:
-                        seatsPerRow = 3;
-                        aisleAfterCol = 1;
-                        backRowSeats = 4;
-                        break;
+                    if (!string.IsNullOrEmpty(s.SeatNumber))
+                        newSeatNumbers.Add(s.SeatNumber.Trim().ToUpper());
                 }
             }
 
-            int decks = config.IsDoubleDecker ? 2 : 1;
-            int totalCapacity = vehicle.TotalSeats;
-            int generatedForDeck = 0;
-
-            for (int d = 1; d <= decks; d++)
+            var seatsToRemove = vehicle.Seats.Where(s => !newSeatNumbers.Contains(s.SeatNumber)).ToList();
+            if (seatsToRemove.Any())
             {
-                int capacityForThisDeck = d == 1 ? (int)Math.Ceiling(totalCapacity / (double)decks) : totalCapacity / decks;
-                
-                int numRegularRows;
-                if (config.ContinuousBackRow)
-                {
-                    numRegularRows = (int)Math.Ceiling((double)Math.Max(0, capacityForThisDeck - backRowSeats) / seatsPerRow);
-                }
-                else
-                {
-                    numRegularRows = (int)Math.Ceiling((double)capacityForThisDeck / seatsPerRow);
-                }
+                _context.Seats.RemoveRange(seatsToRemove);
+            }
 
-                string deckPrefix = config.IsDoubleDecker ? (d == 1 ? "L" : "U") : "";
-                generatedForDeck = 0;
+            var defaultSeatClass = await _context.SeatClasses.FirstOrDefaultAsync();
+            int defClassId = defaultSeatClass?.SeatClassId ?? 1;
 
-                for (int r = 0; r < numRegularRows; r++)
+            foreach (var deck in config.Decks)
+            {
+                foreach (var seatConfig in deck.Seats)
                 {
-                    string rowLetter = r < alphabet.Length ? alphabet[r].ToString() : $"R{r + 1}";
-                    for (int c = 1; c <= seatsPerRow; c++)
+                    if (string.IsNullOrEmpty(seatConfig.SeatNumber)) continue;
+                    
+                    var existingSeat = vehicle.Seats.FirstOrDefault(s => s.SeatNumber.Equals(seatConfig.SeatNumber.Trim(), StringComparison.OrdinalIgnoreCase));
+                    if (existingSeat != null)
                     {
-                        if (generatedForDeck >= capacityForThisDeck) break;
-
-                        seats.Add(new Seat
-                        {
-                            VehicleId = vehicleId,
-                            SeatNumber = $"{deckPrefix}{rowLetter}{c}",
-                            SeatPriceing = 0,
-                            SeatClassId = defaultSeatClass
-                        });
-                        generatedForDeck++;
+                        existingSeat.SeatClassId = seatConfig.SeatClassId > 0 ? seatConfig.SeatClassId : defClassId;
                     }
-                }
-
-                if (config.ContinuousBackRow)
-                {
-                    string backLetter = numRegularRows < alphabet.Length
-                        ? alphabet[numRegularRows].ToString()
-                        : $"R{numRegularRows + 1}";
-                    for (int c = 1; c <= backRowSeats; c++)
+                    else
                     {
-                        if (generatedForDeck >= capacityForThisDeck) break;
-
-                        seats.Add(new Seat
+                        _context.Seats.Add(new Seat
                         {
                             VehicleId = vehicleId,
-                            SeatNumber = $"{deckPrefix}{backLetter}{c}",
+                            SeatNumber = seatConfig.SeatNumber.Trim().ToUpper(),
                             SeatPriceing = 0,
-                            SeatClassId = defaultSeatClass
+                            SeatClassId = seatConfig.SeatClassId > 0 ? seatConfig.SeatClassId : defClassId
                         });
-                        generatedForDeck++;
                     }
                 }
             }
 
-            // Calculate max rows for the config JSON by taking max of both decks
-            int maxCapacityAnyDeck = (int)Math.Ceiling(totalCapacity / (double)decks);
-            int maxRegularRows = config.ContinuousBackRow 
-                ? (int)Math.Ceiling((double)Math.Max(0, maxCapacityAnyDeck - backRowSeats) / seatsPerRow)
-                : (int)Math.Ceiling((double)maxCapacityAnyDeck / seatsPerRow);
-
-            int totalRows = maxRegularRows + (config.ContinuousBackRow ? 1 : 0);
+            vehicle.SeatLayoutConfig = System.Text.Json.JsonSerializer.Serialize(config);
+            vehicle.TotalSeats = newSeatNumbers.Count;
             
-            vehicle.SeatLayoutConfig = System.Text.Json.JsonSerializer.Serialize(new
-            {
-                Rows = totalRows,
-                Columns = seatsPerRow,
-                AisleAfterColumn = aisleAfterCol,
-                config.IsDoubleDecker,
-                config.ContinuousBackRow,
-                LayoutPreset = config.LayoutPreset ?? "standard"
-            });
-            vehicle.TotalSeats = seats.Count;
-
-            _context.Seats.AddRange(seats);
             await _context.SaveChangesAsync();
-
-            return ApiResponse<bool>.Ok(true, $"{seats.Count} seats generated successfully");
+            return ApiResponse<bool>.Ok(true, "Visual layout saved successfully");
         }
 
         public async Task<ApiResponse<bool>> UpdateSeatClassesAsync(int vehicleId, List<SeatClassAssignmentDto> assignments)

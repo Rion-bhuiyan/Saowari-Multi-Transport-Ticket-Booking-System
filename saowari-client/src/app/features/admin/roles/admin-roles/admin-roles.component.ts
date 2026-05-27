@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -8,11 +9,18 @@ import { NotificationService } from '../../../../core/services/notification.serv
 @Component({
   selector: 'app-admin-roles',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './admin-roles.component.html',
   styleUrls: ['./admin-roles.component.css']
 })
 export class AdminRolesComponent implements OnInit {
+  get pagedItems() {
+    const start = (this.p - 1) * Number(this.pageSize);
+    return (this.filtered || this.items || []).slice(start, start + Number(this.pageSize));
+  }
+  p: number = 1;
+  pageSize: number = 15;
+
   items: any[] = [];
   filtered: any[] = [];
   isLoading = true;

@@ -23,9 +23,11 @@ export class AdminCompaniesComponent implements OnInit {
   // Modal state
   isModalOpen = false;
   editingItem: any = null;
-  model: any = { companyName: '', contactEmail: '', contactPhone: '', companyTypeId: null, isActive: true };
+  model: any = { companyName: '', contactEmail: '', contactPhone: '', companyTypeId: null, isActive: true, ticketBackgroundOpacity: 0.1 };
   selectedFile: File | null = null;
   imagePreview: string | ArrayBuffer | null = null;
+  ticketBgFile: File | null = null;
+  ticketBgPreview: string | ArrayBuffer | null = null;
 
   constructor(
     private svc: CompanyService,
@@ -67,12 +69,15 @@ export class AdminCompaniesComponent implements OnInit {
       this.editingItem = item;
       this.model = { ...item };
       this.imagePreview = item.logoURL || null;
+      this.ticketBgPreview = item.ticketBackgroundUrl || null;
     } else {
       this.editingItem = null;
-      this.model = { companyName: '', contactEmail: '', contactPhone: '', companyTypeId: null, isActive: true };
+      this.model = { companyName: '', contactEmail: '', contactPhone: '', companyTypeId: null, isActive: true, ticketBackgroundOpacity: 0.1 };
       this.imagePreview = null;
+      this.ticketBgPreview = null;
     }
     this.selectedFile = null;
+    this.ticketBgFile = null;
     this.isModalOpen = true;
   }
 
@@ -90,6 +95,16 @@ export class AdminCompaniesComponent implements OnInit {
     }
   }
 
+  onTicketBgSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.ticketBgFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => this.ticketBgPreview = reader.result;
+      reader.readAsDataURL(file);
+    }
+  }
+
   save() {
     if (!this.model.companyName || !this.model.contactEmail || !this.model.contactPhone || !this.model.companyTypeId) {
       this.notification.error('Please fill all required fields', 'Validation');
@@ -102,9 +117,13 @@ export class AdminCompaniesComponent implements OnInit {
     formData.append('contactPhone', this.model.contactPhone);
     formData.append('companyTypeId', this.model.companyTypeId.toString());
     formData.append('isActive', this.model.isActive ? 'true' : 'false');
+    formData.append('ticketBackgroundOpacity', (this.model.ticketBackgroundOpacity || 0.1).toString());
     
     if (this.selectedFile) {
       formData.append('logoFile', this.selectedFile);
+    }
+    if (this.ticketBgFile) {
+      formData.append('ticketBackgroundImage', this.ticketBgFile);
     }
 
     const request = this.editingItem 

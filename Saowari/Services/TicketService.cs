@@ -63,5 +63,26 @@ namespace Saowari.Services
             
             return ApiResponse<bool>.Ok(true, "Deleted successfully");
         }
+
+        public async Task<ApiResponse<IEnumerable<TicketResponseDto>>> GetMyTicketsAsync(int userId)
+        {
+            var entities = await _repository.GetAllAsync(t => t.Booking != null && t.Booking.UserID == userId, "Booking,Booking.Schedule,Booking.Schedule.Route");
+            var dtos = _mapper.Map<IEnumerable<TicketResponseDto>>(entities);
+            return ApiResponse<IEnumerable<TicketResponseDto>>.Ok(dtos);
+        }
+
+        public async Task<ApiResponse<IEnumerable<TicketResponseDto>>> GetByBookingAsync(int bookingId)
+        {
+            var entities = await _repository.GetAllAsync(t => t.BookingId == bookingId);
+            var dtos = _mapper.Map<IEnumerable<TicketResponseDto>>(entities);
+            return ApiResponse<IEnumerable<TicketResponseDto>>.Ok(dtos);
+        }
+
+        public async Task<ApiResponse<TicketResponseDto>> GetByCodeAsync(string code)
+        {
+            var entity = await _repository.GetFirstOrDefaultAsync(t => t.TicketCode == code);
+            if (entity == null) return ApiResponse<TicketResponseDto>.Fail("Ticket not found");
+            return ApiResponse<TicketResponseDto>.Ok(_mapper.Map<TicketResponseDto>(entity));
+        }
     }
 }

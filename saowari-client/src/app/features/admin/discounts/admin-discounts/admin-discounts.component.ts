@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -11,11 +12,18 @@ import { environment } from '../../../../../environments/environment';
 @Component({
   selector: 'app-admin-discounts',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './admin-discounts.component.html',
   styleUrls: ['./admin-discounts.component.css']
 })
 export class AdminDiscountsComponent implements OnInit {
+  get pagedItems() {
+    const start = (this.p - 1) * Number(this.pageSize);
+    return (this.filtered || this.items || []).slice(start, start + Number(this.pageSize));
+  }
+  p: number = 1;
+  pageSize: number = 15;
+
   items: any[] = [];
   filtered: any[] = [];
   isLoading = true;
@@ -159,7 +167,10 @@ export class AdminDiscountsComponent implements OnInit {
           if (res.success) { this.notification.success('Discount deleted.'); this.load(); }
           else this.notification.error(res.message || 'Failed to delete.');
         },
-        error: () => this.notification.error('An error occurred while deleting')
+        error: (err: any) => {
+          const msg = err?.error?.message || 'An error occurred while deleting';
+          this.notification.error(msg);
+        }
       });
     }
   }

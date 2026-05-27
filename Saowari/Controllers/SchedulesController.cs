@@ -28,7 +28,7 @@ namespace Saowari.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "ManagerOrSupervisor")]
+        [Authorize(Policy = "ScheduleViewer")]
         public async Task<ActionResult<ApiResponse<IEnumerable<ScheduleResponseDto>>>> GetAll()
         {
             var result = await _service.GetAllAsync();
@@ -55,6 +55,14 @@ namespace Saowari.Controllers
                 if (int.TryParse(supervisorIdClaim, out int supervisorId))
                 {
                     result.Data = result.Data.Where(s => s.SupervisorId == supervisorId).ToList();
+                }
+            }
+            else if (userRole == "Driver")
+            {
+                var driverIdClaim = User.FindFirst("DriverInformtionId")?.Value;
+                if (int.TryParse(driverIdClaim, out int driverId))
+                {
+                    result.Data = result.Data.Where(s => s.DriverInformtionId == driverId).ToList();
                 }
             }
 
@@ -178,7 +186,7 @@ namespace Saowari.Controllers
         }
 
         [HttpGet("{id}/seat-map")]
-        [Authorize(Policy = "ManagerOrSupervisor")]
+        [Authorize(Policy = "ScheduleViewer")]
         public async Task<IActionResult> GetScheduleSeatMap(int id)
         {
             // Security check
@@ -205,6 +213,14 @@ namespace Saowari.Controllers
             {
                 var supervisorIdClaim = User.FindFirst("SupervisorId")?.Value;
                 if (int.TryParse(supervisorIdClaim, out int supervisorId) && schedule.SupervisorId != supervisorId)
+                {
+                    return Forbid("Not authorized to view this schedule.");
+                }
+            }
+            else if (userRole == "Driver")
+            {
+                var driverIdClaim = User.FindFirst("DriverInformtionId")?.Value;
+                if (int.TryParse(driverIdClaim, out int driverId) && schedule.DriverInformtionId != driverId)
                 {
                     return Forbid("Not authorized to view this schedule.");
                 }
@@ -313,7 +329,7 @@ namespace Saowari.Controllers
 
         /// <summary>Returns schedules grouped by lifecycle stage (Upcoming/Ongoing/PendingExpiry/Expired).</summary>
         [HttpGet("lifecycle")]
-        [Authorize(Policy = "ManagerOrSupervisor")]
+        [Authorize(Policy = "ScheduleViewer")]
         public async Task<ActionResult<ApiResponse<ScheduleLifecycleDto>>> GetLifecycle([FromQuery] int? companyId)
         {
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -342,6 +358,20 @@ namespace Saowari.Controllers
                 result.Data.Expired       = result.Data.Expired.Where(s => s.SupervisorId == supId).ToList();
                 return Ok(result);
             }
+            else if (userRole == "Driver")
+            {
+                var driverIdClaim = User.FindFirst("DriverInformtionId")?.Value;
+                if (!int.TryParse(driverIdClaim, out int _))
+                    return Forbid("Driver ID not resolved.");
+                var result = await _service.GetLifecycleAsync(null);
+                if (!result.Success) return BadRequest(result);
+                int drvId = int.Parse(driverIdClaim!);
+                result.Data.Upcoming      = result.Data.Upcoming.Where(s => s.DriverInformtionId == drvId).ToList();
+                result.Data.Ongoing       = result.Data.Ongoing.Where(s => s.DriverInformtionId == drvId).ToList();
+                result.Data.PendingExpiry = result.Data.PendingExpiry.Where(s => s.DriverInformtionId == drvId).ToList();
+                result.Data.Expired       = result.Data.Expired.Where(s => s.DriverInformtionId == drvId).ToList();
+                return Ok(result);
+            }
 
             var lifecycleResult = await _service.GetLifecycleAsync(companyId);
             if (!lifecycleResult.Success) return BadRequest(lifecycleResult);
@@ -350,7 +380,7 @@ namespace Saowari.Controllers
 
         /// <summary>Transitions an active/arrived schedule to 'Pending Expiry' for review.</summary>
         [HttpPatch("{id}/mark-pending")]
-        [Authorize(Policy = "ManagerOrSupervisor")]
+        [Authorize(Policy = "ScheduleViewer")]
         public async Task<ActionResult<ApiResponse<ScheduleResponseDto>>> MarkPendingExpiry(int id)
         {
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -371,6 +401,16 @@ namespace Saowari.Controllers
                 {
                     var schedule = await _context.Schedules.FirstOrDefaultAsync(s => s.ScheduleID == id);
                     if (schedule != null && schedule.SupervisorId != supervisorId)
+                        return Forbid("You can only manage your assigned schedules.");
+                }
+            }
+            else if (userRole == "Driver")
+            {
+                var driverIdClaim = User.FindFirst("DriverInformtionId")?.Value;
+                if (int.TryParse(driverIdClaim, out int driverId))
+                {
+                    var schedule = await _context.Schedules.FirstOrDefaultAsync(s => s.ScheduleID == id);
+                    if (schedule != null && schedule.DriverInformtionId != driverId)
                         return Forbid("You can only manage your assigned schedules.");
                 }
             }

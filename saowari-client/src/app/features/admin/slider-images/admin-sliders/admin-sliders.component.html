@@ -1,11 +1,11 @@
 <div class="p-6 max-w-7xl mx-auto space-y-6">
   <!-- Header -->
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-100 pb-5">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-saowari-border pb-5">
     <div>
-      <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
+      <h1 class="text-2xl font-extrabold text-saowari-text-primary tracking-tight flex items-center gap-2">
         <i class="fas fa-images text-primary"></i> Home Page Slider Images
       </h1>
-      <p class="text-sm text-gray-500 mt-1">Manage slides, background banners, and CTA links featured on the client portal header.</p>
+      <p class="text-sm text-saowari-text-secondary mt-1">Manage slides, background banners, and CTA links featured on the client portal header.</p>
     </div>
     <button (click)="openModal()" class="btn btn-primary shadow-md flex items-center gap-2">
       <i class="fas fa-plus"></i> Add New Slide
@@ -13,7 +13,7 @@
   </div>
 
   <!-- Search & Filter Card -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+  <div class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
     <div class="relative w-full md:max-w-md">
       <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
         <i class="fas fa-search"></i>
@@ -22,7 +22,7 @@
              placeholder="Search by title or subtitle..."
              class="input input-bordered w-full pl-10 focus:border-primary">
     </div>
-    <div class="text-xs text-gray-500 font-medium">
+    <div class="text-xs text-saowari-text-secondary font-medium">
       Total Slides: <span class="badge badge-sm badge-ghost font-bold">{{ filtered.length }}</span>
     </div>
   </div>
@@ -30,14 +30,14 @@
   <!-- Loading State -->
   <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20 space-y-4">
     <div class="loading loading-spinner loading-lg text-primary"></div>
-    <span class="text-gray-500 font-medium text-sm">Fetching slider images...</span>
+    <span class="text-saowari-text-secondary font-medium text-sm">Fetching slider images...</span>
   </div>
 
   <!-- Slider Table -->
-  <div *ngIf="!isLoading" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+  <div *ngIf="!isLoading" class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden">
     <div class="overflow-x-auto">
       <table class="table w-full">
-        <thead class="bg-gray-50 text-gray-700 uppercase text-xs font-bold border-b border-gray-100">
+        <thead class="bg-saowari-surface-alt text-gray-700 uppercase text-xs font-bold border-b border-saowari-border">
           <tr>
             <th class="w-28 text-left py-4 pl-6">Preview</th>
             <th class="text-left">Title</th>
@@ -51,27 +51,27 @@
         <tbody class="divide-y divide-gray-100">
           <!-- Empty State -->
           <tr *ngIf="filtered.length === 0">
-            <td colspan="7" class="text-center py-12 text-gray-500 font-medium">
+            <td colspan="7" class="text-center py-12 text-saowari-text-secondary font-medium">
               <i class="far fa-image text-3xl text-gray-300 block mb-3"></i>
               No slider images uploaded yet.
             </td>
           </tr>
-          <tr *ngFor="let item of filtered" class="hover:bg-slate-50/50 transition-colors duration-150">
+          <tr *ngFor="let item of pagedItems" class="hover:bg-slate-50/50 transition-colors duration-150">
             <!-- Image Thumbnail -->
             <td class="py-4 pl-6">
               <div class="avatar">
-                <div class="w-20 h-12 rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                <div class="w-20 h-12 rounded-lg shadow-sm overflow-hidden border border-saowari-border">
                   <img [src]="item.imageUrl" alt="Slide Thumbnail" class="object-cover w-full h-full" />
                 </div>
               </div>
             </td>
             <!-- Title -->
             <td>
-              <span class="font-bold text-gray-900">{{ item.title || '—' }}</span>
+              <span class="font-bold text-saowari-text-primary">{{ item.title || '—' }}</span>
             </td>
             <!-- Subtitle -->
             <td>
-              <span class="text-xs text-gray-500 line-clamp-2 max-w-xs">{{ item.subtitle || '—' }}</span>
+              <span class="text-xs text-saowari-text-secondary line-clamp-2 max-w-xs">{{ item.subtitle || '—' }}</span>
             </td>
             <!-- Order -->
             <td class="text-center">
@@ -104,20 +104,21 @@
           </tr>
         </tbody>
       </table>
+      <app-pagination [pageSize]="pageSize" (pageChange)="p = $event" (pageSizeChange)="pageSize = $event; p = 1" [totalItems]="(filtered || items || []).length" [currentPage]="p"></app-pagination>
     </div>
   </div>
 </div>
 
 <!-- Add/Edit Slider Modal -->
 <div *ngIf="isModalOpen" class="modal modal-open">
-  <div class="modal-box rounded-3xl max-w-xl border border-gray-100 shadow-2xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
+  <div class="modal-box rounded-3xl max-w-xl border border-saowari-border shadow-2xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
     <!-- Modal Header -->
-    <div class="bg-gray-50 border-b border-gray-100 p-6 flex justify-between items-center">
-      <h3 class="text-lg font-extrabold text-gray-900 flex items-center gap-2">
+    <div class="bg-saowari-surface-alt border-b border-saowari-border p-6 flex justify-between items-center">
+      <h3 class="text-lg font-extrabold text-saowari-text-primary flex items-center gap-2">
         <i class="fas" [ngClass]="editingItem ? 'fa-edit text-blue-600' : 'fa-plus text-success'"></i>
         {{ editingItem ? 'Edit Slider Image' : 'Add New Slider Image' }}
       </h3>
-      <button (click)="closeModal()" class="btn btn-sm btn-circle btn-ghost text-gray-400 hover:text-gray-600">✕</button>
+      <button (click)="closeModal()" class="btn btn-sm btn-circle btn-ghost text-gray-400 hover:text-saowari-text-secondary">✕</button>
     </div>
 
     <!-- Modal Form Body -->
@@ -127,13 +128,13 @@
         <label class="label">
           <span class="label-text font-bold text-gray-700">Slide Image File *</span>
         </label>
-        <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-2xl p-4 bg-gray-50/50 hover:bg-gray-50 transition-colors relative cursor-pointer group">
+        <div class="flex flex-col items-center justify-center border-2 border-dashed border-saowari-border rounded-2xl p-4 bg-saowari-surface-alt/50 hover:bg-saowari-surface-alt transition-colors relative cursor-pointer group">
           <input type="file" (change)="onFileSelected($event)" accept="image/*"
                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
           
           <ng-container *ngIf="!imagePreviewUrl">
             <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 group-hover:text-primary transition-colors mb-2"></i>
-            <span class="text-sm font-semibold text-gray-600">Click to choose or drag an image</span>
+            <span class="text-sm font-semibold text-saowari-text-secondary">Click to choose or drag an image</span>
             <span class="text-xs text-gray-400 mt-1">Recommended dimension: 1200 x 400 pixels</span>
           </ng-container>
 
@@ -196,7 +197,7 @@
     </div>
 
     <!-- Modal Footer Actions -->
-    <div class="bg-gray-50 border-t border-gray-100 p-5 flex justify-end gap-3">
+    <div class="bg-saowari-surface-alt border-t border-saowari-border p-5 flex justify-end gap-3">
       <button (click)="closeModal()" class="btn btn-ghost">Cancel</button>
       <button (click)="save()" class="btn btn-primary px-8 shadow-md">
         <i class="fas fa-save mr-1"></i> Save Slide

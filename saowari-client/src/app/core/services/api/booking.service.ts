@@ -52,6 +52,14 @@ export class BookingService {
     return this.http.patch<ApiResponse<boolean>>(`${this.apiUrl}/${id}/cancel`, {});
   }
 
+  requestCancel(id: number): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/${id}/request-cancel`, {});
+  }
+
+  verifyCancel(id: number, otp: string): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/${id}/verify-cancel`, { otp });
+  }
+
   validateSeats(scheduleId: number, seatIds: number[]): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.flowUrl}/validate-seats`, { scheduleId, seatIds });
   }

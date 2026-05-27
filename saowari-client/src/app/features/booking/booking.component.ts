@@ -12,6 +12,9 @@ import { BookingStateService } from '../../core/services/booking-state.service';
 
 import { PaymentMethodService, PaymentMethodModel } from '../../core/services/api/payment-method.service';
 import { SearchService } from '../../core/services/api/search.service';
+import { BkashPaymentModalComponent } from '../../shared/components/bkash-payment-modal/bkash-payment-modal.component';
+import { NagadPaymentModalComponent } from '../../shared/components/nagad-payment-modal/nagad-payment-modal.component';
+import { RocketPaymentModalComponent } from '../../shared/components/rocket-payment-modal/rocket-payment-modal.component';
 
 interface CustomerInfo {
   passengerName: string;
@@ -23,7 +26,7 @@ interface CustomerInfo {
 @Component({
   selector: 'app-booking',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, BkashPaymentModalComponent, NagadPaymentModalComponent, RocketPaymentModalComponent],
   templateUrl: './booking.component.html',
   styleUrls: ['./booking.component.css']
 })
@@ -64,11 +67,16 @@ export class BookingComponent implements OnInit {
 
   createdBookingId: number | null = null;
   bookingConfirmationCode = '';
+  outboundConfirmationCode = '';
+  returnConfirmationCode = '';
   isProcessing = false;
 
   couponCodeInput = '';
   isCouponApplied = false;
   isApplyingCoupon = false;
+  showBkashModal = false;
+  showNagadModal = false;
+  showRocketModal = false;
   couponMessage = '';
   discountAmount = 0;
   discountId: number | null = null;
@@ -93,6 +101,12 @@ export class BookingComponent implements OnInit {
   ngOnInit(): void {
     this.loadPaymentMethods();
     const state = this.bookingState.currentState;
+    
+    if (state.tripType === 'round-way' && (!state.outbound.schedule || !state.return.schedule)) {
+       this.notification.warning('Round-trip booking requires both outbound and return tickets to be selected. Please search again.');
+       this.router.navigate(['/home']);
+       return;
+    }
     
     if (state.tripType === 'round-way' && state.outbound.schedule && state.return.schedule) {
        this.isRoundTrip = true;
@@ -189,11 +203,22 @@ export class BookingComponent implements OnInit {
     this.searchService.getSeatMap(id).subscribe(res => {
       if (res.success && res.data) {
         res.data.forEach((seat: any) => {
+          const seatId = seat.seatId ?? seat.SeatId;
+          const seatNumber = seat.seatNumber ?? seat.SeatNumber ?? seat.seatName ?? seat.SeatName;
           const price = seat.price ?? seat.Price ?? (isReturn ? this.returnSchedule?.basePrice : this.schedule?.basePrice) ?? 0;
+          
           if (isReturn) {
-            this.returnSeatPrices[seat.seatId ?? seat.SeatId] = price;
+            this.returnSeatPrices[seatId] = price;
+            const idx = this.returnSeatIds.indexOf(seatId);
+            if (idx !== -1 && seatNumber) {
+              this.returnSeatNumbers[idx] = seatNumber;
+            }
           } else {
-            this.seatPrices[seat.seatId ?? seat.SeatId] = price;
+            this.seatPrices[seatId] = price;
+            const idx = this.seatIds.indexOf(seatId);
+            if (idx !== -1 && seatNumber) {
+              this.seatNumbers[idx] = seatNumber;
+            }
           }
         });
       }
@@ -334,6 +359,58 @@ export class BookingComponent implements OnInit {
   }
 
   confirmBooking() {
+    if (this.paymentMethod.toLowerCase() === 'bkash') {
+      this.showBkashModal = true;
+      return;
+    }
+
+    if (this.paymentMethod.toLowerCase() === 'nagad') {
+      this.showNagadModal = true;
+      return;
+    }
+
+    if (this.paymentMethod.toLowerCase() === 'rocket') {
+      this.showRocketModal = true;
+      return;
+    }
+
+    this.processBooking();
+  }
+
+  onBkashPaymentSuccess(transactionId: string) {
+    this.showBkashModal = false;
+    this.transactionId = transactionId;
+    this.mobileForPayment = 'bKashAccount';
+    this.processBooking();
+  }
+
+  onBkashPaymentCancel() {
+    this.showBkashModal = false;
+  }
+
+  onNagadPaymentSuccess(transactionId: string) {
+    this.showNagadModal = false;
+    this.transactionId = transactionId;
+    this.mobileForPayment = 'NagadAccount';
+    this.processBooking();
+  }
+
+  onNagadPaymentCancel() {
+    this.showNagadModal = false;
+  }
+
+  onRocketPaymentSuccess(transactionId: string) {
+    this.showRocketModal = false;
+    this.transactionId = transactionId;
+    this.mobileForPayment = 'RocketAccount';
+    this.processBooking();
+  }
+
+  onRocketPaymentCancel() {
+    this.showRocketModal = false;
+  }
+
+  processBooking() {
     this.isProcessing = true;
 
     const passengerPayload = this.seatIds.map(seatId => ({
@@ -359,7 +436,8 @@ export class BookingComponent implements OnInit {
       next: (res: any) => {
         if (res.success) {
           this.createdBookingId = res.data?.bookingID || res.data?.bookingId || res.data?.id;
-          this.bookingConfirmationCode = res.data?.bookingCode || res.data?.confirmationCode || `SAO-${Date.now()}`;
+          this.outboundConfirmationCode = res.data?.bookingCode || res.data?.confirmationCode || '';
+          this.bookingConfirmationCode = this.outboundConfirmationCode;
           
           if (this.isRoundTrip && this.returnScheduleId) {
              const returnPayload = {
@@ -381,11 +459,20 @@ export class BookingComponent implements OnInit {
              this.bookingService.create(returnPayload as any).subscribe({
                 next: (retRes: any) => {
                    if (retRes.success) {
-                      this.bookingConfirmationCode += ` & ${retRes.data?.confirmationCode || 'SAO-RET'}`;
+                      this.returnConfirmationCode = retRes.data?.bookingCode || retRes.data?.confirmationCode || '';
+                      if (this.returnConfirmationCode) {
+                         this.bookingConfirmationCode = `${this.outboundConfirmationCode} & ${this.returnConfirmationCode}`;
+                      }
+                   } else {
+                      this.notification.error('Return ticket booking failed: ' + (retRes.message || 'Unknown error'));
                    }
                    this.finalizeCheckout();
                 },
-                error: () => this.finalizeCheckout()
+                error: (err) => {
+                   this.notification.error('Error creating return ticket. Please contact support.');
+                   console.error(err);
+                   this.finalizeCheckout();
+                }
              });
           } else {
              this.finalizeCheckout();
@@ -411,12 +498,13 @@ export class BookingComponent implements OnInit {
     this.isProcessing = false;
   }
 
-  downloadTicket() {
-    if (this.bookingConfirmationCode) {
+  downloadTicket(code?: string) {
+    const targetCode = code || this.bookingConfirmationCode;
+    if (targetCode) {
       const nameSlug = (this.customer?.passengerName || 'Passenger')
         .replace(/\s+/g, '')
         .replace(/[^a-zA-Z0-9]/g, '');
-      const slug = `${this.bookingConfirmationCode}-${nameSlug}`;
+      const slug = `${targetCode}-${nameSlug}`;
       window.open(`/ticket/${slug}`, '_blank');
     }
   }

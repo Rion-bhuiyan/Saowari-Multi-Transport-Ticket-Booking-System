@@ -1,0 +1,57 @@
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rocket-btn {
+  padding: 0 4px;
+  background: linear-gradient(90deg, 
+    #cc0000 0%, #cc0000 8%, 
+    #fff 8%, #fff 12%,
+    #009900 12%, #009900 20%, 
+    #ddd 20%, #ddd 80%, 
+    #009900 80%, #009900 88%, 
+    #fff 88%, #fff 92%,
+    #cc0000 92%, #cc0000 100%);
+  border: 1px solid #999;
+  border-radius: 1px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.rocket-btn:hover .rocket-btn-inner {
+  background: linear-gradient(180deg, #fff 0%, #ebebeb 50%, #dfdfdf 100%);
+}
+
+.rocket-btn-inner {
+  background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 50%, #d5d5d5 100%);
+  border-top: 1px solid #fff;
+  border-bottom: 1px solid #fff;
+  padding: 3px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  height: 24px;
+  /* Adding some noise to approximate the texture in the screenshot */
+  background-image: 
+    repeating-linear-gradient(45deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 1px, transparent 1px, transparent 2px),
+    linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 50%, #d5d5d5 100%);
+}
+
+.rocket-btn-text {
+  color: #0000aa;
+  font-weight: bold;
+  font-family: Tahoma, Arial, sans-serif;
+  font-size: 13px;
+}

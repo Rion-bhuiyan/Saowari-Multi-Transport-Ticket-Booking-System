@@ -3,14 +3,14 @@
     
     <div *ngIf="isLoading" class="text-center py-12">
       <span class="loading loading-spinner text-saowari-primary loading-lg"></span>
-      <p class="mt-4 text-gray-500">Loading seat map...</p>
+      <p class="mt-4 text-saowari-text-secondary">Loading seat map...</p>
     </div>
 
     <div *ngIf="!isLoading && schedule" class="grid grid-cols-1 xl:grid-cols-12 gap-6">
       
       <!-- Column 1: Seat Map Graphic -->
-      <div class="w-full xl:col-span-5 bg-white p-6 rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
-        <div class="flex flex-col md:flex-row justify-between items-center border-b border-gray-100 pb-4 mb-6 gap-4">
+      <div class="w-full xl:col-span-5 bg-saowari-surface p-6 rounded-xl border border-saowari-border shadow-sm overflow-x-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center border-b border-saowari-border pb-4 mb-6 gap-4">
           <div class="flex items-center gap-4">
             <!-- Timer Circle -->
             <div *ngIf="countdownSeconds > 0" class="w-12 h-12 rounded-full border border-green-500 flex items-center justify-center text-gray-700 font-bold text-sm bg-green-50/50 shadow-sm transition-all duration-300" [ngClass]="{'text-red-600 border-red-500 bg-red-50/50 animate-pulse': countdownSeconds <= 60}">
@@ -20,26 +20,66 @@
           </div>
           
           <div class="flex flex-wrap gap-4 text-sm">
-            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded border border-gray-300"></div> Available</div>
+            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded border border-saowari-border"></div> Available</div>
             <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-saowari-accent"></div> Selected</div>
-            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-gray-300 border border-gray-300"></div> Booked</div>
+            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-gray-300 border border-saowari-border"></div> Booked</div>
           </div>
         </div>
 
         <!-- Bus Layout Visualization -->
-        <div class="max-w-md mx-auto bg-gray-50 border border-gray-200 p-6 rounded-3xl relative">
+        <div class="max-w-md mx-auto bg-saowari-surface-alt border border-saowari-border p-6 rounded-3xl relative">
           
           <!-- Driver Seat Representation -->
-          <div class="flex justify-end mb-8 border-b-2 border-dashed border-gray-200 pb-6">
-            <div class="w-10 h-10 border-2 border-gray-300 rounded-lg flex items-center justify-center text-gray-400" title="Driver Cabin">
+          <div class="flex justify-end mb-8 border-b-2 border-dashed border-saowari-border pb-6">
+            <div class="w-10 h-10 border-2 border-saowari-border rounded-lg flex items-center justify-center text-gray-400" title="Driver Cabin">
               <i class="fas fa-steering-wheel"></i>
             </div>
           </div>
 
           <!-- Seat Rows -->
           <div class="space-y-4">
-            <div *ngFor="let deck of seatRows" class="w-full mb-8">
-              <h5 *ngIf="deck.deckName !== 'Main Deck'" class="text-center font-bold text-gray-700 mb-4 bg-gray-100 rounded-lg py-2 uppercase tracking-widest text-sm border border-gray-200">
+            
+            <!-- NEW VISUAL GRID LAYOUT -->
+            <ng-container *ngIf="(config?.mode === 'visual' || config?.Mode === 'visual' || (visualDecks?.length || 0) > 0) && (visualDecks?.length || 0) > 0; else legacyLayout">
+              <div *ngFor="let deck of visualDecks" class="w-full mb-8">
+                <h5 *ngIf="deck.name !== 'Main Deck'" class="text-center font-bold text-gray-700 mb-4 bg-gray-100 rounded-lg py-2 uppercase tracking-widest text-sm border border-saowari-border">
+                  {{ deck.name }}
+                </h5>
+                <div class="grid gap-2 sm:gap-3 justify-center mx-auto" [style.gridTemplateColumns]="'repeat(' + gridWidth + ', minmax(0, max-content))'">
+                  <ng-container *ngFor="let row of deck.grid; let r = index">
+                    <ng-container *ngFor="let seat of row; let c = index">
+                      
+                      <!-- Empty cell (aisle/gap) -->
+                      <div *ngIf="!seat" class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center"></div>
+                      
+                      <!-- Seat cell -->
+                      <button *ngIf="seat"
+                        (click)="toggleSeat(seat)"
+                        [disabled]="seat.isBooked || seat.seatStatusName !== 'Available'"
+                        [ngClass]="{
+                          'bg-saowari-accent text-white border-saowari-accent shadow-md transform scale-105': isSelected(seat.seatId),
+                          'bg-saowari-surface border-saowari-border hover:border-saowari-primary hover:text-saowari-primary': !isSelected(seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
+                          'bg-gray-200 border-saowari-border text-gray-400 cursor-not-allowed opacity-60': seat.isBooked || seat.seatStatusName !== 'Available'
+                        }"
+                        class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border flex flex-col items-center justify-center text-xs font-semibold transition-all duration-200 relative group shadow-sm"
+                      >
+                        <span>{{ seat.seatNumber }}</span>
+                        <!-- Tooltip -->
+                        <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-10 transition-opacity" *ngIf="!seat.isBooked && seat.seatStatusName === 'Available'">
+                          {{ seat.seatClassName }} - ৳{{ seat.price || seat.Price || schedule.basePrice }}
+                        </div>
+                      </button>
+                      
+                    </ng-container>
+                  </ng-container>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- LEGACY LAYOUT FALLBACK -->
+            <ng-template #legacyLayout>
+              <div *ngFor="let deck of seatRows" class="w-full mb-8">
+              <h5 *ngIf="deck.deckName !== 'Main Deck'" class="text-center font-bold text-gray-700 mb-4 bg-gray-100 rounded-lg py-2 uppercase tracking-widest text-sm border border-saowari-border">
                 {{ deck.deckName }}
               </h5>
               <div class="space-y-4">
@@ -56,8 +96,8 @@
                             [disabled]="seat.isBooked || seat.seatStatusName !== 'Available'"
                             [ngClass]="{
                               'bg-saowari-accent text-white border-saowari-accent shadow-md transform scale-105': isSelected(seat.seatId),
-                              'bg-white border-gray-300 hover:border-saowari-primary hover:text-saowari-primary': !isSelected(seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
-                              'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed opacity-60': seat.isBooked || seat.seatStatusName !== 'Available'
+                              'bg-saowari-surface border-saowari-border hover:border-saowari-primary hover:text-saowari-primary': !isSelected(seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
+                              'bg-gray-200 border-saowari-border text-gray-400 cursor-not-allowed opacity-60': seat.isBooked || seat.seatStatusName !== 'Available'
                             }"
                             [style.width]="config.LayoutPreset === 'sleeper' ? '3.5rem' : '2.5rem'"
                             [style.height]="config.LayoutPreset === 'sleeper' ? '5rem' : '2.5rem'"
@@ -65,7 +105,7 @@
                           >
                             <!-- Sleeper Berth Pillow -->
                             <div *ngIf="config.LayoutPreset === 'sleeper'" 
-                                 [ngClass]="isSelected(seat.seatId) ? 'bg-white/20 border-white/20' : 'bg-gray-200/50 border-gray-300/30'"
+                                 [ngClass]="isSelected(seat.seatId) ? 'bg-saowari-surface/20 border-white/20' : 'bg-gray-200/50 border-saowari-border/30'"
                                  class="w-10 h-3 rounded absolute top-1.5 left-2 border"></div>
                             
                             <span [class.mt-3]="config.LayoutPreset === 'sleeper'">{{ seat.seatNumber }}</span>
@@ -93,8 +133,8 @@
                             [disabled]="seat.isBooked || seat.seatStatusName !== 'Available'"
                             [ngClass]="{
                               'bg-saowari-accent text-white border-saowari-accent shadow-md transform scale-105': isSelected(seat.seatId),
-                              'bg-white border-gray-300 hover:border-saowari-primary hover:text-saowari-primary': !isSelected(seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
-                              'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed opacity-60': seat.isBooked || seat.seatStatusName !== 'Available'
+                              'bg-saowari-surface border-saowari-border hover:border-saowari-primary hover:text-saowari-primary': !isSelected(seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
+                              'bg-gray-200 border-saowari-border text-gray-400 cursor-not-allowed opacity-60': seat.isBooked || seat.seatStatusName !== 'Available'
                             }"
                             [style.width]="config.LayoutPreset === 'sleeper' ? '3.5rem' : '2.5rem'"
                             [style.height]="config.LayoutPreset === 'sleeper' ? '5rem' : '2.5rem'"
@@ -102,7 +142,7 @@
                           >
                             <!-- Sleeper Berth Pillow -->
                             <div *ngIf="config.LayoutPreset === 'sleeper'" 
-                                 [ngClass]="isSelected(seat.seatId) ? 'bg-white/20 border-white/20' : 'bg-gray-200/50 border-gray-300/30'"
+                                 [ngClass]="isSelected(seat.seatId) ? 'bg-saowari-surface/20 border-white/20' : 'bg-gray-200/50 border-saowari-border/30'"
                                  class="w-10 h-3 rounded absolute top-1.5 left-2 border"></div>
                             
                             <span [class.mt-3]="config.LayoutPreset === 'sleeper'">{{ seat.seatNumber }}</span>
@@ -126,8 +166,8 @@
                           [disabled]="seat.isBooked || seat.seatStatusName !== 'Available'"
                           [ngClass]="{
                             'bg-saowari-accent text-white border-saowari-accent shadow-md transform scale-105': isSelected(seat.seatId),
-                            'bg-white border-gray-300 hover:border-saowari-primary hover:text-saowari-primary': !isSelected(seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
-                            'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed opacity-60': seat.isBooked || seat.seatStatusName !== 'Available'
+                            'bg-saowari-surface border-saowari-border hover:border-saowari-primary hover:text-saowari-primary': !isSelected(seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
+                            'bg-gray-200 border-saowari-border text-gray-400 cursor-not-allowed opacity-60': seat.isBooked || seat.seatStatusName !== 'Available'
                           }"
                           [style.width]="config.LayoutPreset === 'sleeper' ? '3.5rem' : '2.5rem'"
                           [style.height]="config.LayoutPreset === 'sleeper' ? '5rem' : '2.5rem'"
@@ -135,7 +175,7 @@
                         >
                           <!-- Sleeper Berth Pillow -->
                           <div *ngIf="config.LayoutPreset === 'sleeper'" 
-                               [ngClass]="isSelected(seat.seatId) ? 'bg-white/20 border-white/20' : 'bg-gray-200/50 border-gray-300/30'"
+                               [ngClass]="isSelected(seat.seatId) ? 'bg-saowari-surface/20 border-white/20' : 'bg-gray-200/50 border-saowari-border/30'"
                                class="w-10 h-3 rounded absolute top-1.5 left-2 border"></div>
                           
                           <span [class.mt-3]="config.LayoutPreset === 'sleeper'">{{ seat.seatNumber }}</span>
@@ -151,14 +191,15 @@
 
                 </div>
               </div>
-            </div>
+              </div>
+            </ng-template>
           </div>
 
         </div>
       </div>
 
       <!-- Column 2: Live Interactive Premium Google Map -->
-      <div class="w-full xl:col-span-4 bg-slate-900 rounded-xl border border-slate-800 shadow-xl overflow-hidden flex flex-col relative text-white">
+      <div class="w-full xl:col-span-4 bg-saowari-surface-alt rounded-xl border border-slate-800 shadow-xl overflow-hidden flex flex-col relative text-white">
         <!-- Map Header Overlay -->
         <div class="absolute top-3 left-3 right-3 z-10 bg-slate-950/80 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-800 flex items-center justify-between pointer-events-none">
           <div class="flex items-center gap-2">
@@ -194,7 +235,7 @@
           </div>
           
           <!-- Info Helper Alert inside Column 2 -->
-          <div class="mt-4 bg-slate-900 border border-slate-800 rounded-lg p-2.5 flex items-start gap-2">
+          <div class="mt-4 bg-saowari-surface-alt border border-slate-800 rounded-lg p-2.5 flex items-start gap-2">
             <i class="fas fa-info-circle text-blue-400 mt-0.5"></i>
             <p class="text-[10px] text-slate-400 leading-normal">
               The route line indicates the journey path from {{ getRouteStart() }} to {{ getRouteEnd() }}. Markers showing scheduled departure times can be selected directly on the map.
@@ -205,7 +246,7 @@
 
       <!-- Column 3: Selection Summary & Map pre-selected boarding point -->
       <div class="w-full xl:col-span-3">
-        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm sticky top-24">
+        <div class="bg-saowari-surface p-6 rounded-xl border border-saowari-border shadow-sm sticky top-24">
           <!-- Journey Summary Title -->
           <div class="bg-saowari-primary text-white -mx-6 -mt-6 p-6 rounded-t-xl mb-6">
             <h3 class="font-heading font-bold text-lg mb-1">Journey Summary</h3>
@@ -215,28 +256,28 @@
           <!-- Origin to destination details -->
           <div class="flex justify-between items-center mb-6">
             <div class="text-center">
-              <p class="text-2xl font-bold text-gray-800">{{ formatTime(schedule.departureDateTime) }}</p>
-              <p class="text-xs text-gray-500 font-medium uppercase mt-1">{{ getRouteStart() }}</p>
+              <p class="text-2xl font-bold text-saowari-text-primary">{{ formatTime(schedule.departureDateTime) }}</p>
+              <p class="text-xs text-saowari-text-secondary font-medium uppercase mt-1">{{ getRouteStart() }}</p>
             </div>
             <div class="text-center px-4 relative flex-1">
-              <div class="w-full border-t border-dashed border-gray-300 relative top-3"></div>
-              <i class="fas fa-bus absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-saowari-primary bg-white px-2"></i>
+              <div class="w-full border-t border-dashed border-saowari-border relative top-3"></div>
+              <i class="fas fa-bus absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-saowari-primary bg-saowari-surface px-2"></i>
             </div>
             <div class="text-center">
-              <p class="text-2xl font-bold text-gray-800">{{ formatTime(schedule.arrivalDateTime) }}</p>
-              <p class="text-xs text-gray-500 font-medium uppercase mt-1">{{ getRouteEnd() }}</p>
+              <p class="text-2xl font-bold text-saowari-text-primary">{{ formatTime(schedule.arrivalDateTime) }}</p>
+              <p class="text-xs text-saowari-text-secondary font-medium uppercase mt-1">{{ getRouteEnd() }}</p>
             </div>
           </div>
 
           <!-- Coach details -->
-          <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-100">
+          <div class="bg-saowari-surface-alt rounded-lg p-4 mb-6 border border-saowari-border">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-saowari-primary">
+              <div class="w-10 h-10 rounded-full bg-saowari-surface shadow-sm flex items-center justify-center text-saowari-primary">
                 <i class="fas fa-info-circle"></i>
               </div>
               <div>
-                <p class="font-bold text-gray-800">{{ schedule.vehicle }}</p>
-                <p class="text-xs text-gray-500">Coach Details</p>
+                <p class="font-bold text-saowari-text-primary">{{ schedule.vehicle }}</p>
+                <p class="text-xs text-saowari-text-secondary">Coach Details</p>
               </div>
             </div>
           </div>
@@ -269,9 +310,9 @@
 
           <div class="divider"></div>
 
-          <h4 class="font-semibold text-gray-800 mb-4">Seat Selection</h4>
+          <h4 class="font-semibold text-saowari-text-primary mb-4">Seat Selection</h4>
           
-          <div *ngIf="selectedSeats.length === 0" class="text-sm text-gray-500 text-center py-4 italic border-2 border-dashed border-gray-200 rounded-lg">
+          <div *ngIf="selectedSeats.length === 0" class="text-sm text-saowari-text-secondary text-center py-4 italic border-2 border-dashed border-saowari-border rounded-lg">
             No seats selected
           </div>
 
@@ -285,7 +326,7 @@
           <div class="divider"></div>
 
           <div class="flex justify-between items-center mb-6">
-            <span class="text-gray-600 font-medium">Total Fare</span>
+            <span class="text-saowari-text-secondary font-medium">Total Fare</span>
             <span class="text-2xl font-bold text-saowari-primary">৳{{ getTotalPrice() }}</span>
           </div>
 
@@ -303,8 +344,8 @@
               <i class="fas fa-info-circle text-xl"></i>
             </div>
             <div>
-              <p class="text-sm font-bold text-gray-800 mb-1">Temporary Seat Hold</p>
-              <p class="text-xs text-gray-600 leading-relaxed">
+              <p class="text-sm font-bold text-saowari-text-primary mb-1">Temporary Seat Hold</p>
+              <p class="text-xs text-saowari-text-secondary leading-relaxed">
                 Proceeding will temporarily lock these seats. You will have a limited time to complete your booking before the session expires and the seats are released.
               </p>
             </div>

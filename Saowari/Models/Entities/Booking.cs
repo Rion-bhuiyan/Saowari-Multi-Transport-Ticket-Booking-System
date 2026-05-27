@@ -76,6 +76,11 @@ namespace Saowari.Models.Entities
         [MaxLength(150)]
         public string? BoardingPoint { get; set; }
 
+        [MaxLength(10)]
+        public string? CancellationOtp { get; set; }
+        
+        public DateTime? CancellationOtpExpiry { get; set; }
+
         [ForeignKey(nameof(SeatClass))]
         public int SeatClassId { get; set; }
 

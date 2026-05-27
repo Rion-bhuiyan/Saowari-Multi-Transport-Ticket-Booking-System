@@ -36,13 +36,37 @@ export class AuthService {
     return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login`, dto).pipe(
       tap(response => {
         if (response.success && response.data) {
-          this.tokenService.setAccessToken(response.data.accessToken, 300); // 300 minutes matches backend
-          this.tokenService.setRefreshToken(response.data.refreshToken);
-          this.tokenService.setUser(response.data.user);
-          this.currentUser$.next(response.data.user);
+          this.handleLoginResponse(response.data);
         }
       })
     );
+  }
+
+  verifyLoginOtp(email: string, otpCode: string): Observable<ApiResponse<AuthResponse>> {
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/verify-login-otp`, { email, otpCode }).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.handleLoginResponse(response.data);
+        }
+      })
+    );
+  }
+
+  verifyRegistrationOtp(email: string, otpCode: string): Observable<ApiResponse<AuthResponse>> {
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/verify-registration-otp`, { email, otpCode }).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.handleLoginResponse(response.data);
+        }
+      })
+    );
+  }
+
+  handleLoginResponse(data: AuthResponse): void {
+    this.tokenService.setAccessToken(data.accessToken, 300);
+    this.tokenService.setRefreshToken(data.refreshToken);
+    this.tokenService.setUser(data.user);
+    this.currentUser$.next(data.user);
   }
 
   register(dto: RegisterDto): Observable<ApiResponse<AuthResponse>> {
@@ -84,6 +108,14 @@ export class AuthService {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/change-password`, dto);
   }
 
+  forgotPassword(email: string): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(data: any): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/reset-password`, data);
+  }
+
   isLoggedIn(): boolean {
     return !!this.tokenService.getAccessToken();
   }
@@ -93,12 +125,27 @@ export class AuthService {
   }
 
   hasRole(roleName: string): boolean {
+    const userRole = this.getRoleName();
+    if (!userRole) return false;
+    return userRole.trim().toLowerCase() === roleName.trim().toLowerCase();
+  }
+
+  getRoleName(): string {
     const user = this.getCurrentUser();
-    return user?.roleName === roleName;
+    if (user && user.roleName) return user.roleName;
+
+    const token = this.tokenService.getAccessToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || payload.role || payload.Role || '';
+      } catch (e) {}
+    }
+    return '';
   }
 
   isAdmin(): boolean {
-    return this.hasRole('Admin');
+    return this.hasRole('Admin') || this.hasRole('System Administrator');
   }
 
   isAgent(): boolean {
@@ -113,7 +160,11 @@ export class AuthService {
     return this.hasRole('Supervisor');
   }
 
+  isDriver(): boolean {
+    return this.hasRole('Driver');
+  }
+
   canAccessAdminPanel(): boolean {
-    return this.isAdmin() || this.isAgent() || this.isCompanyManager() || this.isSupervisor();
+    return this.isAdmin() || this.isAgent() || this.isCompanyManager() || this.isSupervisor() || this.isDriver();
   }
 }

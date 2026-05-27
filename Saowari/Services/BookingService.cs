@@ -21,8 +21,9 @@ namespace Saowari.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env;
         private readonly INotificationService _notificationService;
+        private readonly IEmailService _emailService;
 
-        public BookingService(IRepository<Booking> repository, IMapper mapper, SaowariDbContext context, IHttpContextAccessor httpContextAccessor, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env, INotificationService notificationService)
+        public BookingService(IRepository<Booking> repository, IMapper mapper, SaowariDbContext context, IHttpContextAccessor httpContextAccessor, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env, INotificationService notificationService, IEmailService emailService)
         {
             _repository = repository;
             _mapper = mapper;
@@ -30,11 +31,26 @@ namespace Saowari.Services
             _httpContextAccessor = httpContextAccessor;
             _env = env;
             _notificationService = notificationService;
+            _emailService = emailService;
         }
 
         public async Task<ApiResponse<IEnumerable<BookingResponseDto>>> GetAllAsync()
         {
-            var entities = await _repository.GetAllAsync();
+            var entities = await _context.Bookings
+                .Include(b => b.BookingStatus)
+                .Include(b => b.BookingSeats)
+                    .ThenInclude(bs => bs.Seat)
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.Route)
+                        .ThenInclude(r => r.FromLocation)
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.Route)
+                        .ThenInclude(r => r.ToLocation)
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.Vehicle)
+                .OrderByDescending(b => b.BookingDate)
+                .ToListAsync();
+
             var dtos = _mapper.Map<IEnumerable<BookingResponseDto>>(entities);
             return ApiResponse<IEnumerable<BookingResponseDto>>.Ok(dtos);
         }
@@ -53,11 +69,29 @@ namespace Saowari.Services
                         .ThenInclude(r => r.ToLocation)
                 .Include(b => b.Schedule)
                     .ThenInclude(s => s.Vehicle)
+                .Include(b => b.Refunds)
                 .Where(b => b.UserID == userId)
                 .OrderByDescending(b => b.BookingDate)
                 .ToListAsync();
             
-            var dtos = _mapper.Map<IEnumerable<BookingResponseDto>>(entities);
+            var dtos = _mapper.Map<IEnumerable<BookingResponseDto>>(entities).ToList();
+            
+            // Set additional flags
+            var now = DateTime.UtcNow;
+            for (int i = 0; i < dtos.Count; i++)
+            {
+                var entity = entities[i];
+                if (!string.IsNullOrEmpty(entity.CancellationOtp) && entity.CancellationOtpExpiry > now)
+                    dtos[i].HasPendingCancellation = true;
+
+                var latestRefund = entity.Refunds.OrderByDescending(r => r.RequestedAt).FirstOrDefault();
+                if (latestRefund != null)
+                {
+                    dtos[i].LatestRefundId = latestRefund.RefundID;
+                    dtos[i].LatestRefundStatusId = latestRefund.RefundStatusId;
+                }
+            }
+            
             return ApiResponse<IEnumerable<BookingResponseDto>>.Ok(dtos);
         }
 
@@ -97,6 +131,12 @@ namespace Saowari.Services
 
             if (booking == null) return ApiResponse<TicketDetailsDto>.Fail("Booking not found");
 
+            if (booking.BookingStatus != null && 
+                (booking.BookingStatus.BookingStatusName == "Cancelled" || booking.BookingStatus.BookingStatusName == "Refunded"))
+            {
+                return ApiResponse<TicketDetailsDto>.Fail("This ticket has been cancelled or refunded and is no longer valid.");
+            }
+
             var payment = booking.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
 
             // Build base URL for static assets
@@ -124,9 +164,26 @@ namespace Saowari.Services
             var ticketBgPath = System.IO.Path.Combine(
                 _env.WebRootPath ?? System.IO.Path.Combine(_env.ContentRootPath, "wwwroot"),
                 "uploads", "site", "ticket-background.jpg");
-            var ticketBackgroundUrl = System.IO.File.Exists(ticketBgPath)
-                ? $"{baseUrl}/uploads/site/ticket-background.jpg"
-                : null;
+            
+            var companyTicketBgUrl = booking.Schedule?.Vehicle?.Company?.TicketBackgroundUrl;
+            var ticketBackgroundUrl = !string.IsNullOrEmpty(companyTicketBgUrl) 
+                ? (companyTicketBgUrl.StartsWith("http") ? companyTicketBgUrl : $"{baseUrl}/{companyTicketBgUrl.TrimStart('/')}")
+                : (System.IO.File.Exists(ticketBgPath) ? $"{baseUrl}/uploads/site/ticket-background.jpg" : null);
+
+            decimal ticketBackgroundOpacity = 0.1m;
+            if (!string.IsNullOrEmpty(companyTicketBgUrl))
+            {
+                ticketBackgroundOpacity = booking.Schedule?.Vehicle?.Company?.TicketBackgroundOpacity ?? 0.1m;
+            }
+            else
+            {
+                var globalOpacitySetting = await _context.SystemSettings.FirstOrDefaultAsync(s => s.Key == "TicketBackgroundOpacity");
+                if (globalOpacitySetting != null && decimal.TryParse(globalOpacitySetting.Value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal globalOpacity))
+                {
+                    ticketBackgroundOpacity = globalOpacity;
+                }
+            }
+
             var companyLogoUrl = booking.Schedule?.Vehicle?.Company?.LogoURL ?? "";
             // If company logo is a relative path, prepend base URL
             if (!string.IsNullOrEmpty(companyLogoUrl) && !companyLogoUrl.StartsWith("http"))
@@ -174,6 +231,7 @@ namespace Saowari.Services
 
                 SaowariLogoUrl = saowariLogoUrl,
                 TicketBackgroundUrl = ticketBackgroundUrl,
+                TicketBackgroundOpacity = ticketBackgroundOpacity,
                 CompanyName = booking.Schedule?.Vehicle?.Company?.CompanyName ?? "Unknown Company",
                 CompanyLogoUrl = companyLogoUrl,
                 VehicleName = booking.Schedule?.Vehicle?.VehicleName ?? "Unknown Vehicle",
@@ -315,7 +373,7 @@ namespace Saowari.Services
             // 4. Create Booking Entity
             var booking = new Booking
             {
-                BookingCode = string.IsNullOrEmpty(dto.BookingCode) ? $"B{DateTime.UtcNow:yyMMddHHmmss}{new Random().Next(100, 999)}" : dto.BookingCode,
+                BookingCode = string.IsNullOrEmpty(dto.BookingCode) ? $"B{DateTime.UtcNow:yyMMddHHmmss}{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}" : dto.BookingCode,
                 UserID = dto.UserID > 0 ? dto.UserID : 1,
                 ScheduleID = dto.ScheduleID,
                 PassengerName = string.IsNullOrEmpty(dto.PassengerName) ? dto.Passengers.FirstOrDefault()?.PassengerName ?? "Guest Passenger" : dto.PassengerName,
@@ -349,6 +407,7 @@ namespace Saowari.Services
                 if (statusRecord != null && bookedSeatStatus != null)
                 {
                     statusRecord.SeatStatusId = bookedSeatStatus.SeatStatusId;
+                    statusRecord.BookingID = booking.BookingID;
                     _context.ScheduleSeatStatuses.Update(statusRecord);
                 }
             }
@@ -413,6 +472,33 @@ namespace Saowari.Services
 
             if (isBecomingCancelled)
             {
+                var fullEntity = await _context.Bookings
+                    .Include(b => b.BookingSeats)
+                    .Include(b => b.Schedule)
+                    .FirstOrDefaultAsync(b => b.BookingID == id);
+
+                if (fullEntity != null)
+                {
+                    var availableSeatStatus = await _context.SeatStatuses.FirstOrDefaultAsync(s => s.StatusName == "Available");
+                    if (availableSeatStatus != null && fullEntity.Schedule != null)
+                    {
+                        var seatIds = fullEntity.BookingSeats.Select(bs => bs.SeatId).ToList();
+                        var scheduleSeatStatuses = await _context.ScheduleSeatStatuses
+                            .Where(s => s.ScheduleID == fullEntity.ScheduleID && seatIds.Contains(s.SeatID))
+                            .ToListAsync();
+
+                        foreach (var status in scheduleSeatStatuses)
+                        {
+                            status.SeatStatusId = availableSeatStatus.SeatStatusId;
+                            _context.ScheduleSeatStatuses.Update(status);
+                        }
+                        
+                        fullEntity.Schedule.AvailableSeats += seatIds.Count;
+                        _context.Schedules.Update(fullEntity.Schedule);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
                 try
                 {
                     await _notificationService.NotifyBookingCancelledAsync(entity);
@@ -432,6 +518,156 @@ namespace Saowari.Services
             await _repository.SaveAsync();
             
             return ApiResponse<bool>.Ok(true, "Deleted successfully");
+        }
+
+        public async Task<ApiResponse<bool>> RequestCancellationAsync(int id)
+        {
+            Console.WriteLine($"RequestCancellationAsync called for BookingID: {id}");
+            var booking = await _context.Bookings
+                .Include(b => b.User)
+                .FirstOrDefaultAsync(b => b.BookingID == id);
+
+            if (booking == null) 
+            {
+                Console.WriteLine("Booking not found");
+                return ApiResponse<bool>.Fail("Booking not found");
+            }
+
+            Console.WriteLine($"Booking found. UserID: {booking.UserID}, User object is null: {booking.User == null}");
+
+            // Generate OTP
+            var otp = new Random().Next(100000, 999999).ToString();
+            booking.CancellationOtp = otp;
+            booking.CancellationOtpExpiry = DateTime.UtcNow.AddMinutes(15);
+
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+            
+            Console.WriteLine($"OTP generated and saved: {otp}");
+
+            // Notify user in real-time
+            try 
+            {
+                await _notificationService.NotifyBookingCancellationOtpAsync(booking, otp);
+                Console.WriteLine("Real-time OTP notification sent to user.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send real-time notification: {ex.Message}");
+            }
+
+            // Send Email to User
+            if (booking.User != null && !string.IsNullOrEmpty(booking.User.Email))
+            {
+                var htmlBody = $@"
+                    <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                        <h2>Booking Cancellation Request</h2>
+                        <p>Hello {booking.User.FullName},</p>
+                        <p>A request was made to cancel your booking <b>#{booking.BookingCode}</b>.</p>
+                        <p>To confirm this cancellation, please provide the following OTP to the admin:</p>
+                        <h1 style='color: #d9534f; letter-spacing: 2px;'>{otp}</h1>
+                        <p>This OTP is valid for 15 minutes.</p>
+                    </div>";
+                var plainBody = $"Your cancellation OTP for booking {booking.BookingCode} is {otp}. Valid for 15 minutes.";
+
+                try 
+                {
+                    Console.WriteLine($"Attempting to send email to {booking.User.Email}");
+                    await _emailService.SendEmailAsync(booking.User.Email, $"Cancellation OTP - {booking.BookingCode}", htmlBody, plainBody);
+                    Console.WriteLine("Email sent successfully.");
+                } catch (Exception ex) { 
+                    Console.WriteLine($"Failed to send email: {ex.Message}\n{ex.StackTrace}");
+                }
+            }
+
+            // Create Notification for User
+            if (booking.User != null)
+            {
+                var notification = new Notification
+                {
+                    UserId = booking.User.UserID,
+                    Title = "Cancellation OTP",
+                    Message = $"Your cancellation OTP for booking {booking.BookingCode} is {otp}.",
+                    Type = "cancellation",
+                    EntityType = "Booking",
+                    EntityId = booking.BookingID,
+                    Icon = "fas fa-shield-alt",
+                    ColorClass = "bg-red-100 text-red-600",
+                    CreatedAt = DateTime.UtcNow,
+                    IsRead = false
+                };
+                await _context.Set<Notification>().AddAsync(notification);
+                await _context.SaveChangesAsync();
+                Console.WriteLine("Notification created successfully.");
+            }
+
+            return ApiResponse<bool>.Ok(true, "OTP sent successfully");
+        }
+
+        public async Task<ApiResponse<bool>> VerifyCancellationAsync(int id, string otp)
+        {
+            var booking = await _context.Bookings
+                .Include(b => b.BookingSeats)
+                    .ThenInclude(bs => bs.Seat)
+                .Include(b => b.Schedule)
+                .FirstOrDefaultAsync(b => b.BookingID == id);
+
+            if (booking == null) return ApiResponse<bool>.Fail("Booking not found");
+
+            if (string.IsNullOrEmpty(booking.CancellationOtp) || booking.CancellationOtp != otp)
+            {
+                return ApiResponse<bool>.Fail("Invalid OTP");
+            }
+
+            if (booking.CancellationOtpExpiry < DateTime.UtcNow)
+            {
+                return ApiResponse<bool>.Fail("OTP has expired");
+            }
+
+            // Valid OTP -> Proceed to cancel
+            var cancelledStatus = await _context.BookingStatuses.FirstOrDefaultAsync(s => s.BookingStatusName == "Cancelled");
+            if (cancelledStatus != null)
+            {
+                booking.BookingStatusId = cancelledStatus.BookingStatusId;
+            }
+            booking.CancelReason = "Cancelled via OTP verification";
+
+            // Release seats
+            var availableSeatStatus = await _context.SeatStatuses.FirstOrDefaultAsync(s => s.StatusName == "Available");
+            if (availableSeatStatus != null && booking.Schedule != null)
+            {
+                var seatIds = booking.BookingSeats.Select(bs => bs.SeatId).ToList();
+                var scheduleSeatStatuses = await _context.ScheduleSeatStatuses
+                    .Where(s => s.ScheduleID == booking.ScheduleID && seatIds.Contains(s.SeatID))
+                    .ToListAsync();
+
+                foreach (var status in scheduleSeatStatuses)
+                {
+                    status.SeatStatusId = availableSeatStatus.SeatStatusId;
+                    status.BookingID = null;
+                    _context.ScheduleSeatStatuses.Update(status);
+                }
+
+                // Restore available seats count
+                booking.Schedule.AvailableSeats += seatIds.Count;
+                _context.Schedules.Update(booking.Schedule);
+            }
+
+            // Clear OTP
+            booking.CancellationOtp = null;
+            booking.CancellationOtpExpiry = null;
+
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+
+            // Notify user of successful cancellation
+            try
+            {
+                await _notificationService.NotifyBookingCancelledAsync(booking);
+            }
+            catch (Exception) { /* Fail-safe */ }
+
+            return ApiResponse<bool>.Ok(true, "Booking cancelled successfully");
         }
     }
 }

@@ -12,5 +12,8 @@ namespace Saowari.Interfaces
         Task<ApiResponse<TicketResponseDto>> CreateAsync(TicketCreateDto dto);
         Task<ApiResponse<TicketResponseDto>> UpdateAsync(int id, TicketUpdateDto dto);
         Task<ApiResponse<bool>> DeleteAsync(int id);
+        Task<ApiResponse<IEnumerable<TicketResponseDto>>> GetMyTicketsAsync(int userId);
+        Task<ApiResponse<IEnumerable<TicketResponseDto>>> GetByBookingAsync(int bookingId);
+        Task<ApiResponse<TicketResponseDto>> GetByCodeAsync(string code);
     }
 }

@@ -5,8 +5,8 @@
       <i class="fas fa-plus mr-2"></i> Add Vehicle
     </button>
   </div>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="p-5 border-b border-gray-100 flex gap-4 flex-wrap">
+  <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border overflow-hidden">
+    <div class="p-5 border-b border-saowari-border flex gap-4 flex-wrap">
       <div class="relative flex-1 min-w-[200px]">
         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
         <input type="text" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Search..." class="input input-sm input-bordered w-full pl-9 focus:border-saowari-primary">
@@ -20,7 +20,7 @@
     </div>
     <div *ngIf="!isLoading && filtered.length > 0" class="overflow-x-auto">
       <table class="table table-sm w-full">
-        <thead class="bg-gray-50/80 text-xs text-gray-500 uppercase tracking-wider">
+        <thead class="bg-saowari-surface-alt/80 text-xs text-saowari-text-secondary uppercase tracking-wider">
           <tr>
             <th class="px-5 py-3 font-semibold">#ID</th>
             <th class="px-5 py-3 font-semibold">Name / Number</th>
@@ -31,17 +31,17 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-50">
-          <tr *ngFor="let item of filtered" class="hover:bg-gray-50/50 transition-colors">
-            <td class="px-5 py-3 text-xs font-mono text-gray-500">{{ item.vehicleID || item.vehicleId || item.id }}</td>
-            <td class="px-5 py-3 font-medium text-gray-800">
+          <tr *ngFor="let item of pagedItems" class="hover:bg-saowari-surface-alt/50 transition-colors">
+            <td class="px-5 py-3 text-xs font-mono text-saowari-text-secondary">{{ item.vehicleID || item.vehicleId || item.id }}</td>
+            <td class="px-5 py-3 font-medium text-saowari-text-primary">
               {{ item.vehicleName }}
-              <div class="text-xs text-gray-500 font-normal">{{ item.vehicleNumber }}</div>
+              <div class="text-xs text-saowari-text-secondary font-normal">{{ item.vehicleNumber }}</div>
             </td>
             <td class="px-5 py-3">
               <span class="block text-sm">{{ item.companyName || item.companyID || item.companyId }}</span>
-              <span class="text-xs text-gray-500">{{ item.vehicleTypeName || item.vehicleTypeID || item.vehicleTypeId }}</span>
+              <span class="text-xs text-saowari-text-secondary">{{ item.vehicleTypeName || item.vehicleTypeID || item.vehicleTypeId }}</span>
             </td>
-            <td class="px-5 py-3 font-medium text-gray-800">{{ item.capacity || item.totalSeats }}</td>
+            <td class="px-5 py-3 font-medium text-saowari-text-primary">{{ item.capacity || item.totalSeats }}</td>
             <td class="px-5 py-3">
               <span [class]="'badge badge-sm ' + (item.isActive !== false ? 'badge-success' : 'badge-error')">
                 {{ item.isActive !== false ? 'Active' : 'Inactive' }}
@@ -56,14 +56,15 @@
           </tr>
         </tbody>
       </table>
+      <app-pagination [pageSize]="pageSize" (pageChange)="p = $event" (pageSizeChange)="pageSize = $event; p = 1" [totalItems]="(filtered || items || []).length" [currentPage]="p"></app-pagination>
     </div>
-    <div *ngIf="!isLoading" class="px-5 py-3 border-t border-gray-100 text-xs text-gray-400">
+    <div *ngIf="!isLoading" class="px-5 py-3 border-t border-saowari-border text-xs text-gray-400">
       Showing {{ filtered.length }} of {{ items.length }} records
     </div>
   </div>
 
   <dialog class="modal" [class.modal-open]="isModalOpen">
-    <div class="modal-box bg-white rounded-2xl p-0 overflow-hidden shadow-2xl max-w-2xl">
+    <div class="modal-box bg-saowari-surface rounded-2xl p-0 overflow-hidden shadow-2xl max-w-2xl">
       <div class="bg-saowari-primary-light px-6 py-4 flex justify-between items-center border-b border-blue-100">
         <h3 class="font-bold text-xl text-saowari-primary">
           {{ editingItem ? 'Edit Vehicle' : 'Add New Vehicle' }}
@@ -117,6 +118,7 @@
               </label>
               <input type="text" name="engineCC" [(ngModel)]="model.engineCC" required class="input input-bordered w-full focus:border-saowari-primary" />
             </div>
+
             <div class="form-control w-full">
               <label class="label">
                 <span class="label-text font-semibold text-gray-700">Chassis Number <span class="text-red-500">*</span></span>
@@ -125,343 +127,141 @@
             </div>
             <div class="form-control">
               <label class="label"><span class="label-text font-semibold text-gray-700">Capacity <span class="text-red-500">*</span></span></label>
-              <input type="number" name="capacity" [(ngModel)]="model.capacity" required class="input input-bordered w-full focus:border-saowari-primary" />
+              <input type="number" name="capacity" [(ngModel)]="model.capacity" disabled class="input input-bordered w-full bg-gray-100 focus:border-saowari-primary" title="Calculated from visual layout" />
             </div>
           </div>
 
-          <div class="divider text-gray-400 text-sm my-6">Bus Seat Layout</div>
+          <div class="divider text-gray-400 text-sm my-6">Visual Seat Layout Builder</div>
+          
+          <div class="mb-4 flex flex-wrap gap-4 items-center bg-blue-50 p-4 rounded-xl border border-blue-100">
+            <div class="flex items-center gap-2">
+              <label class="font-bold text-sm text-blue-900">Grid Dimensions:</label>
+              <input type="number" [(ngModel)]="visualLayout.gridWidth" name="gw" class="input input-sm input-bordered w-16 text-center" min="1" max="10">
+              <span class="text-blue-900">x</span>
+              <input type="number" [(ngModel)]="visualLayout.gridHeight" name="gh" class="input input-sm input-bordered w-20 text-center" min="1" max="30">
+            </div>
+            
+            <div class="flex items-center gap-2 ml-auto">
+              <label class="cursor-pointer label gap-2">
+                <span class="label-text font-bold text-blue-900">Double Decker</span> 
+                <input type="checkbox" class="toggle toggle-primary" [(ngModel)]="model.isDoubleDecker" name="isdd" (change)="toggleDoubleDecker()" />
+              </label>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-xs font-bold text-saowari-text-secondary uppercase tracking-wider mb-2">Auto-fill Layout (Warning: clears current deck)</label>
+            <div class="flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline border-saowari-border text-saowari-text-secondary hover:bg-gray-100" (click)="autoFillLayout('standard')">Standard 1+2</button>
+              <button type="button" class="btn btn-sm btn-outline border-saowari-border text-saowari-text-secondary hover:bg-gray-100" (click)="autoFillLayout('economy')">Economy 2+2</button>
+              <button type="button" class="btn btn-sm btn-outline border-saowari-border text-saowari-text-secondary hover:bg-gray-100" (click)="autoFillLayout('minibus')">Minibus 1+1</button>
+            </div>
+          </div>
 
-          <!-- Layout Preset Picker -->
-          <div class="mb-6">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Choose a Seat Configuration</p>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div class="flex flex-col md:flex-row gap-4 items-start">
+            
+            <!-- Left Side: Tools -->
+            <div class="w-full md:w-1/3 bg-saowari-surface-alt p-4 rounded-xl border border-saowari-border">
+              <h4 class="font-bold text-saowari-text-primary mb-3"><i class="fas fa-tools text-saowari-primary mr-2"></i> Toolbox</h4>
               
-              <!-- Layout 1: Standard 1+2 -->
-              <div (click)="selectLayout('standard')"
-                class="cursor-pointer border-2 rounded-xl p-3 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
-                [ngClass]="model.layoutPreset === 'standard' ? 'border-saowari-primary bg-blue-50 shadow-md' : 'border-gray-200 bg-white'">
-                <div class="flex justify-center gap-1 mb-2">
-                  <div class="flex flex-col gap-1">
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                  </div>
-                  <div class="w-2 border-r border-dashed border-gray-300 mx-1"></div>
-                  <div class="flex flex-col gap-1">
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                  </div>
-                  <div class="flex flex-col gap-1">
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                  </div>
+              <div *ngIf="model.isDoubleDecker" class="mb-4">
+                <label class="block text-xs font-bold text-saowari-text-secondary mb-1">Active Deck</label>
+                <div class="tabs tabs-boxed w-full">
+                  <a class="tab flex-1" [class.tab-active]="activeDeckIndex === 0" (click)="activeDeckIndex = 0">Lower</a>
+                  <a class="tab flex-1" [class.tab-active]="activeDeckIndex === 1" (click)="activeDeckIndex = 1">Upper</a>
                 </div>
-                <p class="text-[10px] font-bold text-gray-700">Standard 1+2</p>
-                <p class="text-[9px] text-gray-400">3 cols · Aisle after 1</p>
               </div>
 
-              <!-- Layout 2: Economy 2+2 -->
-              <div (click)="selectLayout('economy')"
-                class="cursor-pointer border-2 rounded-xl p-3 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
-                [ngClass]="model.layoutPreset === 'economy' ? 'border-saowari-primary bg-blue-50 shadow-md' : 'border-gray-200 bg-white'">
-                <div class="flex justify-center gap-1 mb-2">
-                  <div class="flex flex-col gap-1">
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                  </div>
-                  <div class="flex flex-col gap-1">
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                  </div>
-                  <div class="w-2 border-r border-dashed border-gray-300 mx-1"></div>
-                  <div class="flex flex-col gap-1">
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                  </div>
-                  <div class="flex flex-col gap-1">
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                  </div>
-                </div>
-                <p class="text-[10px] font-bold text-gray-700">Economy 2+2</p>
-                <p class="text-[9px] text-gray-400">4 cols · Aisle after 2</p>
-              </div>
-
-              <!-- Layout 3: Standard + Back Row -->
-              <div (click)="selectLayout('standard-back')"
-                class="cursor-pointer border-2 rounded-xl p-3 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
-                [ngClass]="model.layoutPreset === 'standard-back' ? 'border-saowari-primary bg-blue-50 shadow-md' : 'border-gray-200 bg-white'">
-                <div class="flex flex-col gap-1 items-center mb-2">
-                  <div class="flex justify-center gap-1">
-                    <div class="flex flex-col gap-1">
-                      <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                      <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    </div>
-                    <div class="w-2 border-r border-dashed border-gray-300 mx-1"></div>
-                    <div class="flex flex-col gap-1">
-                      <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                      <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                      <div class="w-5 h-4 rounded-sm bg-gray-300 border border-gray-400"></div>
-                    </div>
-                  </div>
-                  <!-- Back row -->
-                  <div class="flex gap-1 mt-1">
-                    <div class="w-5 h-4 rounded-sm bg-saowari-primary/30 border border-saowari-primary/50"></div>
-                    <div class="w-5 h-4 rounded-sm bg-saowari-primary/30 border border-saowari-primary/50"></div>
-                    <div class="w-5 h-4 rounded-sm bg-saowari-primary/30 border border-saowari-primary/50"></div>
-                    <div class="w-5 h-4 rounded-sm bg-saowari-primary/30 border border-saowari-primary/50"></div>
-                  </div>
-                </div>
-                <p class="text-[10px] font-bold text-gray-700">1+2 + Back Row</p>
-                <p class="text-[9px] text-gray-400">Full rear bench seat</p>
-              </div>
-
-              <!-- Layout 4: Double Decker -->
-              <div (click)="selectLayout('double-decker')"
-                class="cursor-pointer border-2 rounded-xl p-3 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
-                [ngClass]="model.layoutPreset === 'double-decker' ? 'border-saowari-primary bg-blue-50 shadow-md' : 'border-gray-200 bg-white'">
-                <div class="flex flex-col gap-1 items-center mb-2">
-                  <div class="text-[7px] font-extrabold text-blue-400 uppercase tracking-widest w-full text-center bg-blue-50 rounded py-0.5 mb-0.5">Upper</div>
-                  <div class="flex justify-center gap-1">
-                    <div class="w-4 h-3 rounded-sm bg-blue-200 border border-blue-300"></div>
-                    <div class="w-2 border-r border-dashed border-gray-300 mx-0.5"></div>
-                    <div class="w-4 h-3 rounded-sm bg-blue-200 border border-blue-300"></div>
-                    <div class="w-4 h-3 rounded-sm bg-blue-200 border border-blue-300"></div>
-                  </div>
-                  <div class="flex justify-center gap-1">
-                    <div class="w-4 h-3 rounded-sm bg-blue-200 border border-blue-300"></div>
-                    <div class="w-2 border-r border-dashed border-gray-300 mx-0.5"></div>
-                    <div class="w-4 h-3 rounded-sm bg-blue-200 border border-blue-300"></div>
-                    <div class="w-4 h-3 rounded-sm bg-blue-200 border border-blue-300"></div>
-                  </div>
-                  <div class="text-[7px] font-extrabold text-green-500 uppercase tracking-widest w-full text-center bg-green-50 rounded py-0.5 mt-1 mb-0.5">Lower</div>
-                  <div class="flex justify-center gap-1">
-                    <div class="w-4 h-3 rounded-sm bg-green-200 border border-green-300"></div>
-                    <div class="w-2 border-r border-dashed border-gray-300 mx-0.5"></div>
-                    <div class="w-4 h-3 rounded-sm bg-green-200 border border-green-300"></div>
-                    <div class="w-4 h-3 rounded-sm bg-green-200 border border-green-300"></div>
-                  </div>
-                  <div class="flex justify-center gap-1">
-                    <div class="w-4 h-3 rounded-sm bg-green-200 border border-green-300"></div>
-                    <div class="w-2 border-r border-dashed border-gray-300 mx-0.5"></div>
-                    <div class="w-4 h-3 rounded-sm bg-green-200 border border-green-300"></div>
-                    <div class="w-4 h-3 rounded-sm bg-green-200 border border-green-300"></div>
-                  </div>
-                </div>
-                <p class="text-[10px] font-bold text-gray-700">Double Decker</p>
-                <p class="text-[9px] text-gray-400">Two-floor · L/U prefix</p>
-              </div>
-
-              <!-- Layout 5: Sleeper 2+1 -->
-              <div (click)="selectLayout('sleeper')"
-                class="cursor-pointer border-2 rounded-xl p-3 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
-                [ngClass]="model.layoutPreset === 'sleeper' ? 'border-saowari-primary bg-blue-50 shadow-md' : 'border-gray-200 bg-white'">
-                <div class="flex justify-center gap-1 mb-2">
-                  <div class="flex flex-col gap-1">
-                    <div class="w-8 h-4 rounded-sm bg-purple-200 border border-purple-300"></div>
-                    <div class="w-8 h-4 rounded-sm bg-purple-200 border border-purple-300"></div>
-                    <div class="w-8 h-4 rounded-sm bg-purple-200 border border-purple-300"></div>
-                  </div>
-                  <div class="w-2 border-r border-dashed border-gray-300 mx-1"></div>
-                  <div class="flex flex-col gap-1">
-                    <div class="w-8 h-4 rounded-sm bg-purple-200 border border-purple-300"></div>
-                    <div class="w-8 h-4 rounded-sm bg-purple-200 border border-purple-300"></div>
-                    <div class="w-8 h-4 rounded-sm bg-purple-200 border border-purple-300"></div>
-                  </div>
-                </div>
-                <p class="text-[10px] font-bold text-gray-700">Sleeper 2+2</p>
-                <p class="text-[9px] text-gray-400">Wide berth · No back row</p>
-              </div>
-
-              <!-- Layout 6: Minibus 2+1 -->
-              <div (click)="selectLayout('minibus')"
-                class="cursor-pointer border-2 rounded-xl p-3 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
-                [ngClass]="model.layoutPreset === 'minibus' ? 'border-saowari-primary bg-blue-50 shadow-md' : 'border-gray-200 bg-white'">
-                <div class="flex justify-center gap-1 mb-2">
-                  <div class="flex flex-col gap-1">
-                    <div class="w-5 h-4 rounded-sm bg-orange-200 border border-orange-300"></div>
-                    <div class="w-5 h-4 rounded-sm bg-orange-200 border border-orange-300"></div>
-                    <div class="w-5 h-4 rounded-sm bg-orange-200 border border-orange-300"></div>
-                  </div>
-                  <div class="w-2 border-r border-dashed border-gray-300 mx-1"></div>
-                  <div class="flex flex-col gap-1">
-                    <div class="w-5 h-4 rounded-sm bg-orange-200 border border-orange-300"></div>
-                    <div class="w-5 h-4 rounded-sm bg-orange-200 border border-orange-300"></div>
-                    <div class="w-5 h-4 rounded-sm bg-orange-200 border border-orange-300"></div>
-                  </div>
-                </div>
-                <p class="text-[10px] font-bold text-gray-700">Minibus 1+1</p>
-                <p class="text-[9px] text-gray-400">2 cols · Narrow aisle</p>
-              </div>
-
-            </div>
-
-            <!-- Selected Layout Badge -->
-            <div *ngIf="model.layoutPreset" class="mt-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-start gap-4">
-              <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0" [ngClass]="layoutInfo.color">
-                <i class="fas" [ngClass]="layoutInfo.icon"></i>
-              </div>
-              <div>
-                <h4 class="font-bold text-gray-800 text-sm flex items-center gap-2">
-                  {{ layoutInfo.name }}
-                  <span class="badge badge-sm badge-primary badge-outline text-[10px]">Selected</span>
-                </h4>
-                <p class="text-xs font-mono text-gray-500 mt-1 bg-gray-50 px-2 py-0.5 rounded border border-gray-100 inline-block">
-                  {{ layoutInfo.seating }}
-                </p>
-                <p class="text-[11px] text-gray-400 mt-1">
-                  {{ layoutInfo.detail }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Live Preview -->
-          <div class="mb-6" *ngIf="model.capacity > 0">
-            <h4 class="font-bold text-gray-700 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
-              <i class="fas fa-eye text-saowari-primary"></i> Live Layout Preview & Seat Class Assignment
-              <span class="text-[10px] font-normal text-gray-400 normal-case">· {{ model.capacity }} seats total</span>
-            </h4>
-
-            <!-- Class Assignment Tool -->
-            <div class="mb-4 bg-blue-50 border border-blue-200 p-4 rounded-2xl shadow-sm">
-              <label class="block text-xs font-bold text-blue-800 uppercase tracking-wider mb-2">Seat Class Assignment Tool</label>
-              <div class="flex flex-col gap-3">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-xs text-blue-700 font-bold uppercase">Active Class:</span>
-                  <div class="flex flex-wrap gap-1.5">
-                    <button *ngFor="let sc of seatClasses" 
-                            type="button"
-                            (click)="activeAssignmentClassId = sc.seatClassId"
-                            class="btn btn-xs rounded-lg transition-all"
-                            [ngClass]="activeAssignmentClassId === sc.seatClassId ? 'btn-primary shadow-sm scale-105 text-white' : 'btn-outline border-blue-300 text-blue-700 bg-white hover:bg-blue-100'">
-                      {{ sc.seatClassName }}
-                    </button>
-                  </div>
-                </div>
-                <div class="flex justify-between items-center mt-1 border-t border-blue-100 pt-3">
-                  <button type="button" 
-                          (click)="assignAllSeats(activeAssignmentClassId)" 
-                          class="btn btn-xs btn-outline border-dashed border-blue-300 text-blue-700 hover:bg-blue-100 flex items-center gap-1.5">
-                    <i class="fas fa-magic"></i> Assign All Seats
+              <div class="mb-4">
+                <label class="block text-xs font-bold text-saowari-text-secondary mb-2">Assign Class to New Seats</label>
+                <div class="flex flex-col gap-1.5">
+                  <button *ngFor="let sc of seatClasses" 
+                          type="button"
+                          (click)="setActiveAssignmentClass(sc.seatClassId)"
+                          class="btn btn-sm w-full justify-start text-left transition-all"
+                          [ngClass]="activeAssignmentClassId === sc.seatClassId ? 'btn-primary shadow-sm scale-105' : 'btn-outline border-blue-300 text-blue-700 bg-saowari-surface hover:bg-blue-50'">
+                    {{ sc.seatClassName }}
                   </button>
-                  <span class="text-[10px] text-blue-600 font-medium italic"><i class="fas fa-mouse-pointer mr-0.5"></i> Click seats below to assign class</span>
                 </div>
+              </div>
+              
+              <button type="button" class="btn btn-sm btn-outline btn-primary border-dashed w-full mb-4" (click)="assignAllSeats(activeAssignmentClassId)">
+                <i class="fas fa-magic"></i> Assign Active Class to ALL
+              </button>
+
+              <div *ngIf="selectedSeat" class="bg-saowari-surface p-3 rounded-lg border border-blue-200 shadow-sm mt-4 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                <h5 class="text-xs font-bold text-blue-800 mb-2 border-b pb-1 pl-2">Edit Selected Seat</h5>
+                <div class="form-control mb-2 pl-2">
+                  <label class="label p-0 pb-1 text-[10px] text-saowari-text-secondary font-bold">Seat Number</label>
+                  <input type="text" [(ngModel)]="selectedSeat.seatNumber" name="snum" class="input input-xs input-bordered w-full font-bold focus:border-blue-500">
+                </div>
+                <div class="form-control mb-3 pl-2">
+                  <label class="label p-0 pb-1 text-[10px] text-saowari-text-secondary font-bold">Seat Class</label>
+                  <select [(ngModel)]="selectedSeat.seatClassId" name="scls" class="select select-xs select-bordered w-full">
+                    <option *ngFor="let sc of seatClasses" [ngValue]="sc.seatClassId">{{ sc.seatClassName }}</option>
+                  </select>
+                </div>
+                <button type="button" class="btn btn-xs btn-error w-full gap-1 mt-2 pl-2" (click)="removeSelectedSeat()">
+                  <i class="fas fa-trash"></i> Delete Seat
+                </button>
+              </div>
+              
+              <div *ngIf="!selectedSeat" class="bg-blue-50/50 p-3 rounded-lg border border-dashed border-blue-200 mt-4 text-center">
+                <p class="text-[10px] text-blue-600 font-medium">Click an empty grid cell to add a seat, or click an existing seat to edit it.</p>
               </div>
             </div>
 
-            <div class="bg-gray-50 rounded-2xl border-2 border-gray-200 shadow-inner overflow-hidden">
-              <!-- Bus front header -->
-              <div class="bg-gradient-to-r from-slate-700 to-slate-600 px-5 py-2.5 flex items-center justify-between">
+            <!-- Right Side: Grid Builder -->
+            <div class="w-full md:w-2/3 bg-gray-100 p-6 rounded-xl border border-saowari-border shadow-inner flex flex-col items-center overflow-x-auto">
+              
+              <!-- Driver Area -->
+              <div class="w-full max-w-sm bg-gradient-to-r from-slate-700 to-slate-600 rounded-t-xl px-4 py-3 flex items-center justify-between mb-1 shadow-md">
                 <div class="flex items-center gap-2">
-                  <div class="w-7 h-5 bg-yellow-300 rounded border-2 border-yellow-500 flex items-center justify-center">
-                    <i class="fas fa-steering-wheel text-slate-700 text-[7px]"></i>
+                  <div class="w-6 h-5 bg-yellow-300 rounded border-2 border-yellow-500 flex items-center justify-center shadow-inner">
+                    <i class="fas fa-steering-wheel text-slate-700 text-[8px]"></i>
                   </div>
-                  <span class="text-white text-[9px] font-bold tracking-widest uppercase">Driver</span>
+                  <span class="text-white text-[10px] font-bold tracking-widest uppercase">Front</span>
                 </div>
-                <span class="text-white/60 text-[9px] font-bold tracking-wider uppercase">
-                  <i class="fas fa-bus mr-1"></i>{{ layoutInfo.name }}
-                </span>
-                <div class="flex gap-1">
-                  <div class="w-4 h-3 rounded-sm bg-yellow-200/30 border border-yellow-200/50"></div>
-                  <div class="w-4 h-3 rounded-sm bg-yellow-200/30 border border-yellow-200/50"></div>
-                </div>
+                <span class="text-white/60 text-[10px] font-bold tracking-widest uppercase">{{ model.isDoubleDecker ? activeDeck.name : 'Main Deck' }}</span>
               </div>
-
-              <!-- Seat area -->
-              <div class="p-4 max-h-[340px] overflow-y-auto">
-                <div class="flex flex-col gap-8 w-full max-w-xs mx-auto">
-                  <div *ngFor="let deck of previewSeatMap" class="w-full">
-
-                    <!-- Deck label (only for double-decker) -->
-                    <div *ngIf="model.isDoubleDecker" class="flex items-center gap-2 mb-3">
-                      <div class="h-px flex-1" [ngClass]="deck.deckName === 'Lower Deck' ? 'bg-green-200' : 'bg-blue-200'"></div>
-                      <span class="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full"
-                        [ngClass]="deck.deckName === 'Lower Deck' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-blue-100 text-blue-700 border border-blue-300'">
-                        <i class="fas mr-1" [ngClass]="deck.deckName === 'Lower Deck' ? 'fa-layer-group' : 'fa-arrow-up'"></i>{{ deck.deckName }}
-                      </span>
-                      <div class="h-px flex-1" [ngClass]="deck.deckName === 'Lower Deck' ? 'bg-green-200' : 'bg-blue-200'"></div>
-                    </div>
-
-                    <div class="flex flex-col gap-1.5">
-                      <div *ngFor="let row of deck.rows; let isLastRow = last" class="flex justify-between items-center w-full">
-
-                        <!-- REGULAR ROW -->
-                        <ng-container *ngIf="!isLastRow || !seatPreviewConfig.ContinuousBackRow">
-                          <div class="flex gap-1">
-                            <ng-container *ngFor="let seat of row; let i = index">
-                              <ng-container *ngIf="i < seatPreviewConfig.AisleAfterColumn">
-                                <div class="border-2 flex flex-col items-center justify-center shadow-sm cursor-pointer hover:scale-105 transition-all"
-                                  [ngClass]="[
-                                    model.layoutPreset === 'sleeper' ? 'w-14 h-8 rounded' : 
-                                    model.layoutPreset === 'minibus' ? 'w-9 h-9 rounded-md' : 'w-8 h-9 rounded-t-xl',
-                                    getSeatClassColor(seat.seatNumber)
-                                  ]"
-                                  (click)="assignSeatClass(seat.seatNumber)">
-                                  <span class="text-[8px] font-bold leading-none">{{ seat.seatNumber }}</span>
-                                  <span class="text-[5px] font-extrabold opacity-75 uppercase tracking-tighter mt-0.5 leading-none">{{ getSeatClassNameShort(seat.seatNumber) }}</span>
-                                </div>
-                              </ng-container>
-                            </ng-container>
-                          </div>
-                          <!-- Aisle -->
-                          <div class="flex-1 min-w-[20px] max-w-[36px] h-9 border-x border-dashed border-gray-300 flex items-center justify-center">
-                            <span class="text-[7px] text-gray-300 font-semibold" style="writing-mode:vertical-lr">aisle</span>
-                          </div>
-                          <div class="flex gap-1">
-                            <ng-container *ngFor="let seat of row; let i = index">
-                              <ng-container *ngIf="i >= seatPreviewConfig.AisleAfterColumn">
-                                <div class="border-2 flex flex-col items-center justify-center shadow-sm cursor-pointer hover:scale-105 transition-all"
-                                  [ngClass]="[
-                                    model.layoutPreset === 'sleeper' ? 'w-14 h-8 rounded' : 
-                                    model.layoutPreset === 'minibus' ? 'w-9 h-9 rounded-md' : 'w-8 h-9 rounded-t-xl',
-                                    getSeatClassColor(seat.seatNumber)
-                                  ]"
-                                  (click)="assignSeatClass(seat.seatNumber)">
-                                  <span class="text-[8px] font-bold leading-none">{{ seat.seatNumber }}</span>
-                                  <span class="text-[5px] font-extrabold opacity-75 uppercase tracking-tighter mt-0.5 leading-none">{{ getSeatClassNameShort(seat.seatNumber) }}</span>
-                                </div>
-                              </ng-container>
-                            </ng-container>
+              
+              <!-- Grid -->
+              <div class="bg-saowari-surface p-5 rounded-b-xl shadow-lg border-b-2 border-x-2 border-slate-700 min-w-fit">
+                <div class="grid gap-2" [style.gridTemplateColumns]="'repeat(' + visualLayout.gridWidth + ', minmax(0, 1fr))'">
+                  
+                  <ng-container *ngFor="let r of gridRows">
+                    <ng-container *ngFor="let c of gridCols">
+                      
+                      <!-- Cell -->
+                      <div class="w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer transition-all relative group"
+                           [ngClass]="{'border-blue-400 bg-blue-50 shadow-inner': selectedSeat?.row === r && selectedSeat?.col === c, 'border-saowari-border hover:border-gray-400 hover:bg-saowari-surface-alt': !(selectedSeat?.row === r && selectedSeat?.col === c) && !getSeatAt(r, c)}"
+                           (click)="onCellClick(r, c)">
+                        
+                        <ng-container *ngIf="getSeatAt(r, c) as seat">
+                          <div class="absolute inset-0 flex flex-col items-center justify-center rounded-lg border-2 shadow-sm pointer-events-none transition-transform group-hover:scale-105"
+                               [ngClass]="getSeatClassColor(seat.seatClassId)">
+                            <span class="text-[10px] font-bold leading-none">{{ seat.seatNumber }}</span>
+                            <span class="text-[6px] font-extrabold opacity-75 uppercase mt-1 tracking-wider">{{ getSeatClassNameShort(seat.seatClassId) }}</span>
                           </div>
                         </ng-container>
-
-                        <!-- BACK ROW -->
-                        <ng-container *ngIf="isLastRow && seatPreviewConfig.ContinuousBackRow">
-                          <div class="flex gap-1 justify-center w-full border-t-2 border-dashed border-gray-300 pt-2 mt-1">
-                            <ng-container *ngFor="let seat of row">
-                              <div class="border-2 flex flex-col items-center justify-center shadow-sm cursor-pointer hover:scale-105 transition-all"
-                                [ngClass]="[
-                                  'w-8 h-9 rounded',
-                                  getSeatClassColor(seat.seatNumber)
-                                ]"
-                                (click)="assignSeatClass(seat.seatNumber)">
-                                <span class="text-[8px] font-bold leading-none">{{ seat.seatNumber }}</span>
-                                <span class="text-[5px] font-extrabold opacity-75 uppercase tracking-tighter mt-0.5 leading-none">{{ getSeatClassNameShort(seat.seatNumber) }}</span>
-                              </div>
-                            </ng-container>
-                          </div>
+                        
+                        <ng-container *ngIf="!getSeatAt(r, c)">
+                          <i class="fas fa-plus text-gray-300 opacity-0 group-hover:opacity-100 text-xs"></i>
                         </ng-container>
-
+                        
                       </div>
-                    </div>
-                  </div>
+                      
+                    </ng-container>
+                  </ng-container>
+                  
                 </div>
               </div>
-
-              <!-- Bus rear footer -->
-              <div class="bg-gradient-to-r from-slate-700 to-slate-600 px-5 py-2 flex items-center justify-center">
-                <span class="text-white/40 text-[8px] uppercase tracking-widest font-bold">Rear · {{ model.vehicleName || 'New Vehicle' }}</span>
+              
+              <div class="mt-4 text-center">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rear of Vehicle</span>
               </div>
+
             </div>
           </div>
 

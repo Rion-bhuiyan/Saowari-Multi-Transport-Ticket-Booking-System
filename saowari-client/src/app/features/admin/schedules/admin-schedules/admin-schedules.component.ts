@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -16,11 +17,18 @@ import { SeatPricingService } from '../../../../core/services/api/seat-pricing.s
 @Component({
   selector: 'app-admin-schedules',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   templateUrl: './admin-schedules.component.html',
   styleUrls: ['./admin-schedules.component.css']
 })
 export class AdminSchedulesComponent implements OnInit {
+  get pagedItems() {
+    const start = (this.p - 1) * Number(this.pageSize);
+    return (this.filtered || this.items || []).slice(start, start + Number(this.pageSize));
+  }
+  p: number = 1;
+  pageSize: number = 15;
+
   items: any[] = [];
   filtered: any[] = [];
   isLoading = true;

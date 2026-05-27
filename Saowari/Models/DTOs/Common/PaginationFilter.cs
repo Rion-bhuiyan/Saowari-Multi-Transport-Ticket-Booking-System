@@ -1,0 +1,20 @@
+namespace Saowari.Models.DTOs.Common
+{
+    public class PaginationFilter
+    {
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+
+        public PaginationFilter()
+        {
+            this.PageNumber = 1;
+            this.PageSize = 15;
+        }
+
+        public PaginationFilter(int pageNumber, int pageSize)
+        {
+            this.PageNumber = pageNumber < 1 ? 1 : pageNumber;
+            this.PageSize = pageSize > 100 ? 100 : (pageSize < 1 ? 15 : pageSize);
+        }
+    }
+}

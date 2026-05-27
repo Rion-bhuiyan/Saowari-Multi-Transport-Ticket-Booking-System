@@ -45,6 +45,10 @@ namespace Saowari.Models.Entities
 
         public bool IsRefunded { get; set; }
 
+        [MaxLength(6)]
+        public string? RefundOtpCode { get; set; }
+        public DateTime? RefundOtpExpireTime { get; set; }
+
         [ForeignKey(nameof(RefundPolicy))]
         public int PolicyID { get; set; }
 

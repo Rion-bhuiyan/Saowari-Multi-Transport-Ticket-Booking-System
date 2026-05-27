@@ -11,7 +11,7 @@
   </div>
 
   <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div *ngFor="let banner of banners" class="card bg-white dark:bg-slate-900 shadow-xl overflow-hidden border border-slate-100 dark:border-slate-800 transition-all hover:shadow-2xl">
+    <div *ngFor="let banner of banners" class="card bg-saowari-surface dark:bg-saowari-surface-alt shadow-xl overflow-hidden border border-slate-100 dark:border-slate-800 transition-all hover:shadow-2xl">
       <figure class="relative h-48 w-full bg-slate-100">
         <img [src]="banner.imageUrl" alt="Banner Image" class="w-full h-full object-cover" />
         <div class="absolute top-2 right-2">
@@ -46,7 +46,7 @@
 
 <!-- Modal -->
 <div class="modal" [class.modal-open]="isModalOpen">
-  <div class="modal-box max-w-2xl bg-white dark:bg-slate-900">
+  <div class="modal-box max-w-2xl bg-saowari-surface dark:bg-saowari-surface-alt">
     <h3 class="font-bold text-lg mb-6 dark:text-white">{{ isEditing ? 'Edit Banner' : 'Add New Banner' }}</h3>
     
     <form (ngSubmit)="saveBanner()">

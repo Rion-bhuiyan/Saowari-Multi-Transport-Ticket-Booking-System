@@ -39,6 +39,16 @@ namespace Saowari.Services
                 authClaims.Add(new Claim("CompanyId", user.CompanyId.Value.ToString()));
             }
 
+            if (user.SupervisorId.HasValue)
+            {
+                authClaims.Add(new Claim("SupervisorId", user.SupervisorId.Value.ToString()));
+            }
+
+            if (user.DriverInformtionId.HasValue)
+            {
+                authClaims.Add(new Claim("DriverInformtionId", user.DriverInformtionId.Value.ToString()));
+            }
+
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["jwtSetting:key"]!));
 
             var token = new JwtSecurityToken(

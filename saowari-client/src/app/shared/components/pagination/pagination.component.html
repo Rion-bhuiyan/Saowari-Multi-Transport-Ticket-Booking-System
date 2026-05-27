@@ -1,0 +1,49 @@
+<div *ngIf="totalItems > 0" class="pag-wrapper">
+
+  <!-- Left: Info + Page Size -->
+  <div class="pag-left">
+    <span class="pag-info">
+      Showing <strong>{{ startItem }}–{{ endItem }}</strong> of <strong>{{ totalItems }}</strong>
+    </span>
+    <div class="pag-size-wrap">
+      <select [(ngModel)]="pageSize" (change)="onSizeChange()" class="pag-size-select">
+        <option [ngValue]="15">15 / page</option>
+        <option [ngValue]="20">20 / page</option>
+        <option [ngValue]="50">50 / page</option>
+        <option [ngValue]="100">100 / page</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Right: Page Buttons -->
+  <div class="pag-right">
+    <!-- Prev -->
+    <button class="pag-btn pag-nav" [class.disabled]="currentPage <= 1" (click)="prev()" [disabled]="currentPage <= 1">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+      </svg>
+      <span>Prev</span>
+    </button>
+
+    <!-- Page Numbers -->
+    <ng-container *ngFor="let page of pages">
+      <button
+        *ngIf="page !== '...'"
+        class="pag-btn pag-num"
+        [class.active]="page === currentPage"
+        (click)="goTo(page)">
+        {{ page }}
+      </button>
+      <span *ngIf="page === '...'" class="pag-ellipsis">···</span>
+    </ng-container>
+
+    <!-- Next -->
+    <button class="pag-btn pag-nav" [class.disabled]="currentPage >= totalPages" (click)="next()" [disabled]="currentPage >= totalPages">
+      <span>Next</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+
+</div>

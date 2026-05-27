@@ -37,14 +37,20 @@ namespace Saowari.Services
                 try
                 {
                     await PerformCleanupAsync();
+                    // Run every 1 hour
+                    await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Graceful shutdown
+                    break;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "An error occurred during background chat cleanup execution.");
+                    // Optional: delay before retry to prevent tight error loop
+                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                 }
-
-                // Run every 1 hour
-                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
             }
         }
 

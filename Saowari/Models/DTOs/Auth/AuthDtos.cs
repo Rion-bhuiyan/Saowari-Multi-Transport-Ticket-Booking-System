@@ -63,4 +63,14 @@ namespace Saowari.Models.DTOs.Auth
         [Compare("NewPassword")]
         public string ConfirmNewPassword { get; set; } = null!;
     }
+
+    public class VerifyRegistrationDto
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = null!;
+
+        [Required]
+        public string OtpCode { get; set; } = null!;
+    }
 }

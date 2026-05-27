@@ -5,6 +5,7 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { AdminGuard } from './core/guards/admin.guard';
+import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 
 const routes: Routes = [
   {
@@ -98,6 +99,10 @@ const routes: Routes = [
       { 
         path: 'forgot-password', 
         loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) 
+      },
+      { 
+        path: 'reset-password', 
+        component: ResetPasswordComponent
       }
     ]
   },
@@ -120,8 +125,16 @@ const routes: Routes = [
         loadComponent: () => import('./features/admin/dashboard/supervisor-dashboard/supervisor-dashboard.component').then(m => m.SupervisorDashboardComponent) 
       },
       { 
+        path: 'driver-dashboard', 
+        loadComponent: () => import('./features/admin/dashboard/driver-dashboard/driver-dashboard.component').then(m => m.DriverDashboardComponent) 
+      },
+      { 
         path: 'users', 
         loadComponent: () => import('./features/admin/users/admin-users/admin-users.component').then(m => m.AdminUsersComponent) 
+      },
+      { 
+        path: 'users/:id', 
+        loadComponent: () => import('./features/admin/users/admin-user-details/admin-user-details.component').then(m => m.AdminUserDetailsComponent) 
       },
       { 
         path: 'companies', 
@@ -142,6 +155,10 @@ const routes: Routes = [
       { 
         path: 'vehicles', 
         loadComponent: () => import('./features/admin/vehicles/admin-vehicles/admin-vehicles.component').then(m => m.AdminVehiclesComponent) 
+      },
+      {
+        path: 'vehicle-types',
+        loadComponent: () => import('./features/admin/vehicles/admin-vehicle-types/admin-vehicle-types.component').then(m => m.AdminVehicleTypesComponent)
       },
       {
         path: 'roles',
@@ -202,6 +219,10 @@ const routes: Routes = [
       {
         path: 'messenger',
         loadComponent: () => import('./features/admin/messenger/admin-messenger.component').then(m => m.AdminMessengerComponent)
+      },
+      {
+        path: 'broadcast',
+        loadComponent: () => import('./features/admin/broadcast/broadcast.component').then(m => m.BroadcastComponent)
       }
     ]
   },

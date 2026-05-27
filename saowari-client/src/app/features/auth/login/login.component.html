@@ -2,12 +2,12 @@
   <!-- Left: Brand Panel -->
   <div class="hidden lg:flex flex-col justify-between bg-gradient-to-br from-saowari-primary via-saowari-secondary to-saowari-accent p-12 text-white relative overflow-hidden">
     <!-- Decorative circles -->
-    <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+    <div class="absolute top-0 right-0 w-96 h-96 bg-saowari-surface/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+    <div class="absolute bottom-0 left-0 w-64 h-64 bg-saowari-surface/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
 
     <div class="relative z-10">
       <a routerLink="/home" class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+        <div class="w-10 h-10 bg-saowari-surface rounded-lg flex items-center justify-center">
           <span class="text-saowari-primary font-extrabold text-xl">S</span>
         </div>
         <span class="font-heading font-bold text-2xl tracking-wide">SAOWARI</span>
@@ -27,12 +27,12 @@
           <p class="text-3xl font-bold">50K+</p>
           <p class="text-white/70 text-sm">Happy Travelers</p>
         </div>
-        <div class="w-px bg-white/20"></div>
+        <div class="w-px bg-saowari-surface/20"></div>
         <div class="text-center">
           <p class="text-3xl font-bold">200+</p>
           <p class="text-white/70 text-sm">Routes Available</p>
         </div>
-        <div class="w-px bg-white/20"></div>
+        <div class="w-px bg-saowari-surface/20"></div>
         <div class="text-center">
           <p class="text-3xl font-bold">99%</p>
           <p class="text-white/70 text-sm">On-Time Service</p>
@@ -46,7 +46,7 @@
   </div>
 
   <!-- Right: Login Form -->
-  <div class="flex items-center justify-center p-6 sm:p-12 bg-white">
+  <div class="flex items-center justify-center p-6 sm:p-12 bg-saowari-surface">
     <div class="w-full max-w-md">
       <!-- Mobile Logo -->
       <a routerLink="/home" class="flex items-center gap-2 mb-8 lg:hidden">
@@ -56,10 +56,15 @@
         <span class="font-heading font-bold text-xl text-saowari-primary">SAOWARI</span>
       </a>
 
-      <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mb-2">Welcome back</h2>
-      <p class="text-saowari-text-secondary mb-8">Sign in to your account to continue.</p>
+      <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mb-2">
+        {{ isOtpRequired ? (otpType === 'login' ? 'Verify Your Device' : 'Verify Your Email') : 'Welcome back' }}
+      </h2>
+      <p class="text-saowari-text-secondary mb-8">
+        {{ isOtpRequired ? 'We sent a 6-digit code to your email. Please enter it to continue.' : 'Sign in to your account to continue.' }}
+      </p>
 
-      <form #loginForm="ngForm" (ngSubmit)="onLogin()">
+      <!-- Standard Login Form -->
+      <form *ngIf="!isOtpRequired" #loginForm="ngForm" (ngSubmit)="onLogin()">
         <!-- Email -->
         <div class="form-control mb-5">
           <label class="label pb-1"><span class="label-text font-semibold text-gray-700">Email Address</span></label>
@@ -83,7 +88,7 @@
                    class="input input-bordered w-full pl-11 pr-12 focus:border-saowari-primary focus:ring-1 focus:ring-saowari-primary"
                    placeholder="••••••••">
             <button type="button" (click)="showPassword = !showPassword"
-                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-saowari-text-secondary transition-colors">
               <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
             </button>
           </div>
@@ -98,13 +103,39 @@
         </button>
       </form>
 
+      <!-- OTP Verification Form -->
+      <form *ngIf="isOtpRequired" #otpForm="ngForm" (ngSubmit)="onVerifyOtp()">
+        <div class="form-control mb-5">
+          <label class="label pb-1"><span class="label-text font-semibold text-gray-700">6-Digit OTP</span></label>
+          <div class="relative">
+            <i class="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" name="otp" [(ngModel)]="otpCode" required
+                   class="input input-bordered w-full pl-11 focus:border-saowari-primary focus:ring-1 focus:ring-saowari-primary text-center tracking-widest text-lg font-bold"
+                   placeholder="123456" maxlength="6">
+          </div>
+        </div>
+
+        <button type="submit" [disabled]="isLoading || otpForm.invalid"
+                class="btn btn-saowari w-full mt-6 text-base shadow-lg shadow-primary/20 h-12">
+          <span *ngIf="isLoading" class="loading loading-spinner loading-sm"></span>
+          <i *ngIf="!isLoading" class="fas fa-check-circle"></i>
+          {{ isLoading ? 'Verifying...' : (otpType === 'login' ? 'Verify Login' : 'Verify Email') }}
+        </button>
+
+        <p class="text-center mt-4">
+          <button type="button" (click)="isOtpRequired = false; otpCode = ''" class="text-sm text-saowari-text-secondary hover:text-saowari-primary transition-colors">
+            Cancel and try again
+          </button>
+        </p>
+      </form>
+
       <!-- Divider -->
       <div class="divider text-gray-400 text-sm my-6">or</div>
 
       <!-- Register Link -->
-      <p class="text-center text-gray-600">
+      <p class="text-center text-saowari-text-secondary">
         Don't have an account?
-        <a routerLink="/auth/register" class="text-saowari-primary font-semibold hover:underline ml-1">Create one free</a>
+        <a routerLink="/auth/register" [queryParams]="returnUrl ? { returnUrl: returnUrl } : {}" class="text-saowari-primary font-semibold hover:underline ml-1">Create one free</a>
       </p>
 
       <p class="text-center mt-6">

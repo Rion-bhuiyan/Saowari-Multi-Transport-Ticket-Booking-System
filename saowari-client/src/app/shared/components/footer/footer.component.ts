@@ -20,9 +20,9 @@ import { SettingsService } from '../../../core/services/api/settings.service';
             </div>
             <p class="text-gray-400 mb-6">Your Journey, Our Priority. Book bus, launch, and flight tickets instantly with seamless payments and 24/7 support.</p>
             <div class="flex gap-4">
-              <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-saowari-accent transition-colors"><i class="fab fa-facebook-f"></i></a>
-              <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-saowari-accent transition-colors"><i class="fab fa-twitter"></i></a>
-              <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-saowari-accent transition-colors"><i class="fab fa-instagram"></i></a>
+              <a href="#" class="w-10 h-10 rounded-full bg-saowari-surface/10 flex items-center justify-center hover:bg-saowari-accent transition-colors"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" class="w-10 h-10 rounded-full bg-saowari-surface/10 flex items-center justify-center hover:bg-saowari-accent transition-colors"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="w-10 h-10 rounded-full bg-saowari-surface/10 flex items-center justify-center hover:bg-saowari-accent transition-colors"><i class="fab fa-instagram"></i></a>
             </div>
           </div>
 
@@ -69,8 +69,8 @@ import { SettingsService } from '../../../core/services/api/settings.service';
         </div>
 
         <div class="border-t border-gray-800 pt-8 mt-8 flex flex-col md:flex-row items-center justify-between">
-          <p class="text-gray-500 text-sm mb-4 md:mb-0">&copy; {{ currentYear }} Saowari Booking System. All rights reserved.</p>
-          <div class="flex gap-4 text-sm text-gray-500">
+          <p class="text-saowari-text-secondary text-sm mb-4 md:mb-0">&copy; {{ currentYear }} Saowari Booking System. All rights reserved.</p>
+          <div class="flex gap-4 text-sm text-saowari-text-secondary">
             <a routerLink="/legal" [queryParams]="{policy: 'privacy'}" class="hover:text-white transition-colors">Privacy Policy</a>
             <a routerLink="/legal" [queryParams]="{policy: 'terms'}" class="hover:text-white transition-colors">Terms of Service</a>
             <a routerLink="/legal" [queryParams]="{policy: 'cancellation'}" class="hover:text-white transition-colors">Cancellation Policy</a>

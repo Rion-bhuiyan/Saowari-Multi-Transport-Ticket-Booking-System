@@ -64,6 +64,13 @@ namespace Saowari.Services
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return ApiResponse<bool>.Fail("Not found");
             
+            // Validation: Cannot delete if it is being used in any booking
+            bool isUsed = await _context.Bookings.AnyAsync(b => b.DiscountID == id);
+            if (isUsed)
+            {
+                return ApiResponse<bool>.Fail("Cannot delete this discount because it has already been used in one or more bookings. Consider setting it to inactive instead.");
+            }
+            
             _repository.Remove(entity);
             await _repository.SaveAsync();
             

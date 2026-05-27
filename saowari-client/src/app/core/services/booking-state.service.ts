@@ -19,16 +19,42 @@ export interface BookingState {
   providedIn: 'root'
 })
 export class BookingStateService {
+  private readonly STORAGE_KEY = 'saowari_booking_state';
+
   private initialState: BookingState = {
     tripType: 'one-way',
     outbound: { schedule: null, seatIds: [], seatNumbers: [], selectedBoardingPoint: '' },
     return: { schedule: null, seatIds: [], seatNumbers: [], selectedBoardingPoint: '' }
   };
 
-  private stateSubject = new BehaviorSubject<BookingState>(this.initialState);
+  private stateSubject = new BehaviorSubject<BookingState>(this.loadFromStorage());
   state$ = this.stateSubject.asObservable();
 
-  constructor() {}
+  constructor() {
+    this.state$.subscribe(state => {
+      this.saveToStorage(state);
+    });
+  }
+
+  private loadFromStorage(): BookingState {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored) as BookingState;
+      }
+    } catch (e) {
+      console.error('Failed to load booking state from local storage', e);
+    }
+    return this.initialState;
+  }
+
+  private saveToStorage(state: BookingState) {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.error('Failed to save booking state to local storage', e);
+    }
+  }
 
   get currentState(): BookingState {
     return this.stateSubject.value;
@@ -82,6 +108,9 @@ export class BookingStateService {
 
   clearState() {
     this.stateSubject.next(this.initialState);
+    try {
+      localStorage.removeItem(this.STORAGE_KEY);
+    } catch (e) {}
   }
 
   isRoundTripReadyForCheckout(): boolean {

@@ -4,26 +4,26 @@
   </div>
 
   <!-- ══ SECTION 1: Logo ══════════════════════════════════════════ -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden">
     <div class="bg-saowari-primary-light px-6 py-4 border-b border-blue-100">
       <h2 class="font-bold text-lg text-saowari-primary flex items-center gap-2">
         <i class="fas fa-paint-brush"></i> Branding &amp; Logo
       </h2>
-      <p class="text-xs text-gray-500 mt-1">Update the global logo displayed in the header and admin sidebar.</p>
+      <p class="text-xs text-saowari-text-secondary mt-1">Update the global logo displayed in the header and admin sidebar.</p>
     </div>
     <div class="p-8">
       <!-- Current Logo -->
       <div class="mb-8 flex items-start gap-8">
         <div class="flex-shrink-0">
           <p class="text-sm font-semibold text-gray-700 mb-3">Current Logo</p>
-          <div class="w-40 h-16 rounded-xl border-2 border-gray-100 bg-saowari-surface-alt flex items-center justify-center p-3 shadow-inner">
+          <div class="w-40 h-16 rounded-xl border-2 border-saowari-border bg-saowari-surface-alt flex items-center justify-center p-3 shadow-inner">
             <img *ngIf="currentLogoUrl" [src]="currentLogoUrl" alt="Current Logo" class="max-w-full max-h-full object-contain" />
             <span *ngIf="!currentLogoUrl" class="font-heading font-bold text-xl tracking-wider text-saowari-text-primary">SAOWARI</span>
           </div>
         </div>
         <div>
           <p class="text-sm font-semibold text-gray-700 mb-2">Instructions</p>
-          <p class="text-sm text-gray-500 leading-relaxed max-w-md">
+          <p class="text-sm text-saowari-text-secondary leading-relaxed max-w-md">
             Use a transparent PNG or SVG for best results. Recommended height: 60px.
           </p>
         </div>
@@ -31,23 +31,23 @@
       <div class="divider"></div>
       <!-- Upload Logo -->
       <p class="text-sm font-semibold text-gray-700 mb-3">Upload New Logo</p>
-      <div class="flex justify-center px-10 pt-10 pb-10 border-2 border-gray-300 border-dashed rounded-xl hover:border-saowari-primary transition-colors bg-gray-50 relative group cursor-pointer"
+      <div class="flex justify-center px-10 pt-10 pb-10 border-2 border-saowari-border border-dashed rounded-xl hover:border-saowari-primary transition-colors bg-saowari-surface-alt relative group cursor-pointer"
            (click)="!logoPreview ? logoInput.click() : null">
         <input #logoInput type="file" (change)="onLogoSelected($event)" accept="image/png, image/jpeg, image/svg+xml" class="hidden" />
         <div class="space-y-1 text-center" *ngIf="!logoPreview">
           <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 group-hover:text-saowari-primary transition-colors mb-3"></i>
-          <div class="flex text-sm text-gray-600 justify-center">
+          <div class="flex text-sm text-saowari-text-secondary justify-center">
             <span class="font-medium text-saowari-primary">Click to upload</span>
             <p class="pl-1">or drag and drop</p>
           </div>
           <p class="text-xs text-gray-400 mt-2">PNG, JPG, SVG up to 5MB</p>
         </div>
         <div *ngIf="logoPreview" class="flex flex-col items-center w-full">
-          <div class="relative w-64 h-24 rounded-xl border border-gray-200 shadow-sm bg-saowari-surface-alt flex items-center justify-center p-4">
+          <div class="relative w-64 h-24 rounded-xl border border-saowari-border shadow-sm bg-saowari-surface-alt flex items-center justify-center p-4">
             <img [src]="logoPreview" alt="Preview" class="max-w-full max-h-full object-contain" />
           </div>
           <div class="flex gap-4 mt-6">
-            <button class="btn btn-ghost btn-sm text-gray-500" (click)="removeLogoSelection()">Cancel</button>
+            <button class="btn btn-ghost btn-sm text-saowari-text-secondary" (click)="removeLogoSelection()">Cancel</button>
             <button class="btn btn-saowari shadow-md btn-sm px-6" (click)="saveLogo()" [disabled]="isLogoLoading">
               <span *ngIf="isLogoLoading" class="loading loading-spinner loading-xs"></span>
               Save &amp; Apply Logo
@@ -59,12 +59,12 @@
   </div>
 
   <!-- ══ SECTION 2: Ticket Background ═══════════════════════════ -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden">
     <div class="bg-gradient-to-r from-violet-50 to-purple-50 px-6 py-4 border-b border-purple-100">
       <h2 class="font-bold text-lg text-purple-700 flex items-center gap-2">
         <i class="fas fa-ticket-alt"></i> Ticket Background Image
       </h2>
-      <p class="text-xs text-gray-500 mt-1">
+      <p class="text-xs text-saowari-text-secondary mt-1">
         Upload a custom background image for all printed/downloaded E-Tickets. 
         Change it for special events, holidays, or seasonal promotions.
       </p>
@@ -74,9 +74,9 @@
       <!-- Current Background Preview -->
       <div class="mb-8">
         <p class="text-sm font-semibold text-gray-700 mb-3">Current Ticket Background</p>
-        <div class="rounded-xl border-2 border-gray-100 overflow-hidden shadow-inner relative" style="height: 160px;">
+        <div class="rounded-xl border-2 border-saowari-border overflow-hidden shadow-inner relative bg-white" style="height: 160px;">
           <img *ngIf="currentBgUrl" [src]="currentBgUrl" alt="Current Background"
-               class="w-full h-full object-cover" />
+               class="w-full h-full object-cover" [style.opacity]="ticketBgOpacity" />
           <div *ngIf="!currentBgUrl" class="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center text-gray-400">
             <i class="fas fa-image text-4xl mb-2"></i>
             <p class="text-sm">No custom background set — tickets use the default gradient</p>
@@ -86,7 +86,7 @@
                   class="absolute top-3 right-3 btn btn-sm btn-error gap-1 shadow-lg opacity-90 hover:opacity-100">
             <i class="fas fa-trash-alt"></i> Remove
           </button>
-          <div *ngIf="isBgLoading" class="absolute inset-0 bg-white/70 flex items-center justify-center">
+          <div *ngIf="isBgLoading" class="absolute inset-0 bg-saowari-surface/70 flex items-center justify-center">
             <span class="loading loading-spinner loading-lg text-purple-600"></span>
           </div>
         </div>
@@ -111,7 +111,7 @@
 
         <div class="space-y-1 text-center" *ngIf="!bgPreview">
           <i class="fas fa-image text-5xl text-purple-300 group-hover:text-purple-500 transition-colors mb-3"></i>
-          <div class="flex text-sm text-gray-600 justify-center">
+          <div class="flex text-sm text-saowari-text-secondary justify-center">
             <span class="font-medium text-purple-600">Click to upload background</span>
             <p class="pl-1">or drag and drop</p>
           </div>
@@ -119,14 +119,14 @@
         </div>
 
         <div *ngIf="bgPreview" class="flex flex-col items-center w-full">
-          <div class="relative w-full rounded-xl border border-purple-200 shadow-sm overflow-hidden" style="height:140px;">
-            <img [src]="bgPreview" alt="Background Preview" class="w-full h-full object-cover" />
+          <div class="relative w-full rounded-xl border border-purple-200 shadow-sm overflow-hidden bg-white" style="height:140px;">
+            <img [src]="bgPreview" alt="Background Preview" class="w-full h-full object-cover" [style.opacity]="ticketBgOpacity" />
             <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
               <span class="text-white font-bold text-sm bg-black/40 px-3 py-1 rounded-lg">Preview</span>
             </div>
           </div>
           <div class="flex gap-4 mt-6">
-            <button class="btn btn-ghost btn-sm text-gray-500" (click)="removeBgSelection()">Cancel</button>
+            <button class="btn btn-ghost btn-sm text-saowari-text-secondary" (click)="removeBgSelection()">Cancel</button>
             <button class="btn btn-sm px-6 shadow-md bg-purple-600 hover:bg-purple-700 text-white border-none gap-2"
                     (click)="saveTicketBackground()" [disabled]="isBgLoading">
               <span *ngIf="isBgLoading" class="loading loading-spinner loading-xs"></span>
@@ -134,6 +134,32 @@
               {{ isBgLoading ? 'Uploading...' : 'Save Background' }}
             </button>
           </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Ticket Background Opacity -->
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="text-sm font-semibold text-gray-700">Global Ticket Background Opacity</span>
+          <span class="text-purple-600 font-bold text-lg">{{ ticketBgOpacity * 100 | number:'1.0-0' }}%</span>
+        </label>
+        <p class="text-xs text-gray-400 mb-4">
+          This controls how visible the background image is on the ticket. Lower values make it more transparent so text is easier to read.
+        </p>
+        <div class="flex gap-4 items-center">
+          <input type="range" name="ticketBgOpacity" [(ngModel)]="ticketBgOpacity"
+                 min="0" max="1" step="0.05"
+                 class="range range-primary flex-1" style="--range-shdw: #9333ea" />
+          <button class="btn btn-sm btn-primary" (click)="saveOpacity()">Save Opacity</button>
+        </div>
+        <div class="flex justify-between text-xs text-gray-400 mt-2 px-1 w-full max-w-[calc(100%-120px)]">
+          <span>0%</span>
+          <span>25%</span>
+          <span>50%</span>
+          <span>75%</span>
+          <span>100%</span>
         </div>
       </div>
 

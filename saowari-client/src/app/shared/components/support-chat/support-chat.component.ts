@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, AfterViewChecked, OnDestroy } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ChatService, SupportMessage } from '../../../core/services/api/chat.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
@@ -26,6 +26,11 @@ export class SupportChatComponent implements OnInit, AfterViewChecked, OnDestroy
   userId?: number;
   adminName?: string;
   adminId?: number;
+
+  // Notifications
+  unreadCount = 0;
+  showNewMessagePopup = false;
+  private popupTimeout: any;
 
   // Emoji Drawer
   showEmojiDrawer = false;
@@ -56,7 +61,8 @@ export class SupportChatComponent implements OnInit, AfterViewChecked, OnDestroy
 
   constructor(
     private chatService: ChatService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -106,6 +112,18 @@ export class SupportChatComponent implements OnInit, AfterViewChecked, OnDestroy
         if (msg.roomId === this.roomId) {
           this.messages.push(msg);
           this.scrollToBottom();
+
+          if (!this.isCurrentUser(msg.senderName) && !this.isOpen) {
+            this.unreadCount++;
+            this.showNewMessagePopup = true;
+            
+            if (this.popupTimeout) clearTimeout(this.popupTimeout);
+            this.popupTimeout = setTimeout(() => {
+              this.showNewMessagePopup = false;
+              this.cdr.detectChanges();
+            }, 6000);
+          }
+          this.cdr.detectChanges();
         }
       })
     );
@@ -136,6 +154,8 @@ export class SupportChatComponent implements OnInit, AfterViewChecked, OnDestroy
   toggleChat(): void {
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
+      this.unreadCount = 0;
+      this.showNewMessagePopup = false;
       this.scrollToBottom();
     }
   }

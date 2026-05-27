@@ -1,0 +1,103 @@
+<div class="p-6 max-w-7xl mx-auto space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-saowari-surface p-6 rounded-2xl shadow-sm border border-saowari-border">
+    <div>
+      <h1 class="text-2xl font-bold text-saowari-text-primary tracking-tight">Vehicle Types</h1>
+      <p class="text-sm text-saowari-text-secondary mt-1">Manage the types of vehicles available (e.g., Bus, Microbus).</p>
+    </div>
+    <button (click)="openModal()" class="btn btn-primary shadow-lg shadow-primary/30 hover:-translate-y-0.5 transition-transform">
+      <i class="fas fa-plus mr-2"></i> Add Vehicle Type
+    </button>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="bg-saowari-surface p-4 rounded-xl shadow-sm border border-saowari-border flex gap-4">
+    <div class="relative flex-1 max-w-md">
+      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+      <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilter()" placeholder="Search vehicle types..." class="input input-bordered w-full pl-11 bg-saowari-surface-alt focus:bg-saowari-surface transition-colors" />
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center p-12">
+    <span class="loading loading-spinner loading-lg text-primary"></span>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filtered.length === 0" class="text-center p-12 bg-saowari-surface rounded-2xl border border-dashed border-saowari-border">
+    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-2xl">
+      <i class="fas fa-bus"></i>
+    </div>
+    <h3 class="text-lg font-bold text-saowari-text-primary">No Vehicle Types Found</h3>
+    <p class="text-saowari-text-secondary mt-1">Try adjusting your search or add a new vehicle type.</p>
+  </div>
+
+  <!-- Table View -->
+  <div *ngIf="!isLoading && filtered.length > 0" class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table w-full">
+        <thead>
+          <tr class="bg-saowari-surface-alt text-saowari-text-secondary border-b border-saowari-border">
+            <th class="py-4 font-semibold uppercase text-xs tracking-wider">ID</th>
+            <th class="py-4 font-semibold uppercase text-xs tracking-wider">Vehicle Type Name</th>
+            <th class="py-4 font-semibold uppercase text-xs tracking-wider text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of pagedItems" class="hover:bg-saowari-surface-alt/50 transition-colors border-b border-gray-50 last:border-none">
+            <td class="py-4 text-saowari-text-secondary font-mono text-sm">#{{ item.vehicleTypeId || item.id }}</td>
+            <td class="py-4">
+              <span class="font-medium text-saowari-text-primary">{{ item.vehicleTypeName }}</span>
+            </td>
+            <td class="py-4">
+              <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity" [style.opacity]="1">
+                <button (click)="openModal(item)" class="btn btn-sm btn-ghost text-blue-600 hover:bg-blue-50 tooltip" data-tip="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button (click)="deleteItem(item.vehicleTypeId || item.id)" class="btn btn-sm btn-ghost text-red-600 hover:bg-red-50 tooltip" data-tip="Delete">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="p-4 border-t border-saowari-border bg-saowari-surface-alt/50">
+      <app-pagination [totalItems]="filtered.length" [pageSize]="pageSize" (pageChange)="p = $event" (pageSizeChange)="pageSize = $event; p = 1" [currentPage]="p"></app-pagination>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" (click)="closeModal()">
+  <div class="bg-saowari-surface rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="bg-saowari-surface-alt px-6 py-4 border-b border-saowari-border flex justify-between items-center">
+      <h3 class="text-xl font-bold text-saowari-text-primary flex items-center gap-2">
+        <i class="fas" [ngClass]="editingItem ? 'fa-edit text-blue-500' : 'fa-plus-circle text-primary'"></i>
+        {{ editingItem ? 'Edit Vehicle Type' : 'Add Vehicle Type' }}
+      </h3>
+      <button (click)="closeModal()" class="btn btn-sm btn-circle btn-ghost text-saowari-text-secondary hover:bg-gray-200">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6">
+      <div class="form-control w-full">
+        <label class="label"><span class="label-text font-semibold text-gray-700">Vehicle Type Name *</span></label>
+        <input type="text" [(ngModel)]="model.vehicleTypeName" placeholder="e.g. Bus, Microbus" class="input input-bordered w-full focus:border-primary focus:ring-2 focus:ring-primary/20" />
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-saowari-surface-alt px-6 py-4 border-t border-saowari-border flex justify-end gap-3">
+      <button (click)="closeModal()" class="btn btn-ghost">Cancel</button>
+      <button (click)="save()" [disabled]="!model.vehicleTypeName" class="btn btn-primary min-w-[120px]">
+        <i class="fas fa-save mr-2"></i> Save
+      </button>
+    </div>
+  </div>
+</div>

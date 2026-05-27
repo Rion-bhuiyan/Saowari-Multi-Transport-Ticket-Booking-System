@@ -10,6 +10,7 @@ import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { LoadingInterceptor } from './core/interceptors/loading.interceptor';
 import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loading-spinner.component';
 import { ToastNotificationComponent } from './shared/components/toast-notification/toast-notification.component';
+
 @NgModule({
   declarations: [
     AppComponent

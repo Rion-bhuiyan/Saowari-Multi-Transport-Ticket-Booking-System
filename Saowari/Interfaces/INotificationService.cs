@@ -23,6 +23,11 @@ namespace Saowari.Interfaces
         Task NotifyUserChangedAsync(User user, string changeDescription);
         Task NotifyVehicleChangedAsync(Vehicle vehicle, string action);
         Task NotifyScheduleChangedAsync(Schedule schedule, string action);
+        // System events
         Task NotifySystemEventAsync(string title, string message);
+
+        // Individual user notifications
+        Task CreateForUserAsync(int userId, string title, string message, string type, string icon, string colorClass, string? entityType = null, int? entityId = null);
+        Task NotifyBookingCancellationOtpAsync(Booking booking, string otp);
     }
 }

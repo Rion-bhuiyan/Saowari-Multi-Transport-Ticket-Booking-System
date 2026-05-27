@@ -13,9 +13,7 @@ namespace Saowari.Models.DTOs.Vehicle
         public string ChassisNumber { get; set; }
         public int VehicleTypeId { get; set; }
         public int TotalSeats { get; set; }
-        public bool IsDoubleDecker { get; set; }
-        public bool ContinuousBackRow { get; set; } = true;
-        public string? LayoutPreset { get; set; }
+        public SeatLayoutConfigDto? VisualLayout { get; set; }
         public bool IsActive { get; set; }
         /// <summary>Seat class pricing entries — replaces existing pricings for this vehicle.</summary>
         public List<SeatClassPricingInputDto> SeatClassPricings { get; set; } = new();

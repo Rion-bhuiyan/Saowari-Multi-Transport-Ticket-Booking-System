@@ -34,6 +34,8 @@ export class SearchComponent implements OnInit, OnDestroy {
   locations: LocationModel[] = [];
   trips: TripSearchResult[] = [];
   filteredTrips: TripSearchResult[] = [];
+  returnTrips: TripSearchResult[] = [];
+  filteredReturnTrips: TripSearchResult[] = [];
   isLoading = false;
   hasSearched = false;
 
@@ -53,7 +55,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   // Inline Expansion State
   expandedTripId: number | null = null;
-  seatMaps: { [scheduleId: number]: { rows: any[], selected: SeatMapItem[], isLoading: boolean, config: any, countdownSeconds: number, timerInterval: any, selectedBoardingPoint?: string, scheduleDetail?: any, gMapInstance?: any, markers?: any[] } } = {};
+  seatMaps: { [scheduleId: number]: { rows: any[], visualDecks?: any[], selected: SeatMapItem[], isLoading: boolean, config: any, countdownSeconds: number, timerInterval: any, selectedBoardingPoint?: string, scheduleDetail?: any, gMapInstance?: any, markers?: any[] } } = {};
   maxSeatsPerUser = 4;
   readonly TIMEOUT_SECONDS = 180; // 3 minutes
 
@@ -86,8 +88,8 @@ export class SearchComponent implements OnInit, OnDestroy {
       if (params['returnDate']) this.searchParams.returnDate = params['returnDate'];
       if (params['transportType']) this.searchParams.transportType = params['transportType'];
 
-      if (params['tab']) this.currentTab = params['tab'] as 'outbound' | 'return';
-      else this.currentTab = 'outbound';
+      // tab query param is no longer used for routing since we display both concurrently
+      this.currentTab = 'outbound';
 
       this.bookingState.setTripType(this.searchParams.tripType as any);
 
@@ -200,43 +202,66 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.hasSearched = true;
     this.trips = [];
     this.filteredTrips = [];
+    this.returnTrips = [];
+    this.filteredReturnTrips = [];
     
     let fromId = this.searchParams.fromLocationId;
     let toId = this.searchParams.toLocationId;
-    let date = this.searchParams.departureDate;
+    let depDate = this.searchParams.departureDate;
+    let retDate = this.searchParams.returnDate;
 
-    if (this.currentTab === 'return') {
-      fromId = this.searchParams.toLocationId;
-      toId = this.searchParams.fromLocationId;
-      date = this.searchParams.returnDate;
-    }
-
-    if (!date) {
+    if (!depDate) {
         this.isLoading = false;
         return;
     }
 
-    const apiParams = {
+    const outboundParams = {
         transportType: this.searchParams.transportType,
         fromLocationId: fromId,
         toLocationId: toId,
-        travelDate: date,
+        travelDate: depDate,
         passengers: 1
     };
 
-    this.searchService.searchTrips(apiParams).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.trips = res.data;
-          this.extractFilters();
-          this.applyFilters();
+    if (this.searchParams.tripType === 'round-way' && retDate) {
+      const returnParams = {
+          transportType: this.searchParams.transportType,
+          fromLocationId: toId,
+          toLocationId: fromId,
+          travelDate: retDate,
+          passengers: 1
+      };
+
+      import('rxjs').then(({ forkJoin }) => {
+        forkJoin({
+            outbound: this.searchService.searchTrips(outboundParams),
+            return: this.searchService.searchTrips(returnParams)
+        }).subscribe({
+            next: (res) => {
+                if (res.outbound.success) this.trips = res.outbound.data;
+                if (res.return.success) this.returnTrips = res.return.data;
+                this.extractFilters();
+                this.applyFilters();
+                this.isLoading = false;
+            },
+            error: () => this.isLoading = false
+        });
+      });
+    } else {
+      this.searchService.searchTrips(outboundParams).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.trips = res.data;
+            this.extractFilters();
+            this.applyFilters();
+          }
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
         }
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-      }
-    });
+      });
+    }
   }
 
   switchTab(tab: 'outbound' | 'return') {
@@ -302,7 +327,8 @@ export class SearchComponent implements OnInit, OnDestroy {
   extractFilters() {
     const types = new Set<string>();
     let maxP = 0;
-    this.trips.forEach(t => {
+    const allTrips = [...this.trips, ...this.returnTrips];
+    allTrips.forEach(t => {
       if (t.vehicleType) types.add(t.vehicleType);
       if (t.basePrice > maxP) maxP = t.basePrice;
     });
@@ -327,11 +353,14 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   applyFilters() {
-    this.filteredTrips = this.trips.filter(t => {
+    const filterFn = (t: TripSearchResult) => {
       const typeMatch = t.vehicleType ? this.selectedTypes.includes(t.vehicleType) : true;
       const priceMatch = t.basePrice <= this.currentMaxPrice;
       return typeMatch && priceMatch;
-    });
+    };
+    
+    this.filteredTrips = this.trips.filter(filterFn);
+    this.filteredReturnTrips = this.returnTrips.filter(filterFn);
     this.sortTrips();
   }
 
@@ -340,7 +369,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   sortTrips() {
-    this.filteredTrips.sort((a, b) => {
+    const sortFn = (a: TripSearchResult, b: TripSearchResult) => {
       switch (this.sortBy) {
         case 'priceAsc':
           return a.basePrice - b.basePrice;
@@ -359,7 +388,10 @@ export class SearchComponent implements OnInit, OnDestroy {
         default:
           return new Date(a.departureDateTime).getTime() - new Date(b.departureDateTime).getTime();
       }
-    });
+    };
+    
+    this.filteredTrips.sort(sortFn);
+    this.filteredReturnTrips.sort(sortFn);
   }
 
   resetFilters() {
@@ -391,7 +423,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.loadSeatMap(scheduleId);
       } else {
         // If seatMap is already loaded but we expanded it again, re-trigger map init
-        const trip = this.trips.find(t => t.scheduleId === scheduleId);
+        const trip = this.trips.find(t => t.scheduleId === scheduleId) || this.returnTrips.find(t => t.scheduleId === scheduleId);
         if (trip) {
           this.fetchScheduleDetailAndInitMap(scheduleId, trip);
         }
@@ -400,10 +432,15 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   loadSeatMap(scheduleId: number) {
-    const trip = this.trips.find(t => t.scheduleId === scheduleId);
-    let layoutConfig = { Rows: 10, Columns: 4, AisleAfterColumn: 2, IsDoubleDecker: false, ContinuousBackRow: false };
+    const trip = this.trips.find(t => t.scheduleId === scheduleId) || this.returnTrips.find(t => t.scheduleId === scheduleId);
+    let layoutConfig: any = { Rows: 10, Columns: 4, AisleAfterColumn: 2, IsDoubleDecker: false, ContinuousBackRow: false };
     if (trip && trip.seatLayoutConfig) {
-      try { layoutConfig = JSON.parse(trip.seatLayoutConfig); } catch (e) {}
+      try { 
+        layoutConfig = JSON.parse(trip.seatLayoutConfig); 
+        layoutConfig.mode = layoutConfig.mode || layoutConfig.Mode;
+        layoutConfig.gridWidth = layoutConfig.gridWidth || layoutConfig.GridWidth || 5;
+        layoutConfig.gridHeight = layoutConfig.gridHeight || layoutConfig.GridHeight || 15;
+      } catch (e) {}
     }
 
     this.seatMaps[scheduleId] = {
@@ -423,37 +460,93 @@ export class SearchComponent implements OnInit, OnDestroy {
         if (res.success) {
           const seatMap: SeatMapItem[] = res.data;
           
-          const decksMap = new Map<string, Map<string, SeatMapItem[]>>();
+          const mode = layoutConfig?.mode || layoutConfig?.Mode;
+          const hasDecks = !!(layoutConfig?.decks || layoutConfig?.Decks);
+          if (layoutConfig && (mode === 'visual' || hasDecks)) {
+            // New Visual Layout Engine
+            const gridWidth = layoutConfig.gridWidth || layoutConfig.GridWidth || 5;
+            const gridHeight = layoutConfig.gridHeight || layoutConfig.GridHeight || 15;
+            const visualDecks: { name: string, grid: (SeatMapItem | null)[][] }[] = [];
 
-          const sortedSeats = [...seatMap].sort((a, b) => {
-            return a.seatNumber.localeCompare(b.seatNumber, undefined, { numeric: true, sensitivity: 'base' });
-          });
+            const isDoubleDecker = layoutConfig.isDoubleDecker ?? layoutConfig.IsDoubleDecker;
+            let decksConfig = layoutConfig.decks || layoutConfig.Decks;
+            
+            if (decksConfig && Array.isArray(decksConfig)) {
+              if (isDoubleDecker === false && decksConfig.length > 1) {
+                decksConfig = [decksConfig[0]];
+              } else if (isDoubleDecker === undefined && decksConfig.length > 1) {
+                const secondDeckSeats = decksConfig[1].seats || decksConfig[1].Seats || [];
+                if (secondDeckSeats.length === 0) {
+                  decksConfig = [decksConfig[0]];
+                }
+              }
+              for (const deckConfig of decksConfig) {
+                const grid: (SeatMapItem | null)[][] = [];
+                for (let r = 0; r < gridHeight; r++) {
+                  const rowArray: (SeatMapItem | null)[] = [];
+                  for (let c = 0; c < gridWidth; c++) {
+                    rowArray.push(null);
+                  }
+                  grid.push(rowArray);
+                }
 
-          sortedSeats.forEach(seat => {
-            let deck = 'Main Deck';
-            let rowPrefix = seat.seatNumber;
+                const seatsConfig = deckConfig.seats || deckConfig.Seats;
+                if (seatsConfig && Array.isArray(seatsConfig)) {
+                  for (const seatPos of seatsConfig) {
+                    const row = seatPos.row !== undefined ? seatPos.row : seatPos.Row;
+                    const col = seatPos.col !== undefined ? seatPos.col : seatPos.Col;
+                    const seatNumber = seatPos.seatNumber || seatPos.SeatNumber || '';
 
-            if (layoutConfig.IsDoubleDecker && (seat.seatNumber.startsWith('L') || seat.seatNumber.startsWith('U'))) {
-              deck = seat.seatNumber.startsWith('L') ? 'Lower Deck' : 'Upper Deck';
-              rowPrefix = seat.seatNumber.substring(1);
+                    if (row >= 0 && row < gridHeight && col >= 0 && col < gridWidth) {
+                      const actualSeat = seatMap.find(s => s.seatNumber.toUpperCase() === seatNumber.trim().toUpperCase());
+                      if (actualSeat) {
+                        grid[row][col] = actualSeat;
+                      }
+                    }
+                  }
+                }
+
+                visualDecks.push({
+                  name: deckConfig.name || deckConfig.Name || 'Main Deck',
+                  grid: grid
+                });
+              }
             }
+            this.seatMaps[scheduleId].visualDecks = visualDecks;
+          } else {
+            // Legacy Fallback Engine
+            const decksMap = new Map<string, Map<string, SeatMapItem[]>>();
 
-            let rowMatch = rowPrefix.match(/^[a-zA-Z]+/);
-            let row = rowMatch ? rowMatch[0] : 'Other';
+            const sortedSeats = [...seatMap].sort((a, b) => {
+              return a.seatNumber.localeCompare(b.seatNumber, undefined, { numeric: true, sensitivity: 'base' });
+            });
 
-            if (!decksMap.has(deck)) decksMap.set(deck, new Map());
-            if (!decksMap.get(deck)!.has(row)) decksMap.get(deck)!.set(row, []);
+            sortedSeats.forEach(seat => {
+              let deck = 'Main Deck';
+              let rowPrefix = seat.seatNumber;
 
-            decksMap.get(deck)!.get(row)!.push(seat);
-          });
+              if (layoutConfig.IsDoubleDecker && (seat.seatNumber.startsWith('L') || seat.seatNumber.startsWith('U'))) {
+                deck = seat.seatNumber.startsWith('L') ? 'Lower Deck' : 'Upper Deck';
+                rowPrefix = seat.seatNumber.substring(1);
+              }
 
-          // Convert to Array of Decks containing Array of Rows
-          const decksArray = Array.from(decksMap.entries()).map(([deckName, rowsMap]) => ({
-            deckName,
-            rows: Array.from(rowsMap.values())
-          }));
+              let rowMatch = rowPrefix.match(/^[a-zA-Z]+/);
+              let row = rowMatch ? rowMatch[0] : 'Other';
 
-          this.seatMaps[scheduleId].rows = decksArray;
+              if (!decksMap.has(deck)) decksMap.set(deck, new Map());
+              if (!decksMap.get(deck)!.has(row)) decksMap.get(deck)!.set(row, []);
+
+              decksMap.get(deck)!.get(row)!.push(seat);
+            });
+
+            // Convert to Array of Decks containing Array of Rows
+            const decksArray = Array.from(decksMap.entries()).map(([deckName, rowsMap]) => ({
+              deckName,
+              rows: Array.from(rowsMap.values())
+            }));
+
+            this.seatMaps[scheduleId].rows = decksArray;
+          }
         }
         this.seatMaps[scheduleId].isLoading = false;
         
@@ -838,6 +931,52 @@ export class SearchComponent implements OnInit, OnDestroy {
     return selectedSeats.reduce((total, seat: any) => total + (seat.price ?? seat.Price ?? trip.basePrice), 0);
   }
 
+  hasSelectedOutbound(): boolean {
+    return this.trips.some(t => (this.seatMaps[t.scheduleId]?.selected?.length || 0) > 0);
+  }
+
+  hasSelectedReturn(): boolean {
+    return this.returnTrips.some(t => (this.seatMaps[t.scheduleId]?.selected?.length || 0) > 0);
+  }
+
+  getSelectedOutboundTrip(): TripSearchResult | undefined {
+    return this.trips.find(t => (this.seatMaps[t.scheduleId]?.selected?.length || 0) > 0);
+  }
+
+  getSelectedReturnTrip(): TripSearchResult | undefined {
+    return this.returnTrips.find(t => (this.seatMaps[t.scheduleId]?.selected?.length || 0) > 0);
+  }
+
+  proceedWithBoth() {
+    const outboundTrip = this.getSelectedOutboundTrip();
+    const returnTrip = this.getSelectedReturnTrip();
+
+    if (!outboundTrip || !returnTrip) {
+      this.notification.warning('Please select seats for both outbound and return trips.');
+      return;
+    }
+
+    const outboundSeats = this.seatMaps[outboundTrip.scheduleId].selected;
+    const returnSeats = this.seatMaps[returnTrip.scheduleId].selected;
+
+    // Save outbound
+    this.bookingState.setOutboundTrip(outboundTrip);
+    this.bookingState.setOutboundSeats(
+      outboundSeats.map(s => s.seatId),
+      outboundSeats.map(s => s.seatNumber)
+    );
+
+    // Save return
+    this.bookingState.setReturnTrip(returnTrip);
+    this.bookingState.setReturnSeats(
+      returnSeats.map(s => s.seatId),
+      returnSeats.map(s => s.seatNumber)
+    );
+
+    this.bookingState.setTripType('round-way');
+    this.router.navigate(['/booking']);
+  }
+
   proceedToBook(trip: TripSearchResult) {
     const selectedSeats = this.seatMaps[trip.scheduleId]?.selected || [];
     if (selectedSeats.length === 0) {
@@ -845,29 +984,23 @@ export class SearchComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const seatIds = selectedSeats.map(s => s.seatId);
-    const seatNumbers = selectedSeats.map(s => s.seatNumber);
-    const state = this.bookingState.currentState;
-
-    if (this.currentTab === 'outbound') {
-      this.bookingState.setOutboundTrip(trip);
-      this.bookingState.setOutboundSeats(seatIds, seatNumbers);
-    } else {
-      this.bookingState.setReturnTrip(trip);
-      this.bookingState.setReturnSeats(seatIds, seatNumbers);
-    }
-
-    if (state.tripType === 'round-way' && this.currentTab === 'outbound') {
-      this.notification.success('Outbound seats selected! Now select your return trip.');
-      this.router.navigate(['/search'], { queryParams: { tab: 'return' }, queryParamsHandling: 'merge' });
+    if (this.searchParams.tripType === 'round-way') {
+      this.notification.warning('Please select seats for both journeys and use the Proceed button at the bottom.');
       return;
     }
 
-    this.bookingState.setTripType(this.searchParams.tripType as any);
+    const seatIds = selectedSeats.map(s => s.seatId);
+    const seatNumbers = selectedSeats.map(s => s.seatNumber);
+    
+    this.bookingState.setOutboundTrip(trip);
+    this.bookingState.setOutboundSeats(seatIds, seatNumbers);
+    this.bookingState.setTripType('one-way');
+
     this.router.navigate(['/booking'], { 
       queryParams: { 
         scheduleId: trip.scheduleId,
-        seats: seatIds.join(',') 
+        seats: seatIds.join(','),
+        seatNumbers: seatNumbers.join(',')
       } 
     });
   }

@@ -42,7 +42,6 @@ namespace Saowari.Models.Entities
         [Range(1, 10000)]
         public int TotalSeats { get; set; }
 
-        [MaxLength(200)]
         public string? SeatLayoutConfig { get; set; }
 
         public bool IsActive { get; set; } = true;

@@ -18,7 +18,7 @@ export class ErrorInterceptor implements HttpInterceptor {
           switch (error.status) {
             case 400:
               errorMsg = error.error?.message || 'Bad Request. Please check your input.';
-              if (error.error?.errors && Array.isArray(error.error.errors)) {
+              if (error.error?.errors && Array.isArray(error.error.errors) && error.error.errors.length > 0) {
                 errorMsg = error.error.errors.join(', ');
               }
               this.notificationService.warning(errorMsg, 'Validation Error');

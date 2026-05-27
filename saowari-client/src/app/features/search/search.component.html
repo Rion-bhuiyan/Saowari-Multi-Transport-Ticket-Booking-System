@@ -1,6 +1,6 @@
 <div class="bg-saowari-primary pt-24 pb-8 shadow-inner">
   <div class="container mx-auto px-4">
-    <div class="bg-white rounded-3xl shadow-[0_20px_60px_-10px_rgba(0,85,159,0.2)] p-5 md:p-7 border border-blue-50">
+    <div class="bg-saowari-surface rounded-3xl shadow-[0_20px_60px_-10px_rgba(0,85,159,0.2)] p-5 md:p-7 border border-blue-50">
 
       <!-- Tabs: Transport type -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
@@ -59,14 +59,14 @@
 
         <!-- FROM Custom Dropdown -->
         <div class="relative">
-          <div class="border-2 rounded-2xl p-3 cursor-pointer transition-all duration-200 bg-white h-full"
+          <div class="border-2 rounded-2xl p-3 cursor-pointer transition-all duration-200 bg-saowari-surface h-full"
             [style.border-color]="fromDropdownOpen ? '#00559F' : '#e5e7eb'"
             (click)="openFromDropdown(); $event.stopPropagation()">
             <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1" style="color: #00559F;">
               <i class="fas fa-paper-plane mr-1"></i> From
             </label>
             <div class="flex items-center justify-between">
-              <span class="font-bold text-sm" [class.text-gray-800]="selectedFromName" [class.text-gray-400]="!selectedFromName">
+              <span class="font-bold text-sm" [class.text-saowari-text-primary]="selectedFromName" [class.text-gray-400]="!selectedFromName">
                 {{ selectedFromName || 'Leaving from...' }}
               </span>
               <i class="fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200"
@@ -76,10 +76,10 @@
 
           <!-- From Dropdown Panel -->
           <div *ngIf="fromDropdownOpen"
-            class="absolute top-full left-0 mt-2 w-full md:w-[320px] bg-white border border-gray-200 rounded-2xl shadow-[0_10px_40px_rgba(0,85,159,0.15)] z-50 overflow-hidden"
+            class="absolute top-full left-0 mt-2 w-full md:w-[320px] bg-saowari-surface border border-saowari-border rounded-2xl shadow-[0_10px_40px_rgba(0,85,159,0.15)] z-50 overflow-hidden"
             (click)="$event.stopPropagation()">
-            <div class="p-3 border-b border-gray-100">
-              <div class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2">
+            <div class="p-3 border-b border-saowari-border">
+              <div class="flex items-center gap-2 bg-saowari-surface-alt rounded-xl px-3 py-2">
                 <i class="fas fa-search text-gray-400 text-xs"></i>
                 <input id="from-search-input" type="text" [(ngModel)]="fromSearch"
                   placeholder="Search city..." class="bg-transparent flex-1 outline-none text-sm text-gray-700 font-medium" />
@@ -97,7 +97,7 @@
                   style="background: #e8f1fa; color: #00559F;">
                   {{ loc.locationName.charAt(0) }}
                 </div>
-                <span class="font-semibold text-sm text-gray-800">{{ loc.locationName }}</span>
+                <span class="font-semibold text-sm text-saowari-text-primary">{{ loc.locationName }}</span>
                 <i *ngIf="searchParams.fromLocationId === loc.locationId.toString()"
                   class="fas fa-check ml-auto text-xs" style="color: #00559F;"></i>
               </div>
@@ -118,14 +118,14 @@
 
         <!-- TO Custom Dropdown -->
         <div class="relative">
-          <div class="border-2 rounded-2xl p-3 cursor-pointer transition-all duration-200 bg-white h-full"
+          <div class="border-2 rounded-2xl p-3 cursor-pointer transition-all duration-200 bg-saowari-surface h-full"
             [style.border-color]="toDropdownOpen ? '#00559F' : '#e5e7eb'"
             (click)="openToDropdown(); $event.stopPropagation()">
             <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1" style="color: #00559F;">
               <i class="fas fa-map-marker-alt mr-1"></i> To
             </label>
             <div class="flex items-center justify-between">
-              <span class="font-bold text-sm" [class.text-gray-800]="selectedToName" [class.text-gray-400]="!selectedToName">
+              <span class="font-bold text-sm" [class.text-saowari-text-primary]="selectedToName" [class.text-gray-400]="!selectedToName">
                 {{ selectedToName || 'Going to...' }}
               </span>
               <i class="fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200"
@@ -138,10 +138,10 @@
 
           <!-- To Dropdown Panel -->
           <div *ngIf="toDropdownOpen"
-            class="absolute top-full right-0 mt-2 w-full md:w-[320px] bg-white border border-gray-200 rounded-2xl shadow-[0_10px_40px_rgba(0,85,159,0.15)] z-50 overflow-hidden"
+            class="absolute top-full right-0 mt-2 w-full md:w-[320px] bg-saowari-surface border border-saowari-border rounded-2xl shadow-[0_10px_40px_rgba(0,85,159,0.15)] z-50 overflow-hidden"
             (click)="$event.stopPropagation()">
-            <div class="p-3 border-b border-gray-100">
-              <div class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2">
+            <div class="p-3 border-b border-saowari-border">
+              <div class="flex items-center gap-2 bg-saowari-surface-alt rounded-xl px-3 py-2">
                 <i class="fas fa-search text-gray-400 text-xs"></i>
                 <input id="to-search-input" type="text" [(ngModel)]="toSearch"
                   placeholder="Search city..." class="bg-transparent flex-1 outline-none text-sm text-gray-700 font-medium" />
@@ -159,7 +159,7 @@
                   style="background: #e8f1fa; color: #00559F;">
                   {{ loc.locationName.charAt(0) }}
                 </div>
-                <span class="font-semibold text-sm text-gray-800">{{ loc.locationName }}</span>
+                <span class="font-semibold text-sm text-saowari-text-primary">{{ loc.locationName }}</span>
                 <i *ngIf="searchParams.toLocationId === loc.locationId.toString()"
                   class="fas fa-check ml-auto text-xs" style="color: #00559F;"></i>
               </div>
@@ -168,22 +168,22 @@
         </div>
 
         <!-- DATE FIELDS (Split) -->
-        <div class="flex gap-0 border-2 rounded-2xl bg-white overflow-hidden transition-all duration-200"
+        <div class="flex gap-0 border-2 rounded-2xl bg-saowari-surface overflow-hidden transition-all duration-200"
           [style.border-color]="(searchParams.departureDate && searchParams.tripType === 'one-way') || (searchParams.departureDate && searchParams.returnDate && searchParams.tripType === 'round-way') ? '#00559F' : '#e5e7eb'">
           
           <!-- Departure Date -->
-          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 hover:bg-gray-50 border-r border-gray-100 relative">
+          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 hover:bg-saowari-surface-alt border-r border-saowari-border relative">
             <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1" style="color: #00559F;">
               <i class="far fa-calendar-alt mr-1"></i> Journey Date
             </label>
             <input type="date" [(ngModel)]="searchParams.departureDate"
-              class="w-full bg-transparent border-0 outline-none font-bold text-sm text-gray-800 cursor-pointer p-0"
+              class="w-full bg-transparent border-0 outline-none font-bold text-sm text-saowari-text-primary cursor-pointer p-0"
               style="color-scheme: light;" />
           </div>
 
           <!-- Return Date -->
           <div class="flex-1 p-3 cursor-pointer transition-all duration-200 relative"
-            [ngClass]="searchParams.tripType === 'round-way' ? 'hover:bg-gray-50' : 'bg-gray-50 opacity-70'"
+            [ngClass]="searchParams.tripType === 'round-way' ? 'hover:bg-saowari-surface-alt' : 'bg-saowari-surface-alt opacity-70'"
             (click)="setTripType('round-way')">
             
             <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1" 
@@ -193,7 +193,7 @@
             
             <ng-container *ngIf="searchParams.tripType === 'round-way'; else addReturnTpl">
               <input type="date" [(ngModel)]="searchParams.returnDate" [min]="searchParams.departureDate"
-                class="w-full bg-transparent border-0 outline-none font-bold text-sm text-gray-800 cursor-pointer p-0"
+                class="w-full bg-transparent border-0 outline-none font-bold text-sm text-saowari-text-primary cursor-pointer p-0"
                 style="color-scheme: light;" />
             </ng-container>
 
@@ -226,7 +226,7 @@
     
     <!-- Sidebar Filters -->
     <div class="w-full lg:w-1/4">
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-24">
+      <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border p-6 sticky top-24">
         <div class="flex items-center justify-between mb-6">
           <h3 class="font-heading font-bold text-lg text-saowari-text-primary">Filters</h3>
           <button class="text-xs text-saowari-accent hover:underline font-medium" (click)="resetFilters()">Reset</button>
@@ -240,7 +240,7 @@
                      [checked]="selectedTypes.includes(type)" 
                      (change)="toggleTypeFilter(type)"
                      class="checkbox checkbox-sm checkbox-primary rounded transition-transform group-hover:scale-105" />
-              <span class="text-sm text-gray-600 group-hover:text-saowari-primary transition-colors">{{ type }}</span>
+              <span class="text-sm text-saowari-text-secondary group-hover:text-saowari-primary transition-colors">{{ type }}</span>
             </label>
             <div *ngIf="filterTypes.length === 0" class="text-sm text-gray-400 italic">No classes available</div>
           </div>
@@ -263,24 +263,8 @@
     <!-- Search Results -->
     <div class="w-full lg:w-3/4">
 
-      <!-- Round Trip Tabs -->
-      <div *ngIf="searchParams.tripType === 'round-way'" class="flex gap-2 mb-4 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-        <button class="flex-1 py-3 text-center rounded-lg font-bold text-sm transition-colors"
-                [ngClass]="currentTab === 'outbound' ? 'bg-saowari-accent text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'"
-                (click)="switchTab('outbound')">
-           <i class="fas fa-plane-departure mr-1"></i> Outbound
-           <div class="text-[10px] font-normal opacity-80 mt-1 uppercase tracking-widest">{{ getLocationName(searchParams.fromLocationId) }} <i class="fas fa-arrow-right mx-1"></i> {{ getLocationName(searchParams.toLocationId) }}</div>
-        </button>
-        <button class="flex-1 py-3 text-center rounded-lg font-bold text-sm transition-colors"
-                [ngClass]="currentTab === 'return' ? 'bg-saowari-accent text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'"
-                (click)="switchTab('return')">
-           <i class="fas fa-plane-arrival mr-1"></i> Return
-           <div class="text-[10px] font-normal opacity-80 mt-1 uppercase tracking-widest">{{ getLocationName(searchParams.toLocationId) }} <i class="fas fa-arrow-right mx-1"></i> {{ getLocationName(searchParams.fromLocationId) }}</div>
-        </button>
-      </div>
-      
-      <!-- Date Quick Selector Bar -->
-      <div *ngIf="hasSearched && dateRange.length > 0" class="bg-white border border-slate-100 rounded-2xl p-4 mb-6 shadow-sm overflow-x-auto custom-scrollbar">
+      <!-- Quick Date Selector -->
+      <div *ngIf="hasSearched && dateRange.length > 0" class="bg-saowari-surface border border-slate-100 rounded-2xl p-4 mb-6 shadow-sm overflow-x-auto custom-scrollbar">
         <div class="flex items-center justify-start md:justify-center gap-2 min-w-max">
           <button *ngFor="let item of dateRange"
             type="button"
@@ -288,7 +272,7 @@
             class="px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 border-2 select-none cursor-pointer"
             [ngClass]="{
               'bg-saowari-accent text-white border-saowari-accent shadow-md shadow-blue-500/10': item.isActive,
-              'bg-slate-50 text-slate-600 border-slate-200 hover:border-saowari-accent hover:text-saowari-accent hover:bg-white': !item.isActive
+              'bg-slate-50 text-slate-600 border-slate-200 hover:border-saowari-accent hover:text-saowari-accent hover:bg-saowari-surface': !item.isActive
             }">
             {{ item.label }}
           </button>
@@ -296,23 +280,26 @@
       </div>
 
       <!-- Search Header -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4" *ngIf="hasSearched">
+      <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border p-4 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4" *ngIf="hasSearched">
         <div>
           <h2 class="text-xl font-heading font-bold text-saowari-primary">
-            <ng-container *ngIf="currentTab === 'outbound' || searchParams.tripType === 'one-way'">
+            <ng-container *ngIf="searchParams.tripType === 'one-way'">
               {{ getLocationName(searchParams.fromLocationId) }} <i class="fas fa-arrow-right text-sm mx-2 text-gray-400"></i> {{ getLocationName(searchParams.toLocationId) }}
             </ng-container>
-            <ng-container *ngIf="searchParams.tripType === 'round-way' && currentTab === 'return'">
-              {{ getLocationName(searchParams.toLocationId) }} <i class="fas fa-arrow-right text-sm mx-2 text-gray-400"></i> {{ getLocationName(searchParams.fromLocationId) }}
+            <ng-container *ngIf="searchParams.tripType === 'round-way'">
+              Round Trip: {{ getLocationName(searchParams.fromLocationId) }} <i class="fas fa-exchange-alt text-sm mx-2 text-gray-400"></i> {{ getLocationName(searchParams.toLocationId) }}
             </ng-container>
           </h2>
-          <p class="text-sm text-gray-500 mt-1">{{ (currentTab === 'return' ? searchParams.returnDate : searchParams.departureDate) | date:'longDate' }} • {{ filteredTrips.length }} trips found</p>
+          <p class="text-sm text-saowari-text-secondary mt-1">
+            Outbound: {{ searchParams.departureDate | date:'longDate' }}
+            <span *ngIf="searchParams.tripType === 'round-way'"> • Return: {{ searchParams.returnDate | date:'longDate' }}</span>
+          </p>
         </div>
         
         <!-- Sorting -->
         <div class="flex items-center gap-2">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Sort By:</label>
-          <select [(ngModel)]="sortBy" (change)="onSortChange()" class="select select-bordered select-sm bg-gray-50 font-semibold focus:border-saowari-primary w-full md:w-auto">
+          <label class="text-xs font-bold text-saowari-text-secondary uppercase tracking-widest whitespace-nowrap">Sort By:</label>
+          <select [(ngModel)]="sortBy" (change)="onSortChange()" class="select select-bordered select-sm bg-saowari-surface-alt font-semibold focus:border-saowari-primary w-full md:w-auto">
             <option value="departureAsc">Earliest Departure</option>
             <option value="departureDesc">Latest Departure</option>
             <option value="boardingTimeAsc">Boarding Point Time (Outbound)</option>
@@ -325,7 +312,7 @@
 
       <!-- Loading State -->
       <div *ngIf="isLoading" class="space-y-4">
-        <div *ngFor="let i of [1,2,3]" class="bg-white rounded-xl p-4 shadow-sm animate-pulse flex flex-col md:flex-row gap-4 h-32">
+        <div *ngFor="let i of [1,2,3]" class="bg-saowari-surface rounded-xl p-4 shadow-sm animate-pulse flex flex-col md:flex-row gap-4 h-32">
           <div class="w-full md:w-1/4 bg-gray-200 rounded h-full"></div>
           <div class="w-full md:w-1/2 flex flex-col justify-center space-y-3">
             <div class="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -336,36 +323,68 @@
       </div>
 
       <!-- No Results State -->
-      <div *ngIf="!isLoading && hasSearched && filteredTrips.length === 0" class="bg-white rounded-xl p-12 shadow-sm text-center border border-gray-100">
+      <div *ngIf="!isLoading && hasSearched && filteredTrips.length === 0" class="bg-saowari-surface rounded-xl p-12 shadow-sm text-center border border-saowari-border">
         <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-4xl">
           <i class="fas fa-search-minus"></i>
         </div>
-        <h3 class="text-xl font-heading font-bold text-gray-800 mb-2">No trips found</h3>
-        <p class="text-gray-500">We couldn't find any {{ searchParams.transportType | lowercase }} matching your criteria. Try adjusting your filters or search date.</p>
+        <h3 class="text-xl font-heading font-bold text-saowari-text-primary mb-2">No trips found</h3>
+        <p class="text-saowari-text-secondary">We couldn't find any {{ searchParams.transportType | lowercase }} matching your criteria. Try adjusting your filters or search date.</p>
       </div>
 
       <!-- Initial State -->
-      <div *ngIf="!hasSearched" class="bg-white rounded-xl p-12 shadow-sm text-center border border-gray-100">
-        <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300 text-5xl">
+      <div *ngIf="!hasSearched" class="bg-saowari-surface rounded-xl p-12 shadow-sm text-center border border-saowari-border">
+        <div class="w-24 h-24 bg-saowari-surface-alt rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300 text-5xl">
           <i class="fas fa-route"></i>
         </div>
-        <h3 class="text-xl font-heading font-bold text-gray-800 mb-2">Search for your next journey</h3>
-        <p class="text-gray-500">Use the search panel above to find available tickets.</p>
+        <h3 class="text-xl font-heading font-bold text-saowari-text-primary mb-2">Search for your next journey</h3>
+        <p class="text-saowari-text-secondary">Use the search panel above to find available tickets.</p>
       </div>
 
-      <!-- Results List -->
-      <div *ngIf="!isLoading && filteredTrips.length > 0" class="space-y-4">
-        <div *ngFor="let trip of filteredTrips" class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all flex flex-col overflow-hidden">
+      <!-- Results List Layout -->
+      <div *ngIf="!isLoading">
+        <ng-container *ngIf="searchParams.tripType === 'one-way' && filteredTrips.length > 0">
+           <div class="space-y-4 mb-20">
+             <ng-container *ngFor="let t of filteredTrips">
+               <ng-container *ngTemplateOutlet="tripCardTemplate; context: { trip: t }"></ng-container>
+             </ng-container>
+           </div>
+        </ng-container>
+
+        <ng-container *ngIf="searchParams.tripType === 'round-way'">
+           <!-- Outbound -->
+           <div *ngIf="filteredTrips.length > 0" class="mb-8">
+              <h3 class="text-xl font-bold text-saowari-primary border-b border-saowari-border pb-2 mb-4"><i class="fas fa-plane-departure mr-2"></i> Outbound Journey</h3>
+              <div class="space-y-4">
+                <ng-container *ngFor="let t of filteredTrips">
+                  <ng-container *ngTemplateOutlet="tripCardTemplate; context: { trip: t }"></ng-container>
+                </ng-container>
+              </div>
+           </div>
+
+           <!-- Return -->
+           <div *ngIf="filteredReturnTrips.length > 0" class="mb-24 mt-12">
+              <h3 class="text-xl font-bold text-saowari-primary border-b border-saowari-border pb-2 mb-4"><i class="fas fa-plane-arrival mr-2"></i> Return Journey</h3>
+              <div class="space-y-4">
+                <ng-container *ngFor="let t of filteredReturnTrips">
+                  <ng-container *ngTemplateOutlet="tripCardTemplate; context: { trip: t }"></ng-container>
+                </ng-container>
+              </div>
+           </div>
+        </ng-container>
+      </div>
+
+      <ng-template #tripCardTemplate let-trip="trip">
+        <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border hover:shadow-md transition-all flex flex-col overflow-hidden">
           
           <!-- Trip Card Header (Clickable for Expand) -->
           <div class="flex flex-col md:flex-row cursor-pointer select-none" (click)="toggleExpandTrip(trip.scheduleId)">
             <!-- Company & Vehicle Info -->
-            <div class="p-5 md:w-1/4 border-b md:border-b-0 md:border-r border-gray-100 bg-gray-50/50 flex flex-col justify-center items-center text-center">
+            <div class="p-5 md:w-1/4 border-b md:border-b-0 md:border-r border-saowari-border bg-saowari-surface-alt/50 flex flex-col justify-center items-center text-center">
               <div *ngIf="trip.companyLogo" class="mb-2 h-12 w-full flex justify-center items-center">
                 <img [src]="trip.companyLogo" alt="{{ trip.companyName }}" class="max-h-full max-w-[120px] object-contain drop-shadow-sm" />
               </div>
               <h4 class="font-bold text-lg text-saowari-text-primary">{{ trip.companyName || trip.vehicleName }}</h4>
-              <div class="flex items-center gap-2 mt-1 text-sm text-gray-500">
+              <div class="flex items-center gap-2 mt-1 text-sm text-saowari-text-secondary">
                 <span class="badge badge-outline text-xs">{{ trip.vehicleType }}</span>
               </div>
               <div class="mt-2 text-xs text-gray-400 font-mono">{{ trip.vehicleNumber }}</div>
@@ -374,29 +393,29 @@
             <!-- Timing & Route Info -->
             <div class="p-5 md:w-1/2 flex items-center justify-between">
               <div class="text-center">
-                <p class="text-2xl font-bold text-gray-800">{{ formatTime(trip.departureDateTime) }}</p>
+                <p class="text-2xl font-bold text-saowari-text-primary">{{ formatTime(trip.departureDateTime) }}</p>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{{ trip.departureDateTime | date:'EEE, MMM d, y' }}</p>
-                <p class="text-xs text-gray-500 font-medium uppercase mt-1">{{ trip.fromLocation }}</p>
+                <p class="text-xs text-saowari-text-secondary font-medium uppercase mt-1">{{ trip.fromLocation }}</p>
               </div>
               
               <div class="flex-1 px-4 relative flex items-center justify-center">
-                <div class="w-full border-t border-dashed border-gray-300"></div>
-                <div class="absolute bg-white px-2 text-xs text-gray-400 flex flex-col items-center">
+                <div class="w-full border-t border-dashed border-saowari-border"></div>
+                <div class="absolute bg-saowari-surface px-2 text-xs text-gray-400 flex flex-col items-center">
                   <span>{{ formatDuration(trip.departureDateTime, trip.arrivalDateTime) }}</span>
                   <i class="fas fa-long-arrow-alt-right mt-1 text-saowari-primary"></i>
                 </div>
               </div>
               
               <div class="text-center">
-                <p class="text-2xl font-bold text-gray-800">{{ formatTime(trip.arrivalDateTime) }}</p>
+                <p class="text-2xl font-bold text-saowari-text-primary">{{ formatTime(trip.arrivalDateTime) }}</p>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{{ trip.arrivalDateTime | date:'EEE, MMM d, y' }}</p>
-                <p class="text-xs text-gray-500 font-medium uppercase mt-1">{{ trip.toLocation }}</p>
+                <p class="text-xs text-saowari-text-secondary font-medium uppercase mt-1">{{ trip.toLocation }}</p>
               </div>
             </div>
 
             <!-- Price & Action -->
-            <div class="p-5 md:w-1/4 border-t md:border-t-0 md:border-l border-gray-100 flex flex-col justify-center items-center md:items-end text-center md:text-right bg-saowari-primary-light/10">
-              <p class="text-sm text-gray-500 mb-1">Starting from</p>
+            <div class="p-5 md:w-1/4 border-t md:border-t-0 md:border-l border-saowari-border flex flex-col justify-center items-center md:items-end text-center md:text-right bg-saowari-primary-light/10">
+              <p class="text-sm text-saowari-text-secondary mb-1">Starting from</p>
               <p class="text-2xl font-bold text-saowari-primary mb-3">৳{{ trip.basePrice }}</p>
               <p class="text-xs text-saowari-success mb-3 font-medium"><i class="fas fa-couch"></i> {{ trip.availableSeats }} Seats Available</p>
               <button class="btn btn-sm btn-outline btn-saowari w-full" (click)="$event.stopPropagation(); toggleExpandTrip(trip.scheduleId)">
@@ -406,39 +425,79 @@
           </div>
 
           <!-- Expandable Seat Layout Section -->
-          <div *ngIf="expandedTripId === trip.scheduleId" class="border-t border-gray-100 bg-gray-50 p-6 animate-fade-in-down">
-            <div *ngIf="seatMaps[trip.scheduleId]?.isLoading" class="text-center py-8">
+          <div *ngIf="expandedTripId === trip.scheduleId" class="border-t border-saowari-border bg-saowari-surface-alt p-6 animate-fade-in-down">
+            <div *ngIf="seatMaps[trip.scheduleId].isLoading" class="text-center py-8">
               <span class="loading loading-spinner loading-md text-saowari-primary"></span>
-              <p class="text-sm text-gray-500 mt-2">Loading seat layout...</p>
+              <p class="text-sm text-saowari-text-secondary mt-2">Loading seat layout...</p>
             </div>
             
-            <div *ngIf="!seatMaps[trip.scheduleId]?.isLoading" class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <div *ngIf="!seatMaps[trip.scheduleId].isLoading" class="grid grid-cols-1 xl:grid-cols-12 gap-6">
               <!-- Column 1: Seat Map Graphic -->
-              <div class="w-full xl:col-span-5 bg-white p-6 rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
-                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
-                  <div class="flex items-center gap-3 text-gray-500">
+              <div class="w-full xl:col-span-5 bg-saowari-surface p-6 rounded-xl border border-saowari-border shadow-sm overflow-x-auto">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-saowari-border">
+                  <div class="flex items-center gap-3 text-saowari-text-secondary">
                     <!-- Countdown Timer Circle -->
-                    <div *ngIf="(seatMaps[trip.scheduleId]?.countdownSeconds ?? 0) > 0"
+                    <div *ngIf="seatMaps[trip.scheduleId].countdownSeconds > 0"
                       class="w-12 h-12 rounded-full border-2 flex items-center justify-center font-bold text-xs flex-shrink-0 transition-all duration-300"
                       [ngClass]="{
-                        'border-green-500 text-green-700 bg-green-50': (seatMaps[trip.scheduleId]?.countdownSeconds ?? 0) > 60,
-                        'border-red-500 text-red-600 bg-red-50 animate-pulse': (seatMaps[trip.scheduleId]?.countdownSeconds ?? 0) <= 60 && (seatMaps[trip.scheduleId]?.countdownSeconds ?? 0) > 0
+                        'border-green-500 text-green-700 bg-green-50': seatMaps[trip.scheduleId].countdownSeconds > 60,
+                        'border-red-500 text-red-600 bg-red-50 animate-pulse': seatMaps[trip.scheduleId].countdownSeconds <= 60 && seatMaps[trip.scheduleId].countdownSeconds > 0
                       }">
-                      {{ formatSeatTimer(seatMaps[trip.scheduleId]?.countdownSeconds ?? 0) }}
+                      {{ formatSeatTimer(seatMaps[trip.scheduleId].countdownSeconds) }}
                     </div>
                     <i class="fas fa-steering-wheel text-xl"></i>
                     <span class="text-xs font-bold uppercase tracking-wider">Front</span>
                   </div>
                   <div class="flex gap-4 text-xs font-medium">
-                    <div class="flex items-center gap-1"><div class="w-4 h-4 rounded-t-lg bg-gray-100 border border-gray-200"></div> Available</div>
+                    <div class="flex items-center gap-1"><div class="w-4 h-4 rounded-t-lg bg-gray-100 border border-saowari-border"></div> Available</div>
                     <div class="flex items-center gap-1"><div class="w-4 h-4 rounded-t-lg bg-saowari-primary text-white border border-saowari-primary"></div> Selected</div>
                     <div class="flex items-center gap-1"><div class="w-4 h-4 rounded-t-lg bg-gray-300 border border-gray-400 opacity-50"></div> Booked</div>
                   </div>
                 </div>
 
                 <div class="flex flex-col gap-8 w-full max-w-lg mx-auto">
-                  <div *ngFor="let deck of seatMaps[trip.scheduleId]?.rows" class="w-full">
-                    <h5 *ngIf="seatMaps[trip.scheduleId]?.config?.IsDoubleDecker" class="text-center font-bold text-gray-700 mb-4 bg-gray-100 rounded-lg py-2 uppercase tracking-widest text-sm border border-gray-200">
+                  
+                  <!-- NEW VISUAL GRID LAYOUT -->
+                  <ng-container *ngIf="(seatMaps[trip.scheduleId].config.mode === 'visual' || (seatMaps[trip.scheduleId].visualDecks?.length || 0) > 0) && (seatMaps[trip.scheduleId].visualDecks?.length || 0) > 0; else legacyLayout">
+                    <div *ngFor="let deck of seatMaps[trip.scheduleId].visualDecks" class="w-full mb-8">
+                      <h5 *ngIf="deck.name !== 'Main Deck'" class="text-center font-bold text-gray-700 mb-4 bg-gray-100 rounded-lg py-2 uppercase tracking-widest text-sm border border-saowari-border">
+                        {{ deck.name }}
+                      </h5>
+                      <div class="grid gap-2 sm:gap-3 justify-center mx-auto" [style.gridTemplateColumns]="'repeat(' + seatMaps[trip.scheduleId].config.gridWidth + ', minmax(0, max-content))'">
+                        <ng-container *ngFor="let row of deck.grid; let r = index">
+                          <ng-container *ngFor="let seat of row; let c = index">
+                            
+                            <!-- Empty cell (aisle/gap) -->
+                            <div *ngIf="!seat" class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center"></div>
+                            
+                            <!-- Seat cell -->
+                            <button *ngIf="seat"
+                              (click)="toggleSeat(trip.scheduleId, seat)"
+                              [disabled]="seat.isBooked || seat.seatStatusName !== 'Available'"
+                              [ngClass]="{
+                                'bg-saowari-primary text-white border-saowari-primary shadow-md transform scale-105': isSelected(trip.scheduleId, seat.seatId),
+                                'bg-gray-100 text-gray-700 hover:bg-gray-200 border-saowari-border': !isSelected(trip.scheduleId, seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
+                                'bg-gray-200 text-gray-400 cursor-not-allowed opacity-60 border-saowari-border': seat.isBooked || seat.seatStatusName !== 'Available'
+                              }"
+                              class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border flex flex-col items-center justify-center text-xs font-semibold transition-all duration-200 relative group shadow-sm"
+                            >
+                              <span>{{ seat.seatNumber }}</span>
+                              <!-- Tooltip -->
+                              <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-10 transition-opacity" *ngIf="!seat.isBooked && seat.seatStatusName === 'Available'">
+                                {{ seat.seatClassName }} - ৳{{ seat.price || seat.Price || trip.basePrice }}
+                              </div>
+                            </button>
+                            
+                          </ng-container>
+                        </ng-container>
+                      </div>
+                    </div>
+                  </ng-container>
+
+                  <!-- LEGACY LAYOUT FALLBACK -->
+                  <ng-template #legacyLayout>
+                    <div *ngFor="let deck of seatMaps[trip.scheduleId].rows" class="w-full">
+                    <h5 *ngIf="seatMaps[trip.scheduleId].config.IsDoubleDecker" class="text-center font-bold text-gray-700 mb-4 bg-gray-100 rounded-lg py-2 uppercase tracking-widest text-sm border border-saowari-border">
                       {{ deck.deckName }}
                     </h5>
                     
@@ -456,14 +515,14 @@
                                         [style.height]="seatMaps[trip.scheduleId].config.LayoutPreset === 'sleeper' ? '5rem' : '2.5rem'"
                                         [ngClass]="{
                                           'bg-saowari-primary text-white border-saowari-primary': isSelected(trip.scheduleId, seat.seatId),
-                                          'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300': !isSelected(trip.scheduleId, seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
-                                          'bg-gray-200 text-gray-400 cursor-not-allowed opacity-60 border-gray-300': seat.isBooked || seat.seatStatusName !== 'Available'
+                                          'bg-gray-100 text-gray-700 hover:bg-gray-200 border-saowari-border': !isSelected(trip.scheduleId, seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
+                                          'bg-gray-200 text-gray-400 cursor-not-allowed opacity-60 border-saowari-border': seat.isBooked || seat.seatStatusName !== 'Available'
                                         }"
                                         (click)="toggleSeat(trip.scheduleId, seat)"
                                         [disabled]="seat.isBooked || seat.seatStatusName !== 'Available'">
                                   <!-- Sleeper Berth Pillow -->
                                   <div *ngIf="seatMaps[trip.scheduleId].config.LayoutPreset === 'sleeper'" 
-                                       [ngClass]="isSelected(trip.scheduleId, seat.seatId) ? 'bg-white/20 border-white/20' : 'bg-gray-200/50 border-gray-300/30'"
+                                       [ngClass]="isSelected(trip.scheduleId, seat.seatId) ? 'bg-saowari-surface/20 border-white/20' : 'bg-gray-200/50 border-saowari-border/30'"
                                        class="w-10 h-3 rounded absolute top-1.5 left-2 border"></div>
                                   <span [class.mt-3]="seatMaps[trip.scheduleId].config.LayoutPreset === 'sleeper'" class="text-[10px] font-bold">{{ seat.seatNumber }}</span>
                                 </button>
@@ -471,7 +530,7 @@
                             </ng-container>
                           </div>
                           
-                          <div *ngIf="seatMaps[trip.scheduleId].config.AisleAfterColumn > 0" class="w-8 sm:w-12 h-10 border-x border-dashed border-gray-200 flex items-center justify-center text-[10px] text-gray-300 bg-gray-50/30">
+                          <div *ngIf="seatMaps[trip.scheduleId].config.AisleAfterColumn > 0" class="w-8 sm:w-12 h-10 border-x border-dashed border-saowari-border flex items-center justify-center text-[10px] text-gray-300 bg-saowari-surface-alt/30">
                             Aisle
                           </div>
 
@@ -484,14 +543,14 @@
                                         [style.height]="seatMaps[trip.scheduleId].config.LayoutPreset === 'sleeper' ? '5rem' : '2.5rem'"
                                         [ngClass]="{
                                           'bg-saowari-primary text-white border-saowari-primary': isSelected(trip.scheduleId, seat.seatId),
-                                          'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300': !isSelected(trip.scheduleId, seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
-                                          'bg-gray-200 text-gray-400 cursor-not-allowed opacity-60 border-gray-300': seat.isBooked || seat.seatStatusName !== 'Available'
+                                          'bg-gray-100 text-gray-700 hover:bg-gray-200 border-saowari-border': !isSelected(trip.scheduleId, seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
+                                          'bg-gray-200 text-gray-400 cursor-not-allowed opacity-60 border-saowari-border': seat.isBooked || seat.seatStatusName !== 'Available'
                                         }"
                                         (click)="toggleSeat(trip.scheduleId, seat)"
                                         [disabled]="seat.isBooked || seat.seatStatusName !== 'Available'">
                                   <!-- Sleeper Berth Pillow -->
                                   <div *ngIf="seatMaps[trip.scheduleId].config.LayoutPreset === 'sleeper'" 
-                                       [ngClass]="isSelected(trip.scheduleId, seat.seatId) ? 'bg-white/20 border-white/20' : 'bg-gray-200/50 border-gray-300/30'"
+                                       [ngClass]="isSelected(trip.scheduleId, seat.seatId) ? 'bg-saowari-surface/20 border-white/20' : 'bg-gray-200/50 border-saowari-border/30'"
                                        class="w-10 h-3 rounded absolute top-1.5 left-2 border"></div>
                                   <span [class.mt-3]="seatMaps[trip.scheduleId].config.LayoutPreset === 'sleeper'" class="text-[10px] font-bold">{{ seat.seatNumber }}</span>
                                 </button>
@@ -509,14 +568,14 @@
                                       [style.height]="seatMaps[trip.scheduleId].config.LayoutPreset === 'sleeper' ? '5rem' : '2.5rem'"
                                       [ngClass]="{
                                         'bg-saowari-primary text-white border-saowari-primary': isSelected(trip.scheduleId, seat.seatId),
-                                        'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300': !isSelected(trip.scheduleId, seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
-                                        'bg-gray-200 text-gray-400 cursor-not-allowed opacity-60 border-gray-300': seat.isBooked || seat.seatStatusName !== 'Available'
+                                        'bg-gray-100 text-gray-700 hover:bg-gray-200 border-saowari-border': !isSelected(trip.scheduleId, seat.seatId) && !seat.isBooked && seat.seatStatusName === 'Available',
+                                        'bg-gray-200 text-gray-400 cursor-not-allowed opacity-60 border-saowari-border': seat.isBooked || seat.seatStatusName !== 'Available'
                                       }"
                                       (click)="toggleSeat(trip.scheduleId, seat)"
                                       [disabled]="seat.isBooked || seat.seatStatusName !== 'Available'">
                                 <!-- Sleeper Berth Pillow -->
                                 <div *ngIf="seatMaps[trip.scheduleId].config.LayoutPreset === 'sleeper'" 
-                                     [ngClass]="isSelected(trip.scheduleId, seat.seatId) ? 'bg-white/20 border-white/20' : 'bg-gray-200/50 border-gray-300/30'"
+                                     [ngClass]="isSelected(trip.scheduleId, seat.seatId) ? 'bg-saowari-surface/20 border-white/20' : 'bg-gray-200/50 border-saowari-border/30'"
                                      class="w-10 h-3 rounded absolute top-1.5 left-2 border"></div>
                                 <span [class.mt-3]="seatMaps[trip.scheduleId].config.LayoutPreset === 'sleeper'" class="text-[10px] font-bold">{{ seat.seatNumber }}</span>
                               </button>
@@ -527,11 +586,12 @@
                       </div>
                     </div>
                   </div>
+                  </ng-template>
                 </div>
               </div>
 
               <!-- Column 2: Live Interactive Premium Google Map -->
-              <div class="w-full xl:col-span-4 bg-slate-900 rounded-xl border border-slate-800 shadow-xl overflow-hidden flex flex-col relative text-white">
+              <div class="w-full xl:col-span-4 bg-saowari-surface-alt rounded-xl border border-slate-800 shadow-xl overflow-hidden flex flex-col relative text-white">
                 <!-- Map Header Overlay -->
                 <div class="absolute top-3 left-3 right-3 z-10 bg-slate-950/80 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-800 flex items-center justify-between pointer-events-none">
                   <div class="flex items-center gap-2">
@@ -567,7 +627,7 @@
                   </div>
                   
                   <!-- Info Helper Alert inside Column 2 -->
-                  <div class="mt-4 bg-slate-900 border border-slate-800 rounded-lg p-2.5 flex items-start gap-2">
+                  <div class="mt-4 bg-saowari-surface-alt border border-slate-800 rounded-lg p-2.5 flex items-start gap-2">
                     <i class="fas fa-info-circle text-blue-400 mt-0.5"></i>
                     <p class="text-[10px] text-slate-400 leading-normal">
                       The route line indicates the journey path from {{ trip.fromLocation }} to {{ trip.toLocation }}. Markers showing scheduled departure times can be selected directly on the map.
@@ -578,43 +638,43 @@
 
               <!-- Column 3: Selection Summary & Map pre-selected boarding point -->
               <div class="w-full xl:col-span-3">
-                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm sticky top-24">
-                  <h4 class="font-bold text-lg text-gray-800 border-b border-gray-100 pb-3 mb-4">Selection Summary</h4>
+                <div class="bg-saowari-surface p-6 rounded-xl border border-saowari-border shadow-sm sticky top-24">
+                  <h4 class="font-bold text-lg text-saowari-text-primary border-b border-saowari-border pb-3 mb-4">Selection Summary</h4>
                   
                   <!-- Boarding Point pre-selection indicator badge -->
                   <div class="mb-4">
                     <div class="p-3.5 rounded-xl flex flex-col gap-1.5 transition-all border"
                          [ngClass]="{
-                           'bg-amber-50/70 border-amber-200': seatMaps[trip.scheduleId]?.selectedBoardingPoint,
-                           'bg-slate-50 border-slate-200': !seatMaps[trip.scheduleId]?.selectedBoardingPoint
+                           'bg-amber-50/70 border-amber-200': seatMaps[trip.scheduleId].selectedBoardingPoint,
+                           'bg-slate-50 border-slate-200': !seatMaps[trip.scheduleId].selectedBoardingPoint
                          }">
                       <span class="text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5"
-                            [ngClass]="seatMaps[trip.scheduleId]?.selectedBoardingPoint ? 'text-amber-800' : 'text-slate-500'">
-                        <i class="fas fa-map-marker-alt" [ngClass]="seatMaps[trip.scheduleId]?.selectedBoardingPoint ? 'text-amber-600 animate-pulse' : 'text-slate-400'"></i>
+                            [ngClass]="seatMaps[trip.scheduleId].selectedBoardingPoint ? 'text-amber-800' : 'text-slate-500'">
+                        <i class="fas fa-map-marker-alt" [ngClass]="seatMaps[trip.scheduleId].selectedBoardingPoint ? 'text-amber-600 animate-pulse' : 'text-slate-400'"></i>
                         Boarding Stop (Required)
                       </span>
                       <div class="flex items-center justify-between mt-0.5">
-                        <span class="font-bold text-sm" [ngClass]="seatMaps[trip.scheduleId]?.selectedBoardingPoint ? 'text-amber-950' : 'text-slate-500'">
-                          {{ seatMaps[trip.scheduleId]?.selectedBoardingPoint || 'Select from Route Map' }}
+                        <span class="font-bold text-sm" [ngClass]="seatMaps[trip.scheduleId].selectedBoardingPoint ? 'text-amber-950' : 'text-slate-500'">
+                          {{ seatMaps[trip.scheduleId].selectedBoardingPoint || 'Select from Route Map' }}
                         </span>
-                        <span *ngIf="seatMaps[trip.scheduleId]?.selectedBoardingPoint" class="bg-amber-500 text-[10px] font-bold text-white px-2 py-0.5 rounded shadow-sm">
+                        <span *ngIf="seatMaps[trip.scheduleId].selectedBoardingPoint" class="bg-amber-500 text-[10px] font-bold text-white px-2 py-0.5 rounded shadow-sm">
                           Map Pre-selected
                         </span>
                       </div>
-                      <p class="text-[10px] leading-tight mt-1" [ngClass]="seatMaps[trip.scheduleId]?.selectedBoardingPoint ? 'text-amber-700' : 'text-slate-400'">
-                        {{ seatMaps[trip.scheduleId]?.selectedBoardingPoint ? 'Your boarding point is pre-selected and saved to your booking state.' : 'Please click on any green boarding marker on the live map to select your stop.' }}
+                      <p class="text-[10px] leading-tight mt-1" [ngClass]="seatMaps[trip.scheduleId].selectedBoardingPoint ? 'text-amber-700' : 'text-slate-400'">
+                        {{ seatMaps[trip.scheduleId].selectedBoardingPoint ? 'Your boarding point is pre-selected and saved to your booking state.' : 'Please click on any green boarding marker on the live map to select your stop.' }}
                       </p>
                     </div>
                   </div>
 
-                  <div *ngIf="(seatMaps[trip.scheduleId]?.selected?.length || 0) === 0" class="text-center py-6 text-gray-400">
+                  <div *ngIf="(seatMaps[trip.scheduleId].selected.length || 0) === 0" class="text-center py-6 text-gray-400">
                     <i class="fas fa-couch text-3xl mb-2 opacity-50 block"></i>
                     <p class="text-sm">Click on available seats to select them.</p>
                   </div>
 
-                  <div *ngIf="(seatMaps[trip.scheduleId]?.selected?.length || 0) > 0" class="space-y-4">
-                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                      <span class="text-sm text-gray-600 font-medium">Selected Seats</span>
+                  <div *ngIf="(seatMaps[trip.scheduleId].selected.length || 0) > 0" class="space-y-4">
+                    <div class="flex justify-between items-center bg-saowari-surface-alt p-3 rounded-lg border border-saowari-border">
+                      <span class="text-sm text-saowari-text-secondary font-medium">Selected Seats</span>
                       <span class="font-bold text-saowari-primary">
                         <ng-container *ngFor="let s of seatMaps[trip.scheduleId].selected; let last = last">
                           {{ s.seatNumber }}{{ !last ? ', ' : '' }}
@@ -623,17 +683,17 @@
                     </div>
 
                     <div *ngFor="let s of seatMaps[trip.scheduleId].selected" class="flex justify-between items-center px-1 mb-1">
-                      <span class="text-sm text-gray-600">Seat {{ s.seatNumber || s.SeatNumber }} ({{ s.seatClassName || s.SeatClassName || 'Standard' }})</span>
-                      <span class="font-medium text-gray-800">৳{{ s.price ?? s.Price ?? trip.basePrice }}</span>
+                      <span class="text-sm text-saowari-text-secondary">Seat {{ s.seatNumber || s.SeatNumber }} ({{ s.seatClassName || s.SeatClassName || 'Standard' }})</span>
+                      <span class="font-medium text-saowari-text-primary">৳{{ s.price || s.Price || trip.basePrice }}</span>
                     </div>
 
-                    <div class="border-t border-gray-100 pt-3 flex justify-between items-center px-1">
-                      <span class="font-bold text-gray-800">Total Amount</span>
+                    <div class="border-t border-saowari-border pt-3 flex justify-between items-center px-1">
+                      <span class="font-bold text-saowari-text-primary">Total Amount</span>
                       <span class="font-bold text-xl text-saowari-primary">৳{{ getTotalPrice(trip) }}</span>
                     </div>
 
-                    <button class="btn btn-saowari w-full shadow-md mt-4" (click)="proceedToBook(trip)">
-                      Continue to Book <i class="fas fa-arrow-right ml-2"></i>
+                    <button class="btn btn-saowari w-full shadow-md mt-4" (click)="proceedToBook(trip)" [disabled]="searchParams.tripType === 'round-way'">
+                      {{ searchParams.tripType === 'round-way' ? 'Selection Saved. Proceed at bottom.' : 'Continue to Book' }} <i class="fas fa-arrow-right ml-2" *ngIf="searchParams.tripType !== 'round-way'"></i>
                     </button>
 
                     <!-- Temporary Lock Information -->
@@ -642,8 +702,8 @@
                         <i class="fas fa-info-circle text-lg"></i>
                       </div>
                       <div>
-                        <p class="text-xs font-bold text-gray-800 mb-1">Temporary Seat Hold</p>
-                        <p class="text-[10px] text-gray-600 leading-tight">
+                        <p class="text-xs font-bold text-saowari-text-primary mb-1">Temporary Seat Hold</p>
+                        <p class="text-[10px] text-saowari-text-secondary leading-tight">
                           Proceeding will temporarily lock these seats. You will have a limited time to complete your booking before the session expires and the seats are released to others.
                         </p>
                       </div>
@@ -655,8 +715,52 @@
           </div>
           
         </div>
-      </div>
+      </ng-template>
 
     </div>
+  </div>
+</div>
+
+<!-- Floating Action Bar for Round Trip -->
+<div *ngIf="searchParams.tripType === 'round-way' && (hasSelectedOutbound() || hasSelectedReturn())" 
+     class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 animate__animated animate__slideInUp">
+  <div class="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div class="flex gap-6 items-center">
+      <!-- Outbound Status -->
+      <div class="flex items-center gap-2">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white" 
+             [ngClass]="hasSelectedOutbound() ? 'bg-saowari-success' : 'bg-gray-300'">
+          <i class="fas fa-plane-departure"></i>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Outbound</p>
+          <p class="text-sm font-semibold text-saowari-text-primary">
+            {{ hasSelectedOutbound() ? seatMaps[getSelectedOutboundTrip()?.scheduleId || 0]?.selected?.length + ' Seats Selected' : 'Not Selected' }}
+          </p>
+        </div>
+      </div>
+      
+      <i class="fas fa-plus text-gray-300"></i>
+      
+      <!-- Return Status -->
+      <div class="flex items-center gap-2">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white" 
+             [ngClass]="hasSelectedReturn() ? 'bg-saowari-success' : 'bg-gray-300'">
+          <i class="fas fa-plane-arrival"></i>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Return</p>
+          <p class="text-sm font-semibold text-saowari-text-primary">
+            {{ hasSelectedReturn() ? seatMaps[getSelectedReturnTrip()?.scheduleId || 0]?.selected?.length + ' Seats Selected' : 'Not Selected' }}
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <button class="btn btn-saowari px-8 shadow-lg shadow-saowari-primary/30" 
+            [disabled]="!hasSelectedOutbound() || !hasSelectedReturn()"
+            (click)="proceedWithBoth()">
+      Proceed to Checkout <i class="fas fa-lock ml-2"></i>
+    </button>
   </div>
 </div>
