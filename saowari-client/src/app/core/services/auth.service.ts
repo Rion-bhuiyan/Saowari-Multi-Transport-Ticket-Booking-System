@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, interval, Subscription } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginDto, RegisterDto, UserModel } from '../models/auth.model';
@@ -11,9 +11,10 @@ import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class AuthService implements OnDestroy {
   private apiUrl = `${environment.apiUrl}/auth`;
   public currentUser$ = new BehaviorSubject<UserModel | null>(null);
+  private pingSubscription?: Subscription;
 
   constructor(
     private http: HttpClient, 
@@ -21,6 +22,15 @@ export class AuthService {
     private router: Router
   ) {
     this.currentUser$.next(this.tokenService.getUser());
+    this.setupPing();
+    
+    this.currentUser$.subscribe(user => {
+      if (user) {
+        this.setupPing();
+      } else {
+        this.clearPing();
+      }
+    });
   }
 
   get currentUserValue(): UserModel | null {
@@ -153,7 +163,7 @@ export class AuthService {
   }
 
   isCompanyManager(): boolean {
-    return this.hasRole('CompanyManager') || this.hasRole('Company Manager');
+    return this.hasRole('CompanyManager') || this.hasRole('Company Manager') || this.hasRole('Manager');
   }
 
   isSupervisor(): boolean {
@@ -166,5 +176,33 @@ export class AuthService {
 
   canAccessAdminPanel(): boolean {
     return this.isAdmin() || this.isAgent() || this.isCompanyManager() || this.isSupervisor() || this.isDriver();
+  }
+
+  private setupPing(): void {
+    if (this.pingSubscription && !this.pingSubscription.closed) return;
+
+    if (this.isLoggedIn()) {
+      // Ping every 1 minute
+      this.pingSubscription = interval(60000).subscribe(() => {
+        this.http.post(`${environment.apiUrl}/activity/ping`, {}).subscribe({
+          error: () => {} // Ignore errors silently
+        });
+      });
+      // Fire an initial ping immediately
+      this.http.post(`${environment.apiUrl}/activity/ping`, {}).subscribe({
+        error: () => {}
+      });
+    }
+  }
+
+  private clearPing(): void {
+    if (this.pingSubscription) {
+      this.pingSubscription.unsubscribe();
+      this.pingSubscription = undefined;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.clearPing();
   }
 }

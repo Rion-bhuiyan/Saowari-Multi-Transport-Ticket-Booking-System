@@ -82,7 +82,79 @@
         
         <!-- Tab: Overview / Timeline -->
         <div *ngIf="activeTab === 'overview'">
-          <h3 class="mb-4 text-lg font-bold text-slate-800">Activity Timeline</h3>
+          <!-- Analytics Section -->
+          <div class="analytics-cards-row">
+            <div class="analytic-card">
+              <div class="analytic-icon">
+                <i class="fi fi-rr-ticket"></i>
+              </div>
+              <div class="analytic-info">
+                <span class="analytic-label">Tickets Bought</span>
+                <span class="analytic-value">{{ totalTickets }}</span>
+              </div>
+            </div>
+            
+            <div class="analytic-card">
+              <div class="analytic-icon spent">
+                <i class="fi fi-rr-sack-dollar"></i>
+              </div>
+              <div class="analytic-info">
+                <span class="analytic-label">Total Spent</span>
+                <span class="analytic-value text-green-600">৳{{ totalSpent | number:'1.0-0' }}</span>
+              </div>
+            </div>
+
+            <div class="analytic-card">
+              <div class="analytic-icon duration">
+                <i class="fi fi-rr-time-fast"></i>
+              </div>
+              <div class="analytic-info">
+                <span class="analytic-label">Avg Duration</span>
+                <span class="analytic-value">{{ avgDurationMins }}m</span>
+              </div>
+            </div>
+
+            <div class="analytic-card">
+              <div class="analytic-icon visits">
+                <i class="fi fi-rr-eye"></i>
+              </div>
+              <div class="analytic-info">
+                <span class="analytic-label">Site Visits</span>
+                <span class="analytic-value">{{ totalVisits }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chart Section -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" *ngIf="timeline.length > 0">
+            <!-- Monthly Spending Line Chart -->
+            <div class="chart-container-wrapper">
+              <h3 class="section-title">Spending Over Time (Last 6 Months)</h3>
+              <div class="chart-box">
+                <canvas baseChart
+                  [data]="lineChartData"
+                  [options]="lineChartOptions"
+                  [type]="'line'"
+                  [legend]="lineChartLegend">
+                </canvas>
+              </div>
+            </div>
+
+            <!-- Daily Logins Bar Chart -->
+            <div class="chart-container-wrapper">
+              <h3 class="section-title">Logins (Last 14 Days)</h3>
+              <div class="chart-box">
+                <canvas baseChart
+                  [data]="dailyChartData"
+                  [options]="dailyChartOptions"
+                  [type]="'bar'"
+                  [legend]="lineChartLegend">
+                </canvas>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="section-title mt-8">Activity Timeline</h3>
           
           <div *ngIf="timeline.length === 0" class="empty-state">
             <i class="fi fi-rr-time-past"></i>

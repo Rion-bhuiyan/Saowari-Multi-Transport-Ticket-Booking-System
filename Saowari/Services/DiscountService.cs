@@ -17,17 +17,38 @@ namespace Saowari.Services
         private readonly IRepository<Discount> _repository;
         private readonly IMapper _mapper;
         private readonly SaowariDbContext _context;
+        private readonly Microsoft.AspNetCore.Http.IHttpContextAccessor _httpContextAccessor;
 
-        public DiscountService(IRepository<Discount> repository, IMapper mapper, SaowariDbContext context)
+        public DiscountService(IRepository<Discount> repository, IMapper mapper, SaowariDbContext context, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor)
         {
             _repository = repository;
             _mapper = mapper;
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ApiResponse<IEnumerable<DiscountResponseDto>>> GetAllAsync()
         {
-            var entities = await _repository.GetAllAsync();
+            var user = _httpContextAccessor.HttpContext?.User;
+            var userRole = user?.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            var companyIdStr = user?.FindFirst("CompanyId")?.Value;
+
+            var query = _context.Discounts
+                .Include(d => d.DiscountType)
+                .Include(d => d.Company)
+                .Include(d => d.Route)
+                    .ThenInclude(r => r.FromLocation)
+                .Include(d => d.Route)
+                    .ThenInclude(r => r.ToLocation)
+                .Include(d => d.VehicleType)
+                .AsQueryable();
+
+            if (userRole == "CompanyManager" && int.TryParse(companyIdStr, out int companyId))
+            {
+                query = query.Where(d => d.CompanyId == companyId);
+            }
+
+            var entities = await query.ToListAsync();
             var dtos = _mapper.Map<IEnumerable<DiscountResponseDto>>(entities);
             return ApiResponse<IEnumerable<DiscountResponseDto>>.Ok(dtos);
         }

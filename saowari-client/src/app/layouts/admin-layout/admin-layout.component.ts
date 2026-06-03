@@ -70,9 +70,9 @@ import { SettingsService } from '../../core/services/api/settings.service';
       </aside>
 
       <!-- Main Content -->
-      <div class="flex-1 flex flex-col relative overflow-hidden">
+      <div class="flex-1 flex flex-col relative">
         <!-- Top Header -->
-        <header class="h-16 bg-saowari-surface border-b border-saowari-border text-saowari-text-primary shadow-sm flex items-center justify-between px-6 z-10 transition-colors duration-200">
+        <header class="h-16 bg-saowari-surface border-b border-saowari-border text-saowari-text-primary shadow-sm flex items-center justify-between px-6 z-30 relative transition-colors duration-200">
           <div class="flex items-center gap-4">
             <button (click)="toggleSidebar()" class="text-saowari-text-secondary hover:text-saowari-primary transition-colors">
               <i class="fas fa-bars text-xl"></i>
@@ -185,7 +185,7 @@ import { SettingsService } from '../../core/services/api/settings.service';
         </header>
 
         <!-- Main Scrollable Area -->
-        <main class="flex-1 bg-saowari-surface-alt text-saowari-text-primary overflow-y-auto p-6 custom-scrollbar transition-colors duration-200">
+        <main class="flex-1 bg-saowari-surface-alt text-saowari-text-primary overflow-y-auto overflow-x-hidden p-6 custom-scrollbar transition-colors duration-200">
           <router-outlet></router-outlet>
         </main>
       </div>
@@ -420,7 +420,8 @@ export class AdminLayoutComponent implements OnInit {
         {
           title: 'Analytics',
           items: [
-            { label: 'Reports', path: '/admin/reports', icon: 'fas fa-chart-line' }
+            { label: 'Reports', path: '/admin/reports', icon: 'fas fa-chart-line' },
+            { label: 'Leaderboard', path: '/admin/leaderboard', icon: 'fas fa-trophy' }
           ]
         },
         {
@@ -456,7 +457,14 @@ export class AdminLayoutComponent implements OnInit {
         {
           title: 'Analytics',
           items: [
-            { label: 'Reports', path: '/admin/reports', icon: 'fas fa-chart-line' }
+            { label: 'Reports', path: '/admin/reports', icon: 'fas fa-chart-line' },
+            { label: 'Leaderboard', path: '/admin/leaderboard', icon: 'fas fa-trophy' }
+          ]
+        },
+        {
+          title: 'System',
+          items: [
+            { label: 'Company Profile', path: '/admin/company-profile', icon: 'fas fa-building' }
           ]
         }
       ];

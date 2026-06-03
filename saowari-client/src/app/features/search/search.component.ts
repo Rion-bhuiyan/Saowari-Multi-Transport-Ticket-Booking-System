@@ -9,13 +9,16 @@ import { TripSearchResult, SeatMapItem } from '../../core/models/business.model'
 import { LocationModel } from '../../core/models/master.model';
 import { BookingStateService } from '../../core/services/booking-state.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatInputModule } from '@angular/material/input';
 
 declare var google: any;
 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, MatDatepickerModule, MatNativeDateModule, MatInputModule],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.css']
 })
@@ -52,6 +55,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   fromSearch = '';
   toSearch = '';
   sameLocationError = false;
+  today = new Date().toISOString().split('T')[0];
 
   // Inline Expansion State
   expandedTripId: number | null = null;
@@ -111,6 +115,24 @@ export class SearchComponent implements OnInit, OnDestroy {
           }));
       }
     });
+  }
+
+  getOutboundSelectedCount(): number {
+    if (!this.hasSelectedOutbound()) return 0;
+    const scheduleId = this.getSelectedOutboundTrip()?.scheduleId;
+    if (scheduleId && this.seatMaps[scheduleId] && this.seatMaps[scheduleId].selected) {
+      return this.seatMaps[scheduleId].selected.length;
+    }
+    return 0;
+  }
+
+  getReturnSelectedCount(): number {
+    if (!this.hasSelectedReturn()) return 0;
+    const scheduleId = this.getSelectedReturnTrip()?.scheduleId;
+    if (scheduleId && this.seatMaps[scheduleId] && this.seatMaps[scheduleId].selected) {
+      return this.seatMaps[scheduleId].selected.length;
+    }
+    return 0;
   }
 
   // --- Custom Dropdown Logic ---
@@ -322,6 +344,17 @@ export class SearchComponent implements OnInit, OnDestroy {
     const temp = this.searchParams.fromLocationId;
     this.searchParams.fromLocationId = this.searchParams.toLocationId;
     this.searchParams.toLocationId = temp;
+  }
+
+  onDateChange(field: 'departureDate' | 'returnDate', date: Date) {
+    if (date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      this.searchParams[field] = `${year}-${month}-${day}`;
+    } else {
+      this.searchParams[field] = '';
+    }
   }
 
   extractFilters() {

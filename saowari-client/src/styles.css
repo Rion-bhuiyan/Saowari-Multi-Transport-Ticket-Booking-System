@@ -1,3 +1,4 @@
+@import '@angular/cdk/overlay-prebuilt.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,12 +6,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
 :root, [data-theme="light"] {
-  --saowari-primary: #004f98;
+  --saowari-primary-rgb: 0 79 152;
+  --saowari-primary: rgb(var(--saowari-primary-rgb));
   --saowari-secondary: #3372ad;
   --saowari-accent: #1E87E4;
   --saowari-primary-dark: #003870;
   --saowari-primary-light: #e8f0fb;
-  --saowari-surface: #ffffff;
+  --saowari-surface-rgb: 255 255 255;
+  --saowari-surface: rgb(var(--saowari-surface-rgb));
   --saowari-surface-alt: #f4f8ff;
   --saowari-text-primary: #0d1b2a;
   --saowari-text-secondary: #4a6080;
@@ -21,12 +24,14 @@
 }
 
 [data-theme="dark"] {
-  --saowari-primary: #3b82f6;
+  --saowari-primary-rgb: 59 130 246;
+  --saowari-primary: rgb(var(--saowari-primary-rgb));
   --saowari-secondary: #60a5fa;
   --saowari-accent: #93c5fd;
   --saowari-primary-dark: #2563eb;
   --saowari-primary-light: #1e3a8a;
-  --saowari-surface: #0f172a;
+  --saowari-surface-rgb: 15 23 42;
+  --saowari-surface: rgb(var(--saowari-surface-rgb));
   --saowari-surface-alt: #020617;
   --saowari-text-primary: #f8fafc;
   --saowari-text-secondary: #94a3b8;
@@ -37,12 +42,14 @@
 }
 
 [data-theme="gray"] {
-  --saowari-primary: #475569;
+  --saowari-primary-rgb: 71 85 105;
+  --saowari-primary: rgb(var(--saowari-primary-rgb));
   --saowari-secondary: #64748b;
   --saowari-accent: #94a3b8;
   --saowari-primary-dark: #334155;
   --saowari-primary-light: #cbd5e1;
-  --saowari-surface: #f1f5f9;
+  --saowari-surface-rgb: 241 245 249;
+  --saowari-surface: rgb(var(--saowari-surface-rgb));
   --saowari-surface-alt: #e2e8f0;
   --saowari-text-primary: #0f172a;
   --saowari-text-secondary: #334155;
@@ -53,12 +60,14 @@
 }
 
 [data-theme="blue"] {
-  --saowari-primary: #0ea5e9;
+  --saowari-primary-rgb: 14 165 233;
+  --saowari-primary: rgb(var(--saowari-primary-rgb));
   --saowari-secondary: #38bdf8;
   --saowari-accent: #7dd3fc;
   --saowari-primary-dark: #0284c7;
   --saowari-primary-light: #e0f2fe;
-  --saowari-surface: #f0f9ff;
+  --saowari-surface-rgb: 240 249 255;
+  --saowari-surface: rgb(var(--saowari-surface-rgb));
   --saowari-surface-alt: #e0f2fe;
   --saowari-text-primary: #082f49;
   --saowari-text-secondary: #0c4a6e;
@@ -69,12 +78,14 @@
 }
 
 [data-theme="emerald"] {
-  --saowari-primary: #10b981;
+  --saowari-primary-rgb: 16 185 129;
+  --saowari-primary: rgb(var(--saowari-primary-rgb));
   --saowari-secondary: #34d399;
   --saowari-accent: #6ee7b7;
   --saowari-primary-dark: #059669;
   --saowari-primary-light: #d1fae5;
-  --saowari-surface: #f0fdf4;
+  --saowari-surface-rgb: 240 253 244;
+  --saowari-surface: rgb(var(--saowari-surface-rgb));
   --saowari-surface-alt: #dcfce7;
   --saowari-text-primary: #064e3b;
   --saowari-text-secondary: #065f46;
@@ -85,12 +96,14 @@
 }
 
 [data-theme="sunset"] {
-  --saowari-primary: #f97316;
+  --saowari-primary-rgb: 249 115 22;
+  --saowari-primary: rgb(var(--saowari-primary-rgb));
   --saowari-secondary: #fb923c;
   --saowari-accent: #fdba74;
   --saowari-primary-dark: #ea580c;
   --saowari-primary-light: #ffedd5;
-  --saowari-surface: #fff7ed;
+  --saowari-surface-rgb: 255 247 237;
+  --saowari-surface: rgb(var(--saowari-surface-rgb));
   --saowari-surface-alt: #ffedd5;
   --saowari-text-primary: #431407;
   --saowari-text-secondary: #7c2d12;
@@ -111,6 +124,22 @@ html, body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Poppins', sans-serif;
+}
+
+/* Global Transport Minimal Pattern */
+.global-transport-pattern-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--primary);
+  opacity: 0.04; /* Lowered opacity for a very subtle look */
+  -webkit-mask-image: url("assets/images/patterns/transport-pattern.svg");
+  mask-image: url("assets/images/patterns/transport-pattern.svg");
+  -webkit-mask-size: 800px 800px;
+  mask-size: 800px 800px;
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
 }
 
 /* Custom Scrollbar */
@@ -205,3 +234,225 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(0);
   transition: all 300ms ease-out;
 }
+
+/* ===== Angular Material Datepicker — Tailwind Fix + Premium Theme ===== */
+
+/* 
+ * Tailwind's Preflight (@tailwind base) aggressively resets borders, 
+ * padding, button styles, and table layouts that Angular Material 
+ * depends on. These overrides restore Material's expected rendering 
+ * and apply Saowari brand colors on top.
+ */
+
+/* ---- CDK Overlay (the popup backdrop) ---- */
+.cdk-overlay-container {
+  z-index: 9999 !important;
+}
+
+.cdk-overlay-pane {
+  pointer-events: auto !important;
+}
+
+/* ---- Calendar popup container ---- */
+.mat-datepicker-content {
+  background: var(--saowari-surface) !important;
+  border: 1px solid var(--saowari-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 80px -12px rgba(0, 0, 0, 0.3), 
+              0 0 0 1px rgba(var(--saowari-primary-rgb), 0.08) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.mat-datepicker-content .mat-calendar {
+  width: 296px !important;
+  height: auto !important;
+}
+
+/* ---- Calendar Header (month/year bar) ---- */
+.mat-datepicker-content .mat-calendar-header {
+  background: var(--saowari-primary) !important;
+  padding: 12px 8px 8px 8px !important;
+}
+
+.mat-datepicker-content .mat-calendar-controls {
+  display: flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+}
+
+/* Month/Year button text */
+.mat-datepicker-content .mat-calendar-period-button {
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 4px 8px !important;
+  border-radius: 8px !important;
+  line-height: 1.4 !important;
+}
+.mat-datepicker-content .mat-calendar-period-button:hover {
+  background: rgba(255,255,255,0.15) !important;
+}
+
+/* Arrow icon inside period button */
+.mat-datepicker-content .mat-calendar-arrow {
+  display: inline-block !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-left: 5px solid transparent !important;
+  border-right: 5px solid transparent !important;
+  border-top: 5px solid #fff !important;
+  margin: 0 0 0 6px !important;
+  vertical-align: middle !important;
+}
+
+/* Prev/Next navigation arrows */
+.mat-datepicker-content .mat-calendar-previous-button,
+.mat-datepicker-content .mat-calendar-next-button {
+  color: #fff !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  position: relative !important;
+  line-height: 1 !important;
+}
+
+.mat-datepicker-content .mat-calendar-previous-button:hover,
+.mat-datepicker-content .mat-calendar-next-button:hover {
+  background: rgba(255,255,255,0.15) !important;
+}
+
+/* Fix the arrow icons inside nav buttons (Tailwind strips ::before/::after) */
+.mat-datepicker-content .mat-calendar-previous-button::after,
+.mat-datepicker-content .mat-calendar-next-button::after {
+  border-color: #fff !important;
+}
+
+/* ---- Calendar body / table ---- */
+.mat-datepicker-content .mat-calendar-content {
+  padding: 0 8px 8px 8px !important;
+}
+
+.mat-datepicker-content .mat-calendar-table {
+  border-spacing: 0 !important;
+  border-collapse: separate !important;
+  width: 100% !important;
+}
+
+/* Weekday header labels */
+.mat-datepicker-content .mat-calendar-table-header th {
+  color: var(--saowari-text-secondary) !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 8px 0 4px 0 !important;
+  text-align: center !important;
+}
+
+/* Hide the separator row between header and body */
+.mat-datepicker-content .mat-calendar-table-header-divider {
+  display: none !important;
+}
+
+/* ---- Day cells ---- */
+.mat-datepicker-content .mat-calendar-body-cell {
+  cursor: pointer !important;
+  position: relative !important;
+}
+
+.mat-datepicker-content .mat-calendar-body-cell-content {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  color: var(--saowari-text-primary) !important;
+  border: none !important;
+  transition: all 0.15s ease !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* Hover */
+.mat-datepicker-content .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+  background: var(--saowari-primary-light) !important;
+  color: var(--saowari-primary) !important;
+}
+
+/* Selected day */
+.mat-datepicker-content .mat-calendar-body-selected {
+  background-color: var(--saowari-primary) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px rgba(var(--saowari-primary-rgb), 0.45) !important;
+}
+
+/* Today indicator */
+.mat-datepicker-content .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+  border: 2px solid var(--saowari-primary) !important;
+  color: var(--saowari-primary) !important;
+  font-weight: 700 !important;
+}
+
+/* Disabled dates */
+.mat-datepicker-content .mat-calendar-body-disabled > .mat-calendar-body-cell-content {
+  color: var(--saowari-text-secondary) !important;
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
+/* Calendar body label (month name in multi-year view) */
+.mat-datepicker-content .mat-calendar-body-label {
+  color: var(--saowari-text-secondary) !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  opacity: 0.7 !important;
+}
+
+/* ---- Year & Multi-Year views ---- */
+.mat-datepicker-content .mat-calendar-body-cell-content.mat-calendar-body-selected {
+  background-color: var(--saowari-primary) !important;
+  color: #fff !important;
+}
+
+/* ---- Entrance animation ---- */
+.cdk-overlay-pane .mat-datepicker-content {
+  animation: datepickerSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes datepickerSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 40px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+.animate-fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+@keyframes fadeInLeft { from { opacity: 0; transform: translate3d(-40px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+.animate-fade-in-left { animation: fadeInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+@keyframes fadeInRight { from { opacity: 0; transform: translate3d(40px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+.animate-fade-in-right { animation: fadeInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+.animate-zoom-in { animation: zoomIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+

@@ -11,6 +11,8 @@ import { LoadingInterceptor } from './core/interceptors/loading.interceptor';
 import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loading-spinner.component';
 import { ToastNotificationComponent } from './shared/components/toast-notification/toast-notification.component';
 
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+
 @NgModule({
   declarations: [
     AppComponent
@@ -26,7 +28,8 @@ import { ToastNotificationComponent } from './shared/components/toast-notificati
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
+    provideCharts(withDefaultRegisterables())
   ],
   bootstrap: [AppComponent]
 })

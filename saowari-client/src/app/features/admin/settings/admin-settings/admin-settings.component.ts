@@ -24,6 +24,10 @@ export class AdminSettingsComponent implements OnInit {
   isBgLoading = false;
   ticketBgOpacity = 0.1;
 
+  // ── Global Site Appearance ────────────────────────────
+  enableBackgroundPattern = false;
+  isAppearanceLoading = false;
+
   constructor(
     private settingsService: SettingsService,
     private notification: NotificationService
@@ -39,10 +43,38 @@ export class AdminSettingsComponent implements OnInit {
     this.settingsService.getSystemSettings().subscribe({
       next: (res: any) => {
         if (res.success && res.data) {
-          if (res.data.TicketBackgroundOpacity) {
-            this.ticketBgOpacity = parseFloat(res.data.TicketBackgroundOpacity);
+          const opacityStr = res.data.TicketBackgroundOpacity || res.data.ticketBackgroundOpacity;
+          if (opacityStr) {
+            this.ticketBgOpacity = parseFloat(opacityStr);
+          }
+          
+          const patternStr = res.data.EnableBackgroundPattern || res.data.enableBackgroundPattern;
+          if (patternStr) {
+            this.enableBackgroundPattern = patternStr.toLowerCase() === 'true';
           }
         }
+      }
+    });
+  }
+
+  toggleBackgroundPattern() {
+    this.isAppearanceLoading = true;
+    const val = this.enableBackgroundPattern ? 'true' : 'false';
+    this.settingsService.updateSystemSettings({ EnableBackgroundPattern: val }).subscribe({
+      next: (res: any) => {
+        this.isAppearanceLoading = false;
+        if (res.success) {
+          this.notification.success('Background pattern setting updated');
+        } else {
+          this.notification.error('Failed to update background setting');
+          // revert if failed
+          this.enableBackgroundPattern = !this.enableBackgroundPattern;
+        }
+      },
+      error: () => {
+        this.isAppearanceLoading = false;
+        this.notification.error('An error occurred');
+        this.enableBackgroundPattern = !this.enableBackgroundPattern;
       }
     });
   }

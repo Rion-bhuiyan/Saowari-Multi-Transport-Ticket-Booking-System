@@ -37,6 +37,10 @@ export class SettingsService {
     return this.http.get<ApiResponse<Record<string, string>>>(this.adminApiUrl);
   }
 
+  getPublicSystemSettings(): Observable<ApiResponse<Record<string, string>>> {
+    return this.http.get<ApiResponse<Record<string, string>>>(`${this.apiUrl}/system`);
+  }
+
   updateSystemSettings(settings: Record<string, string>): Observable<ApiResponse<boolean>> {
     return this.http.post<ApiResponse<boolean>>(this.adminApiUrl, settings);
   }

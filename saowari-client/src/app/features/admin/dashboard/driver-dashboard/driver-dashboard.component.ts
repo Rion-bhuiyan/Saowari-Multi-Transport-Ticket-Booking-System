@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ScheduleService } from '../../../../core/services/api/schedule.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { BookingService } from '../../../../core/services/api/booking.service';
 
 @Component({
   selector: 'app-driver-dashboard',
@@ -17,10 +18,12 @@ export class DriverDashboardComponent implements OnInit {
   ongoingSchedules: any[] = [];
   nextTrip: any = null;
   currentUser: any = null;
+  totalPassengers = 0;
   
   constructor(
     private scheduleService: ScheduleService,
-    private authService: AuthService
+    private authService: AuthService,
+    private bookingService: BookingService
   ) {}
 
   ngOnInit(): void {
@@ -41,6 +44,28 @@ export class DriverDashboardComponent implements OnInit {
           } else if (this.upcomingSchedules.length > 0) {
             this.nextTrip = this.upcomingSchedules[0];
           }
+
+          if (this.nextTrip) {
+            this.loadTripBookings(this.nextTrip.scheduleID || this.nextTrip.scheduleId);
+          } else {
+            this.isLoading = false;
+          }
+        } else {
+          this.isLoading = false;
+        }
+      },
+      error: () => {
+        this.isLoading = false;
+      }
+    });
+  }
+
+  loadTripBookings(scheduleId: number) {
+    this.bookingService.getBySchedule(scheduleId).subscribe({
+      next: (res: any) => {
+        if (res.success && res.data) {
+          const bookings = res.data;
+          this.totalPassengers = bookings.reduce((sum: number, b: any) => sum + (b.bookingSeats?.length || 1), 0);
         }
         this.isLoading = false;
       },
@@ -52,9 +77,9 @@ export class DriverDashboardComponent implements OnInit {
 
   getStatusBadge(name: string): string {
     const s = (name || '').toLowerCase();
-    if (s.includes('scheduled') || s.includes('active')) return 'bg-blue-100 text-blue-800 border-blue-200';
-    if (s.includes('cancel')) return 'bg-red-100 text-red-800 border-red-200';
-    if (s.includes('complet')) return 'bg-green-100 text-green-800 border-green-200';
-    return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    if (s.includes('scheduled') || s.includes('active')) return 'bg-blue-500/20 text-blue-300 border border-blue-500/50';
+    if (s.includes('cancel')) return 'bg-red-500/20 text-red-300 border border-red-500/50';
+    if (s.includes('complet')) return 'bg-green-500/20 text-green-300 border border-green-500/50';
+    return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/50';
   }
 }

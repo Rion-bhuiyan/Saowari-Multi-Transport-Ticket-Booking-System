@@ -5,6 +5,7 @@ import { tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import * as signalR from '@microsoft/signalr';
 import { AuthService } from '../auth.service';
+import { TokenService } from '../token.service';
 
 export interface NotificationItem {
   id: number;
@@ -44,7 +45,7 @@ export class NotificationService {
 
   private hubConnection: signalR.HubConnection | null = null;
 
-  constructor(private http: HttpClient, private authService: AuthService) {
+  constructor(private http: HttpClient, private authService: AuthService, private tokenService: TokenService) {
     this.startConnection();
   }
 
@@ -53,11 +54,9 @@ export class NotificationService {
       return;
     }
 
-    const token = localStorage.getItem('token');
-    
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${environment.apiUrl.replace('/api', '')}/notificationHub`, {
-        accessTokenFactory: () => token || ''
+        accessTokenFactory: () => this.tokenService.getAccessToken() || ''
       })
       .withAutomaticReconnect()
       .build();

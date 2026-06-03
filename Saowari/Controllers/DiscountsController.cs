@@ -37,7 +37,7 @@ namespace Saowari.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<DiscountResponseDto>>> Create([FromBody] DiscountCreateDto dto)
         {
             var result = await _service.CreateAsync(dto);
@@ -46,7 +46,7 @@ namespace Saowari.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<DiscountResponseDto>>> Update(int id, [FromBody] DiscountUpdateDto dto)
         {
             var result = await _service.UpdateAsync(id, dto);
@@ -55,7 +55,7 @@ namespace Saowari.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<bool>>> Delete(int id)
         {
             var result = await _service.DeleteAsync(id);

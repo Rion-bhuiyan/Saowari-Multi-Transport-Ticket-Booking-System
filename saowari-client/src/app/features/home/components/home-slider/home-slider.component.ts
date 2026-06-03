@@ -106,4 +106,12 @@ export class HomeSliderComponent implements OnInit, OnDestroy {
   private resetAutoplay() {
     this.startAutoplay();
   }
+
+  onMouseEnter() {
+    this.stopAutoplay();
+  }
+
+  onMouseLeave() {
+    this.startAutoplay();
+  }
 }

@@ -150,7 +150,7 @@
               </div>
               <div *ngIf="ticketBgPreview" class="flex flex-col items-center">
                 <div class="relative w-40 h-24 rounded-xl overflow-hidden border border-saowari-border shadow-sm bg-white">
-                  <img [src]="ticketBgPreview" alt="Ticket BG Preview" class="object-cover w-full h-full" [style.opacity]="model.ticketBackgroundOpacity || 0.1" />
+                  <img [src]="ticketBgPreview" alt="Ticket BG Preview" class="object-cover w-full h-full" [style.opacity]="model.ticketBackgroundOpacity != null ? model.ticketBackgroundOpacity : 0.1" />
                   <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <i class="fas fa-pen text-white"></i>
                   </div>

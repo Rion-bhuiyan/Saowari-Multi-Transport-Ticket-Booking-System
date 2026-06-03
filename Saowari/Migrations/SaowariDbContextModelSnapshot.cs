@@ -77,6 +77,11 @@ namespace Saowari.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("SizeTemplate")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("Title")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -843,6 +848,69 @@ namespace Saowari.Migrations
                     b.ToTable("Schedule");
                 });
 
+            modelBuilder.Entity("Saowari.Models.Entities.ScheduleApplication", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ArrivalDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedScheduleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DepartureDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ManagerRemarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("RequesterId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("RespondedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RouteId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("VehicleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("CreatedScheduleId");
+
+                    b.HasIndex("RequesterId");
+
+                    b.HasIndex("RouteId");
+
+                    b.HasIndex("VehicleId");
+
+                    b.ToTable("ScheduleApplication");
+                });
+
             modelBuilder.Entity("Saowari.Models.Entities.ScheduleChatMessage", b =>
                 {
                     b.Property<int>("Id")
@@ -885,6 +953,93 @@ namespace Saowari.Migrations
                     b.HasIndex("SenderId");
 
                     b.ToTable("ScheduleChatMessage");
+                });
+
+            modelBuilder.Entity("Saowari.Models.Entities.ScheduleChatRemovedUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("RemovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("RemovedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ScheduleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RemovedByUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("ScheduleId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("ScheduleChatRemovedUser");
+                });
+
+            modelBuilder.Entity("Saowari.Models.Entities.ScheduleExchangeRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ManagerRemarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ManagerRespondedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("PeerRespondedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("RequesterId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequesterScheduleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("TargetScheduleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TargetUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequesterId");
+
+                    b.HasIndex("RequesterScheduleId");
+
+                    b.HasIndex("TargetScheduleId");
+
+                    b.HasIndex("TargetUserId");
+
+                    b.ToTable("ScheduleExchangeRequest");
                 });
 
             modelBuilder.Entity("Saowari.Models.Entities.ScheduleSeatClassPricing", b =>
@@ -1375,6 +1530,9 @@ namespace Saowari.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("LastActiveTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("LoginTime")
                         .HasColumnType("datetime2");
 
@@ -1790,6 +1948,48 @@ namespace Saowari.Migrations
                     b.Navigation("Vehicle");
                 });
 
+            modelBuilder.Entity("Saowari.Models.Entities.ScheduleApplication", b =>
+                {
+                    b.HasOne("Saowari.Models.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Saowari.Models.Entities.Schedule", "CreatedSchedule")
+                        .WithMany()
+                        .HasForeignKey("CreatedScheduleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Saowari.Models.Entities.User", "Requester")
+                        .WithMany()
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Saowari.Models.Entities.Route", "Route")
+                        .WithMany()
+                        .HasForeignKey("RouteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Saowari.Models.Entities.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("CreatedSchedule");
+
+                    b.Navigation("Requester");
+
+                    b.Navigation("Route");
+
+                    b.Navigation("Vehicle");
+                });
+
             modelBuilder.Entity("Saowari.Models.Entities.ScheduleChatMessage", b =>
                 {
                     b.HasOne("Saowari.Models.Entities.Schedule", "Schedule")
@@ -1807,6 +2007,67 @@ namespace Saowari.Migrations
                     b.Navigation("Schedule");
 
                     b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("Saowari.Models.Entities.ScheduleChatRemovedUser", b =>
+                {
+                    b.HasOne("Saowari.Models.Entities.User", "RemovedByUser")
+                        .WithMany()
+                        .HasForeignKey("RemovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Saowari.Models.Entities.Schedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Saowari.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("RemovedByUser");
+
+                    b.Navigation("Schedule");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Saowari.Models.Entities.ScheduleExchangeRequest", b =>
+                {
+                    b.HasOne("Saowari.Models.Entities.User", "Requester")
+                        .WithMany()
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Saowari.Models.Entities.Schedule", "RequesterSchedule")
+                        .WithMany()
+                        .HasForeignKey("RequesterScheduleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Saowari.Models.Entities.Schedule", "TargetSchedule")
+                        .WithMany()
+                        .HasForeignKey("TargetScheduleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Saowari.Models.Entities.User", "TargetUser")
+                        .WithMany()
+                        .HasForeignKey("TargetUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Requester");
+
+                    b.Navigation("RequesterSchedule");
+
+                    b.Navigation("TargetSchedule");
+
+                    b.Navigation("TargetUser");
                 });
 
             modelBuilder.Entity("Saowari.Models.Entities.ScheduleSeatClassPricing", b =>

@@ -42,6 +42,7 @@ namespace Saowari.Controllers
                     ImageUrl = b.ImageUrl,
                     LinkUrl = b.LinkUrl,
                     Position = b.Position,
+                    SizeTemplate = b.SizeTemplate,
                     IsActive = b.IsActive,
                     CreatedAt = b.CreatedAt
                 })
@@ -63,6 +64,7 @@ namespace Saowari.Controllers
                     ImageUrl = b.ImageUrl,
                     LinkUrl = b.LinkUrl,
                     Position = b.Position,
+                    SizeTemplate = b.SizeTemplate,
                     IsActive = b.IsActive,
                     CreatedAt = b.CreatedAt
                 })
@@ -88,6 +90,7 @@ namespace Saowari.Controllers
                 ImageUrl = imageUrl,
                 LinkUrl = dto.LinkUrl,
                 Position = dto.Position,
+                SizeTemplate = dto.SizeTemplate,
                 IsActive = dto.IsActive,
                 CreatedAt = DateTime.UtcNow
             };
@@ -102,6 +105,7 @@ namespace Saowari.Controllers
                 ImageUrl = banner.ImageUrl,
                 LinkUrl = banner.LinkUrl,
                 Position = banner.Position,
+                SizeTemplate = banner.SizeTemplate,
                 IsActive = banner.IsActive,
                 CreatedAt = banner.CreatedAt
             };
@@ -125,6 +129,7 @@ namespace Saowari.Controllers
             banner.Title = dto.Title;
             banner.LinkUrl = dto.LinkUrl;
             banner.Position = dto.Position;
+            banner.SizeTemplate = dto.SizeTemplate;
             banner.IsActive = dto.IsActive;
 
             await _context.SaveChangesAsync();
@@ -136,6 +141,7 @@ namespace Saowari.Controllers
                 ImageUrl = banner.ImageUrl,
                 LinkUrl = banner.LinkUrl,
                 Position = banner.Position,
+                SizeTemplate = banner.SizeTemplate,
                 IsActive = banner.IsActive,
                 CreatedAt = banner.CreatedAt
             };

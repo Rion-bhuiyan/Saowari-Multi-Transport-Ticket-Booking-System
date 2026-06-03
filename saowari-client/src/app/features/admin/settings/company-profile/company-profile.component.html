@@ -1,0 +1,194 @@
+<div class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in">
+  <div class="flex items-center gap-4 mb-8">
+    <div class="w-12 h-12 rounded-xl bg-gradient-hero flex items-center justify-center text-white shadow-lg shadow-saowari-primary/30">
+      <i class="fas fa-building text-2xl"></i>
+    </div>
+    <div>
+      <h1 class="text-3xl font-heading font-extrabold text-saowari-text-primary tracking-tight">Company Profile</h1>
+      <p class="text-saowari-text-secondary mt-1 font-medium">Manage your company branding and details.</p>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20">
+    <span class="loading loading-spinner loading-lg text-saowari-primary mb-4"></span>
+    <p class="text-saowari-text-secondary animate-pulse font-medium">Loading profile...</p>
+  </div>
+
+  <div *ngIf="!isLoading && !companyId" class="alert alert-warning shadow-lg border-l-4 border-warning">
+    <i class="fas fa-exclamation-triangle text-xl"></i>
+    <span>Company ID not found in your session. Please contact support.</span>
+  </div>
+
+  <div *ngIf="!isLoading && companyId" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Settings Form Column -->
+    <div class="lg:col-span-2 space-y-6">
+      
+      <!-- Basic Details Card -->
+      <div class="bg-saowari-surface rounded-2xl shadow-xl shadow-saowari-primary/5 border border-saowari-border overflow-hidden transition-all duration-300 hover:shadow-2xl">
+        <div class="bg-saowari-surface-alt px-6 py-4 border-b border-saowari-border flex items-center gap-3">
+          <i class="fas fa-info-circle text-saowari-accent"></i>
+          <h2 class="text-lg font-heading font-bold text-saowari-text-primary">Basic Details</h2>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="form-control w-full">
+            <label class="label"><span class="label-text font-semibold text-saowari-text-secondary">Company Name</span></label>
+            <input type="text" class="input input-bordered w-full bg-saowari-surface-alt border-saowari-border focus:border-saowari-primary" [(ngModel)]="model.companyName" />
+          </div>
+          
+          <div class="form-control w-full">
+            <label class="label"><span class="label-text font-semibold text-saowari-text-secondary">Contact Email</span></label>
+            <input type="email" class="input input-bordered w-full bg-saowari-surface-alt border-saowari-border focus:border-saowari-primary" [(ngModel)]="model.contactEmail" />
+          </div>
+
+          <div class="form-control w-full">
+            <label class="label"><span class="label-text font-semibold text-saowari-text-secondary">Contact Phone</span></label>
+            <input type="text" class="input input-bordered w-full bg-saowari-surface-alt border-saowari-border focus:border-saowari-primary" [(ngModel)]="model.contactPhone" />
+          </div>
+
+          <div class="form-control w-full md:col-span-2">
+            <label class="label"><span class="label-text font-semibold text-saowari-text-secondary">Address</span></label>
+            <input type="text" class="input input-bordered w-full bg-saowari-surface-alt border-saowari-border focus:border-saowari-primary" [(ngModel)]="model.address" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Ticket Background Customization Card -->
+      <div class="bg-saowari-surface rounded-2xl shadow-xl shadow-saowari-primary/5 border border-saowari-border overflow-hidden transition-all duration-300 hover:shadow-2xl">
+        <div class="bg-saowari-surface-alt px-6 py-4 border-b border-saowari-border flex items-center gap-3">
+          <i class="fas fa-ticket-alt text-saowari-accent"></i>
+          <h2 class="text-lg font-heading font-bold text-saowari-text-primary">Ticket Customization</h2>
+        </div>
+        <div class="p-6 space-y-8">
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <!-- Ticket Background Uploader -->
+            <div class="space-y-4">
+              <label class="label pb-0"><span class="label-text font-semibold text-saowari-text-secondary">Custom Ticket Background</span></label>
+              <div class="relative w-full h-40 border-2 border-dashed border-saowari-border rounded-xl bg-saowari-surface-alt flex flex-col items-center justify-center overflow-hidden hover:border-saowari-primary transition-colors cursor-pointer group">
+                <input type="file" (change)="onTicketBgChange($event)" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                <div *ngIf="!ticketBgPreview" class="text-center group-hover:scale-105 transition-transform duration-300">
+                  <i class="fas fa-image text-3xl text-saowari-text-secondary mb-2 group-hover:text-saowari-primary"></i>
+                  <p class="text-sm font-medium text-saowari-text-secondary">Click to upload background</p>
+                </div>
+                <img *ngIf="ticketBgPreview" [src]="ticketBgPreview" alt="Ticket Background" class="absolute inset-0 w-full h-full object-cover opacity-80" />
+                <div *ngIf="ticketBgPreview" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span class="btn btn-sm btn-circle btn-primary"><i class="fas fa-pen"></i></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Logo Uploader -->
+            <div class="space-y-4">
+              <label class="label pb-0"><span class="label-text font-semibold text-saowari-text-secondary">Company Logo</span></label>
+              <div class="relative w-32 h-32 border-2 border-dashed border-saowari-border rounded-xl bg-saowari-surface-alt flex flex-col items-center justify-center overflow-hidden hover:border-saowari-primary transition-colors cursor-pointer group mx-auto md:mx-0">
+                <input type="file" (change)="onLogoChange($event)" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                <div *ngIf="!logoPreview" class="text-center group-hover:scale-105 transition-transform duration-300">
+                  <i class="fas fa-cloud-upload-alt text-2xl text-saowari-text-secondary mb-1 group-hover:text-saowari-primary"></i>
+                  <p class="text-xs font-medium text-saowari-text-secondary">Upload Logo</p>
+                </div>
+                <img *ngIf="logoPreview" [src]="logoPreview" alt="Company Logo" class="absolute inset-0 w-full h-full object-contain bg-white" />
+                <div *ngIf="logoPreview" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span class="btn btn-sm btn-circle btn-primary"><i class="fas fa-pen"></i></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Opacity Slider -->
+          <div class="form-control w-full max-w-md">
+            <label class="label">
+              <span class="label-text font-semibold text-saowari-text-secondary">Background Opacity</span>
+              <span class="label-text-alt font-mono font-bold text-saowari-primary bg-saowari-primary/10 px-2 py-0.5 rounded-md">{{ (model.ticketBackgroundOpacity || 0.1) * 100 | number:'1.0-0' }}%</span>
+            </label>
+            <input type="range" name="ticketBackgroundOpacity" [(ngModel)]="model.ticketBackgroundOpacity" min="0" max="1" step="0.05" class="range range-primary range-sm" />
+            <div class="w-full flex justify-between text-xs text-saowari-text-secondary px-1 mt-1 font-medium">
+              <span>Transparent</span>
+              <span>Solid</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end gap-4 mt-8 pb-10">
+        <button class="btn btn-ghost border-saowari-border text-saowari-text-secondary hover:bg-saowari-surface-alt">Discard Changes</button>
+        <button class="btn btn-saowari px-8 shadow-lg shadow-saowari-primary/40 hover:scale-105 transition-transform" (click)="saveChanges()" [disabled]="isSaving">
+          <span *ngIf="isSaving" class="loading loading-spinner loading-sm"></span>
+          <i *ngIf="!isSaving" class="fas fa-save mr-2"></i> Save Profile
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Live Preview Column -->
+    <div class="lg:col-span-1">
+      <div class="sticky top-6">
+        <div class="bg-saowari-surface rounded-2xl shadow-xl border border-saowari-border overflow-hidden">
+          <div class="bg-gradient-to-r from-saowari-primary to-saowari-accent px-6 py-4 flex items-center justify-between">
+            <h2 class="text-white font-heading font-bold flex items-center gap-2"><i class="fas fa-eye"></i> Live Ticket Preview</h2>
+          </div>
+          <div class="p-6 bg-saowari-surface-alt min-h-[300px] flex items-center justify-center">
+            
+            <!-- Mock Ticket -->
+            <div class="w-full max-w-sm bg-white rounded-xl shadow-md overflow-hidden relative border border-gray-200">
+              <!-- Background Image overlay -->
+              <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <img *ngIf="ticketBgPreview" [src]="ticketBgPreview" class="w-full h-full object-cover" [style.opacity]="model.ticketBackgroundOpacity != null ? model.ticketBackgroundOpacity : 0.1" />
+              </div>
+              
+              <div class="relative z-10 p-5">
+                <div class="flex justify-between items-start mb-4">
+                  <div class="flex items-center gap-2">
+                    <img *ngIf="logoPreview" [src]="logoPreview" class="w-10 h-10 object-contain rounded bg-gray-50 p-1 border border-gray-100" />
+                    <div *ngIf="!logoPreview" class="w-10 h-10 rounded bg-saowari-primary-light flex items-center justify-center text-saowari-primary font-bold"><i class="fas fa-bus"></i></div>
+                    <div>
+                      <p class="font-bold text-gray-800 leading-tight">{{ model.companyName || 'Your Company' }}</p>
+                      <p class="text-[10px] text-gray-500 uppercase tracking-wide">E-Ticket</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-xs font-bold text-saowari-primary">SW-84920</p>
+                    <p class="text-[10px] text-gray-500">PNR</p>
+                  </div>
+                </div>
+
+                <div class="border-t border-dashed border-gray-300 my-3"></div>
+
+                <div class="grid grid-cols-2 gap-4 mb-3">
+                  <div>
+                    <p class="text-[10px] text-gray-500 uppercase font-medium">Passenger</p>
+                    <p class="text-sm font-bold text-gray-800">John Doe</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-[10px] text-gray-500 uppercase font-medium">Seat</p>
+                    <p class="text-sm font-bold text-saowari-primary">A1</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between mt-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                  <div class="text-center">
+                    <p class="text-lg font-bold text-gray-800">DHK</p>
+                    <p class="text-[9px] text-gray-500 uppercase">Dhaka</p>
+                  </div>
+                  <div class="flex-1 px-4 flex flex-col items-center">
+                    <i class="fas fa-long-arrow-alt-right text-saowari-accent text-xl"></i>
+                    <p class="text-[10px] font-medium text-gray-500 mt-1">Bus</p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-lg font-bold text-gray-800">CTG</p>
+                    <p class="text-[9px] text-gray-500 uppercase">Chittagong</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="p-4 bg-saowari-surface border-t border-saowari-border text-center">
+            <p class="text-xs text-saowari-text-secondary"><i class="fas fa-info-circle mr-1"></i> This is how your company tickets will look to customers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

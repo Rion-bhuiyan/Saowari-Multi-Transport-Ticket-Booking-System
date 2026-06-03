@@ -1,116 +1,116 @@
-<div class="space-y-6 animate-fade-in max-w-4xl mx-auto pb-20">
-  
-  <!-- Header -->
-  <div class="flex items-center justify-between bg-saowari-primary text-white p-6 rounded-b-3xl shadow-lg -mx-6 -mt-6 mb-6">
-    <div>
-      <p class="text-white/80 text-sm font-medium">Welcome back, Driver</p>
-      <h1 class="text-2xl font-heading font-bold">{{ currentUser?.fullName || 'Driver Dashboard' }}</h1>
-    </div>
-    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
-      <i class="fas fa-steering-wheel text-xl"></i>
+<div class="space-y-6 animate-fade-in pb-12 w-full max-w-4xl mx-auto">
+
+  <!-- Driver Header -->
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-700 to-blue-900 p-6 sm:p-8 shadow-2xl">
+    <div class="absolute -top-12 -right-12 w-48 h-48 bg-blue-400 opacity-20 rounded-full blur-2xl"></div>
+    <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-purple-500 opacity-20 rounded-full blur-2xl"></div>
+    
+    <div class="relative z-10 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-full border-2 border-white/30 bg-white/10 flex items-center justify-center text-white overflow-hidden shadow-lg shrink-0">
+          <img *ngIf="currentUser?.picture" [src]="'http://localhost:5293' + currentUser.picture" class="w-full h-full object-cover">
+          <i *ngIf="!currentUser?.picture" class="fas fa-user-circle text-4xl opacity-80"></i>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-heading font-black text-white tracking-tight">Hello, {{ currentUser?.fullName }}</h1>
+          <p class="text-white/70 font-medium text-sm mt-0.5"><i class="fas fa-steering-wheel mr-1"></i> Professional Driver</p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div *ngIf="isLoading" class="p-12 text-center">
-    <span class="loading loading-spinner loading-lg text-saowari-primary"></span>
+  <div *ngIf="isLoading" class="flex flex-col items-center justify-center p-12">
+    <div class="w-12 h-12 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+    <p class="mt-4 text-saowari-text-secondary font-semibold animate-pulse text-sm">Loading Your Routes...</p>
   </div>
 
   <ng-container *ngIf="!isLoading">
-    
-    <!-- Next Trip Hero Card -->
-    <div *ngIf="nextTrip" class="bg-gradient-to-br from-saowari-primary to-saowari-accent rounded-3xl p-1 shadow-xl relative overflow-hidden">
-      <div class="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+
+    <!-- Active Route Card -->
+    <div class="bg-saowari-surface/90 backdrop-blur-xl rounded-3xl shadow-xl border border-saowari-border/50 overflow-hidden relative">
+      <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
       
-      <div class="bg-saowari-surface rounded-[1.3rem] p-5 h-full relative z-10">
-        <div class="flex justify-between items-start mb-4">
-          <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-sm" [ngClass]="getStatusBadge(nextTrip.scheduleStatusName)">
-            <span class="w-2 h-2 rounded-full mr-2 animate-pulse" [ngClass]="{'bg-green-500': nextTrip.scheduleStatusName?.includes('Active'), 'bg-blue-500': !nextTrip.scheduleStatusName?.includes('Active')}"></span>
-            {{ nextTrip.scheduleStatusName || 'Upcoming' | uppercase }}
+      <div class="p-6 sm:p-8">
+        <h2 class="text-xs font-bold text-saowari-text-secondary uppercase tracking-widest mb-6 text-center">Your Next Assignment</h2>
+
+        <div *ngIf="!nextTrip" class="text-center py-8">
+          <div class="w-20 h-20 bg-saowari-surface-alt rounded-full flex items-center justify-center mx-auto mb-4 border border-saowari-border">
+            <i class="fas fa-coffee text-3xl text-saowari-text-secondary/50"></i>
           </div>
-          <span class="text-saowari-text-secondary text-sm font-medium">{{ nextTrip.departureDateTime | date:'MMM d' }}</span>
+          <p class="font-bold text-lg text-saowari-text-primary">No Scheduled Trips</p>
+          <p class="text-sm text-saowari-text-secondary">Enjoy your rest. You have no upcoming routes.</p>
         </div>
 
-        <div class="flex items-center justify-between relative mt-2 mb-6">
-          <div class="text-center w-1/3">
-            <p class="text-2xl font-heading font-bold text-saowari-text-primary">{{ nextTrip.departureDateTime | date:'HH:mm' }}</p>
-            <p class="text-xs text-saowari-text-secondary mt-1 line-clamp-1" title="{{ nextTrip.route?.fromLocation?.locationName }}">{{ nextTrip.route?.fromLocation?.locationName || 'Start' }}</p>
-          </div>
-          
-          <div class="flex-1 flex items-center justify-center relative px-2">
-            <div class="h-[2px] bg-gray-200 w-full absolute top-1/2 -translate-y-1/2 z-0"></div>
-            <i class="fas fa-bus text-saowari-primary bg-saowari-surface px-2 relative z-10 text-xl transform -translate-y-1"></i>
+        <div *ngIf="nextTrip" class="space-y-6">
+          <div class="text-center">
+            <p class="text-3xl font-heading font-black text-saowari-primary">{{ nextTrip.routeName }}</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+              <span [class]="'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ' + getStatusBadge(nextTrip.scheduleStatusName || nextTrip.statusName)">
+                {{ nextTrip.scheduleStatusName || nextTrip.statusName }}
+              </span>
+              <span class="text-xs font-bold text-saowari-text-secondary bg-saowari-surface-alt px-3 py-1 rounded-full border border-saowari-border">
+                <i class="fas fa-bus text-indigo-500 mr-1"></i> {{ nextTrip.vehicleNumber || nextTrip.vehicleName }}
+              </span>
+            </div>
           </div>
 
-          <div class="text-center w-1/3">
-            <p class="text-2xl font-heading font-bold text-saowari-text-primary">{{ nextTrip.arrivalDateTime | date:'HH:mm' }}</p>
-            <p class="text-xs text-saowari-text-secondary mt-1 line-clamp-1" title="{{ nextTrip.route?.toLocation?.locationName }}">{{ nextTrip.route?.toLocation?.locationName || 'End' }}</p>
+          <div class="flex items-center justify-between relative py-6">
+            <div class="absolute top-1/2 left-8 right-8 h-1 bg-saowari-border/50 -translate-y-1/2 border-t border-dashed border-saowari-border"></div>
+            
+            <div class="relative z-10 text-center">
+              <div class="w-12 h-12 rounded-full bg-saowari-surface border-4 border-saowari-primary flex items-center justify-center mx-auto mb-2 shadow-lg shadow-saowari-primary/20 text-saowari-primary">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <p class="font-bold text-saowari-text-primary text-sm">{{ (nextTrip.departureDateTime || nextTrip.departureTime) | date:'h:mm a' }}</p>
+              <p class="text-xs text-saowari-text-secondary font-medium">{{ (nextTrip.departureDateTime || nextTrip.departureTime) | date:'MMM d' }}</p>
+            </div>
+
+            <div class="relative z-10 w-10 h-10 rounded-full bg-saowari-surface-alt border border-saowari-border flex items-center justify-center shadow-inner text-saowari-text-secondary">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <div class="relative z-10 text-center">
+              <div class="w-12 h-12 rounded-full bg-saowari-surface border-4 border-purple-500 flex items-center justify-center mx-auto mb-2 shadow-lg shadow-purple-500/20 text-purple-500">
+                <i class="fas fa-flag-checkered"></i>
+              </div>
+              <p class="font-bold text-saowari-text-primary text-sm">{{ (nextTrip.arrivalDateTime || nextTrip.arrivalTime) | date:'h:mm a' }}</p>
+              <p class="text-xs text-saowari-text-secondary font-medium">{{ (nextTrip.arrivalDateTime || nextTrip.arrivalTime) | date:'MMM d' }}</p>
+            </div>
+          </div>
+
+          <div class="bg-indigo-500/10 rounded-2xl p-4 flex items-center justify-between border border-indigo-500/20">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-md">
+                <i class="fas fa-users"></i>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold text-indigo-700/80 uppercase tracking-widest">Total Passengers</p>
+                <p class="font-bold text-saowari-text-primary">{{ totalPassengers }} Booked</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 mb-5">
-          <div class="bg-gray-50 rounded-xl p-3 border border-gray-100 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
-              <i class="fas fa-hashtag text-xs"></i>
-            </div>
-            <div>
-              <p class="text-[10px] text-gray-500 uppercase font-bold">Vehicle No</p>
-              <p class="text-sm font-semibold text-gray-800">{{ nextTrip.vehicle?.vehicleNumber || 'N/A' }}</p>
-            </div>
-          </div>
-          <div class="bg-gray-50 rounded-xl p-3 border border-gray-100 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center">
-              <i class="fas fa-users text-xs"></i>
-            </div>
-            <div>
-              <p class="text-[10px] text-gray-500 uppercase font-bold">Available</p>
-              <p class="text-sm font-semibold text-gray-800">{{ nextTrip.availableSeats }} Seats</p>
-            </div>
-          </div>
-        </div>
-
-        <a [routerLink]="['/admin/schedules', nextTrip.scheduleID, 'seat-map']" class="w-full btn btn-primary rounded-xl shadow-lg shadow-saowari-primary/30 text-white font-bold h-12">
-          <i class="fas fa-chair mr-2"></i> View Passengers & Manifest
-        </a>
       </div>
     </div>
 
-    <!-- Empty State -->
-    <div *ngIf="!nextTrip" class="bg-saowari-surface rounded-2xl p-8 text-center shadow-sm border border-saowari-border">
-      <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
-        <i class="fas fa-mug-hot text-3xl"></i>
-      </div>
-      <h3 class="text-lg font-bold text-saowari-text-primary mb-1">No Upcoming Trips</h3>
-      <p class="text-saowari-text-secondary text-sm">You have no active or scheduled trips assigned right now. Enjoy your break!</p>
-    </div>
-
-    <!-- Future Trips List -->
-    <div *ngIf="upcomingSchedules.length > 1" class="mt-8">
-      <div class="flex items-center justify-between mb-4 px-1">
-        <h3 class="font-bold text-saowari-text-primary flex items-center gap-2">
-          <i class="far fa-calendar-alt text-saowari-primary"></i> Future Schedule
-        </h3>
-        <a routerLink="/admin/schedules" class="text-xs font-bold text-saowari-primary hover:underline">View All</a>
-      </div>
+    <!-- Quick Tools -->
+    <div class="grid grid-cols-2 gap-4 mt-6">
       
-      <div class="space-y-3">
-        <ng-container *ngFor="let s of upcomingSchedules; let i = index">
-          <div *ngIf="i > 0" class="bg-saowari-surface rounded-2xl p-4 shadow-sm border border-saowari-border flex items-center gap-4 active:scale-[0.98] transition-transform">
-            <div class="w-12 h-12 bg-saowari-primary-light text-saowari-primary rounded-xl flex flex-col items-center justify-center flex-shrink-0">
-              <span class="text-[10px] font-bold uppercase leading-none">{{ s.departureDateTime | date:'MMM' }}</span>
-              <span class="text-lg font-black leading-none">{{ s.departureDateTime | date:'d' }}</span>
-            </div>
-            
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-saowari-text-primary truncate">{{ s.route?.fromLocation?.locationName }} <i class="fas fa-arrow-right text-[10px] text-gray-400 mx-1"></i> {{ s.route?.toLocation?.locationName }}</p>
-              <p class="text-xs text-saowari-text-secondary mt-0.5"><i class="far fa-clock mr-1"></i> {{ s.departureDateTime | date:'shortTime' }} • Bus {{ s.vehicle?.vehicleNumber }}</p>
-            </div>
-            
-            <a [routerLink]="['/admin/schedules', s.scheduleID, 'seat-map']" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-saowari-text-secondary hover:text-saowari-primary hover:bg-saowari-primary-light transition-colors border border-gray-100 flex-shrink-0">
-              <i class="fas fa-chevron-right text-sm"></i>
-            </a>
-          </div>
-        </ng-container>
-      </div>
+      <a routerLink="/profile/schedule-chats" class="bg-saowari-surface/90 backdrop-blur-lg rounded-2xl p-5 shadow-sm border border-saowari-border hover:border-blue-500 hover:shadow-lg transition-all group flex flex-col items-center justify-center text-center">
+        <div class="w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform group-hover:bg-blue-500 group-hover:text-white">
+          <i class="fas fa-comments"></i>
+        </div>
+        <h4 class="font-bold text-saowari-text-primary text-sm group-hover:text-blue-500 transition-colors">Route Chat</h4>
+      </a>
+
+      <button class="bg-saowari-surface/90 backdrop-blur-lg rounded-2xl p-5 shadow-sm border border-saowari-border hover:border-orange-500 hover:shadow-lg transition-all group flex flex-col items-center justify-center text-center">
+        <div class="w-12 h-12 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform group-hover:bg-orange-500 group-hover:text-white">
+          <i class="fas fa-exchange-alt"></i>
+        </div>
+        <h4 class="font-bold text-saowari-text-primary text-sm group-hover:text-orange-500 transition-colors">Swap Shift</h4>
+      </button>
+
     </div>
 
   </ng-container>

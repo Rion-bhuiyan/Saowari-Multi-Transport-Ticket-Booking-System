@@ -12,7 +12,8 @@ import { UserModel } from '../../../core/models/auth.model';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <nav class="bg-saowari-primary shadow-lg fixed w-full z-50 transition-all duration-300">
+    <nav class="fixed top-0 left-0 w-full z-50 transition-all duration-500"
+         [ngClass]="isHome && isTransparent ? 'bg-saowari-primary/30 backdrop-blur-md shadow-sm' : 'bg-saowari-primary shadow-lg'">
       <div class="container mx-auto px-4">
         <div class="flex justify-between items-center h-20">
           
@@ -50,9 +51,9 @@ import { UserModel } from '../../../core/models/auth.model';
               <label tabindex="0" class="btn btn-ghost btn-circle relative text-white hover:text-saowari-accent transition-colors" title="Select Theme">
                 <i class="fas fa-palette text-xl"></i>
               </label>
-              <div tabindex="0" class="dropdown-content z-[100] p-5 shadow-2xl bg-saowari-surface/95 backdrop-blur-md border border-saowari-border rounded-2xl w-[320px] mt-3 animate-scale-up text-saowari-text-primary">
+              <div tabindex="0" class="dropdown-content z-[100] p-5 shadow-2xl bg-saowari-surface/60 backdrop-blur-2xl border border-saowari-border/50 rounded-3xl w-[320px] mt-3 animate-scale-up">
                 <!-- Header -->
-                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-saowari-border">
+                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-saowari-border/50">
                   <div class="w-9 h-9 rounded-xl bg-gradient-hero flex items-center justify-center text-white shadow-md shadow-saowari-primary/20">
                     <i class="fas fa-palette text-sm"></i>
                   </div>
@@ -69,7 +70,7 @@ import { UserModel } from '../../../core/models/auth.model';
                           class="flex flex-col items-start p-3 rounded-xl border-2 transition-all duration-300 relative group cursor-pointer text-left w-full select-none"
                           [ngClass]="activeTheme === t.id 
                                      ? 'bg-saowari-surface-alt border-saowari-accent shadow-md shadow-saowari-accent/5' 
-                                     : 'bg-saowari-surface border-saowari-border hover:border-saowari-primary hover:bg-saowari-surface-alt hover:-translate-y-0.5'">
+                                     : 'bg-saowari-surface/40 border-saowari-border/50 hover:border-saowari-primary hover:bg-saowari-surface-alt hover:-translate-y-0.5'">
                     
                     <!-- Selection Indicator -->
                     <span *ngIf="activeTheme === t.id" 
@@ -140,7 +141,10 @@ import { UserModel } from '../../../core/models/auth.model';
                     <span class="block font-semibold text-saowari-text-primary">{{ currentUser?.fullName }}</span>
                     <span class="block text-xs text-saowari-text-secondary">{{ currentUser?.roleName }}</span>
                   </li>
-                  <li *ngIf="canAccessAdminPanel"><a routerLink="/admin/dashboard" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-shield-alt mr-2 text-saowari-primary"></i> Admin Panel</a></li>
+                  <li *ngIf="isAdmin || isAgent"><a routerLink="/admin/dashboard" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-shield-alt mr-2 text-saowari-primary"></i> Admin Panel</a></li>
+                  <li *ngIf="isManager"><a routerLink="/admin/manager-dashboard" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-building mr-2 text-saowari-primary"></i> Manager Dashboard</a></li>
+                  <li *ngIf="isSupervisor"><a routerLink="/admin/supervisor-dashboard" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-user-tie mr-2 text-saowari-primary"></i> Supervisor Dashboard</a></li>
+                  <li *ngIf="isDriver"><a routerLink="/admin/driver-dashboard" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-car mr-2 text-saowari-primary"></i> Driver Dashboard</a></li>
                   <li><a routerLink="/profile/dashboard" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-user mr-2 text-saowari-primary"></i> Profile Dashboard</a></li>
                   <li><a routerLink="/profile/my-bookings" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-ticket-alt mr-2 text-saowari-primary"></i> My Bookings</a></li>
                   <li><a routerLink="/profile/my-refunds" class="py-3 hover:bg-saowari-surface-alt"><i class="fas fa-undo-alt mr-2 text-saowari-primary"></i> My Refunds</a></li>
@@ -177,7 +181,10 @@ import { UserModel } from '../../../core/models/auth.model';
           
           <ng-template #mobileLoggedInMenu>
             <li class="menu-title text-gray-300">Welcome, {{ currentUser?.fullName }}</li>
-            <li *ngIf="canAccessAdminPanel"><a routerLink="/admin/dashboard" (click)="toggleMobileMenu()">Admin Panel</a></li>
+            <li *ngIf="isAdmin || isAgent"><a routerLink="/admin/dashboard" (click)="toggleMobileMenu()">Admin Panel</a></li>
+            <li *ngIf="isManager"><a routerLink="/admin/manager-dashboard" (click)="toggleMobileMenu()">Manager Dashboard</a></li>
+            <li *ngIf="isSupervisor"><a routerLink="/admin/supervisor-dashboard" (click)="toggleMobileMenu()">Supervisor Dashboard</a></li>
+            <li *ngIf="isDriver"><a routerLink="/admin/driver-dashboard" (click)="toggleMobileMenu()">Driver Dashboard</a></li>
             <li><a routerLink="/profile/dashboard" (click)="toggleMobileMenu()">Profile Dashboard</a></li>
             <li><a routerLink="/profile/my-bookings" (click)="toggleMobileMenu()">My Bookings</a></li>
             <li><a routerLink="/profile/my-refunds" (click)="toggleMobileMenu()">My Refunds</a></li>
@@ -230,6 +237,9 @@ export class NavbarComponent implements OnInit {
   currentUser: UserModel | null = null;
   isAdmin = false;
   isAgent = false;
+  isManager = false;
+  isSupervisor = false;
+  isDriver = false;
   canAccessAdminPanel = false;
   globalLogoUrl: string | null = null;
   expandedPictureUrl: string | null = null;
@@ -282,6 +292,9 @@ export class NavbarComponent implements OnInit {
 
       this.isAdmin = this.authService.isAdmin();
       this.isAgent = this.authService.isAgent();
+      this.isManager = this.authService.isCompanyManager();
+      this.isSupervisor = this.authService.isSupervisor();
+      this.isDriver = this.authService.isDriver();
       this.canAccessAdminPanel = this.authService.canAccessAdminPanel();
       
       if (this.currentUser) {

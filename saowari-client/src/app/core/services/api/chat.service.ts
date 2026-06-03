@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { TokenService } from '../token.service';
 
 export interface SupportRoom {
   id: number;
@@ -38,6 +40,14 @@ export interface ScheduleChatMessage {
   createdAt?: string;
 }
 
+export interface ScheduleChatMember {
+  userId: number;
+  fullName: string;
+  role: string;
+  isRemoved: boolean;
+  removedAt?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -55,10 +65,11 @@ export class ChatService {
   public adminPresence$ = new Subject<any>();
   public receiveScheduleMessage$ = new Subject<ScheduleChatMessage>();
   public systemMessage$ = new Subject<string>();
+  public userRemovedFromGroup$ = new Subject<any>();
 
   private connectionEstablished$ = new BehaviorSubject<boolean>(false);
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private tokenService: TokenService) {}
 
   // ── SIGNALR HUB CONNECTION MANAGEMENT ───────────────────────────────────────
 
@@ -67,10 +78,11 @@ export class ChatService {
       return;
     }
 
+    const hubUrl = `${environment.apiUrl.replace('/api', '')}/chatHub`;
+
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`${this.baseUrl}/chatHub`, {
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets
+      .withUrl(hubUrl, {
+        accessTokenFactory: () => this.tokenService.getAccessToken() || ''
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
@@ -103,6 +115,7 @@ export class ChatService {
     this.hubConnection.on('AdminPresence', (data: any) => this.adminPresence$.next(data));
     this.hubConnection.on('ReceiveScheduleMessage', (msg: ScheduleChatMessage) => this.receiveScheduleMessage$.next(msg));
     this.hubConnection.on('ReceiveSystemMessage', (text: string) => this.systemMessage$.next(text));
+    this.hubConnection.on('UserRemovedFromGroup', (data: any) => this.userRemovedFromGroup$.next(data));
   }
 
   // ── HUB CALL TRIGGERS ───────────────────────────────────────────────────────
@@ -163,6 +176,14 @@ export class ChatService {
 
   public getScheduleMessages(scheduleId: number): Observable<ScheduleChatMessage[]> {
     return this.http.get<ScheduleChatMessage[]>(`${this.baseUrl}/api/chat/schedule/${scheduleId}/messages`);
+  }
+
+  public getScheduleMembers(scheduleId: number): Observable<ScheduleChatMember[]> {
+    return this.http.get<ScheduleChatMember[]>(`${this.baseUrl}/api/chat/schedule/${scheduleId}/members`);
+  }
+
+  public removeUserFromSchedule(scheduleId: number, memberId: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/api/chat/schedule/${scheduleId}/members/${memberId}`);
   }
 
   public uploadChatFile(file: File, type: string): Observable<{ fileUrl: string }> {

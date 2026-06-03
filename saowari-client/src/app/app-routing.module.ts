@@ -217,6 +217,14 @@ const routes: Routes = [
         loadComponent: () => import('./features/admin/settings/admin-settings/admin-settings.component').then(m => m.AdminSettingsComponent)
       },
       {
+        path: 'company-profile',
+        loadComponent: () => import('./features/admin/settings/company-profile/company-profile.component').then(m => m.CompanyProfileComponent)
+      },
+      {
+        path: 'leaderboard',
+        loadComponent: () => import('./features/admin/leaderboard/admin-leaderboard/admin-leaderboard.component').then(m => m.AdminLeaderboardComponent)
+      },
+      {
         path: 'messenger',
         loadComponent: () => import('./features/admin/messenger/admin-messenger.component').then(m => m.AdminMessengerComponent)
       },

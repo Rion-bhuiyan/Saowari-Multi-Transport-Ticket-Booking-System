@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
+using Saowari.Hubs;
 using Saowari.Data;
 using Saowari.Models.Entities;
 using Saowari.Models.DTOs.Chat;
@@ -16,13 +18,107 @@ namespace Saowari.Controllers
     public class ChatController : ControllerBase
     {
         private readonly SaowariDbContext _context;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public ChatController(SaowariDbContext context)
+        public ChatController(SaowariDbContext context, IHubContext<ChatHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         // ── SUPPORT APIS ──────────────────────────────────────────────────────────────
+
+        public class ContactFormDto
+        {
+            public string Name { get; set; } = string.Empty;
+            public string Email { get; set; } = string.Empty;
+            public string? BookingReference { get; set; }
+            public string Category { get; set; } = string.Empty;
+            public string Message { get; set; } = string.Empty;
+        }
+
+        [HttpPost("contact")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SubmitContactForm([FromBody] ContactFormDto model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Message))
+            {
+                return BadRequest("Email and Message are required.");
+            }
+
+            var room = await _context.SupportRooms
+                .FirstOrDefaultAsync(r => r.UserEmailOrIP == model.Email && r.IsActive);
+
+            if (room == null)
+            {
+                room = new SupportRoom
+                {
+                    UserEmailOrIP = model.Email,
+                    CreatedAt = DateTime.UtcNow,
+                    LastMessageAt = DateTime.UtcNow,
+                    IsActive = true
+                };
+                _context.SupportRooms.Add(room);
+                await _context.SaveChangesAsync();
+                
+                await _hubContext.Clients.Group("Admins").SendAsync("ReceiveRoomUpdate", new SupportRoomDto
+                {
+                    Id = room.Id,
+                    UserEmailOrIP = room.UserEmailOrIP,
+                    AssignedAdminId = room.AssignedAdminId,
+                    IsActive = room.IsActive,
+                    CreatedAt = room.CreatedAt,
+                    LastMessageAt = room.LastMessageAt,
+                    UnreadCount = 0
+                });
+            }
+
+            string fullMessage = $"[Contact Form Submission]\n" +
+                                 $"Name: {model.Name}\n" +
+                                 $"Category: {model.Category}\n" +
+                                 (!string.IsNullOrEmpty(model.BookingReference) ? $"Ref: {model.BookingReference}\n" : "") +
+                                 $"\n{model.Message}";
+
+            var message = new SupportMessage
+            {
+                RoomId = room.Id,
+                SenderName = string.IsNullOrWhiteSpace(model.Name) ? "Guest" : model.Name,
+                SenderId = null,
+                Content = fullMessage,
+                MessageType = "text",
+                FileUrl = null,
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false
+            };
+
+            room.LastMessageAt = DateTime.UtcNow;
+            _context.SupportMessages.Add(message);
+            await _context.SaveChangesAsync();
+
+            string groupName = $"Room_{room.Id}";
+            await _hubContext.Clients.Group(groupName).SendAsync("ReceiveMessage", new SupportMessageDto
+            {
+                Id = message.Id,
+                RoomId = message.RoomId,
+                SenderName = message.SenderName,
+                SenderId = message.SenderId,
+                Content = message.Content,
+                MessageType = message.MessageType,
+                FileUrl = message.FileUrl,
+                CreatedAt = message.CreatedAt,
+                IsRead = message.IsRead
+            });
+
+            await _hubContext.Clients.Group("Admins").SendAsync("ReceiveLobbyMessage", new
+            {
+                roomId = room.Id,
+                content = fullMessage,
+                messageType = "text",
+                lastMessageAt = room.LastMessageAt
+            });
+
+            return Ok(new { success = true });
+        }
 
         [HttpGet("rooms")]
         [Authorize(Policy = "AdminOnly")]
@@ -206,6 +302,109 @@ namespace Saowari.Controllers
                 .ToListAsync();
 
             return Ok(messages);
+        }
+
+        [HttpGet("schedule/{scheduleId}/members")]
+        [Authorize]
+        public async Task<IActionResult> GetScheduleMembers(int scheduleId)
+        {
+            var schedule = await _context.Schedules
+                .Include(s => s.DriverInformtion).ThenInclude(d => d.Users)
+                .Include(s => s.Supervisor).ThenInclude(sup => sup.Users)
+                .FirstOrDefaultAsync(s => s.ScheduleID == scheduleId);
+
+            if (schedule == null) return NotFound("Schedule not found.");
+
+            // Get valid passengers
+            var passengers = await _context.Bookings
+                .Where(b => b.ScheduleID == scheduleId && b.BookingStatus.BookingStatusName != "Cancelled")
+                .Select(b => b.User)
+                .Distinct()
+                .ToListAsync();
+
+            // Get removed users
+            var removedUsers = await _context.ScheduleChatRemovedUsers
+                .Where(r => r.ScheduleId == scheduleId)
+                .ToListAsync();
+
+            var members = new System.Collections.Generic.List<ScheduleChatMemberDto>();
+
+            // Add Driver
+            var driverUser = schedule.DriverInformtion?.Users.FirstOrDefault();
+            if (driverUser != null)
+            {
+                members.Add(new ScheduleChatMemberDto
+                {
+                    UserId = driverUser.UserID,
+                    FullName = driverUser.FullName,
+                    Role = "Driver",
+                    IsRemoved = false
+                });
+            }
+
+            // Add Supervisor
+            var supervisorUser = schedule.Supervisor?.Users.FirstOrDefault();
+            if (supervisorUser != null)
+            {
+                members.Add(new ScheduleChatMemberDto
+                {
+                    UserId = supervisorUser.UserID,
+                    FullName = supervisorUser.FullName,
+                    Role = "Supervisor",
+                    IsRemoved = false
+                });
+            }
+
+            // Add Passengers
+            foreach (var p in passengers)
+            {
+                if (p == null) continue;
+                var removal = removedUsers.FirstOrDefault(r => r.UserId == p.UserID);
+                members.Add(new ScheduleChatMemberDto
+                {
+                    UserId = p.UserID,
+                    FullName = p.FullName,
+                    Role = "Passenger",
+                    IsRemoved = removal != null,
+                    RemovedAt = removal?.RemovedAt
+                });
+            }
+
+            return Ok(members);
+        }
+
+        [HttpDelete("schedule/{scheduleId}/members/{memberId}")]
+        [Authorize(Roles = "Driver,Supervisor")]
+        public async Task<IActionResult> RemoveUserFromSchedule(int scheduleId, int memberId)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int adminUserId)) return Unauthorized();
+
+            var schedule = await _context.Schedules.FindAsync(scheduleId);
+            if (schedule == null) return NotFound("Schedule not found.");
+
+            var adminUser = await _context.Users.FindAsync(adminUserId);
+            bool isDriver = schedule.DriverInformtionId != 0 && adminUser?.DriverInformtionId == schedule.DriverInformtionId;
+            bool isSupervisor = schedule.SupervisorId.HasValue && adminUser?.SupervisorId == schedule.SupervisorId;
+
+            if (!isDriver && !isSupervisor)
+                return Forbid("Only the assigned Driver or Supervisor can remove members.");
+
+            var existingRemoval = await _context.ScheduleChatRemovedUsers
+                .FirstOrDefaultAsync(r => r.ScheduleId == scheduleId && r.UserId == memberId);
+
+            if (existingRemoval == null)
+            {
+                _context.ScheduleChatRemovedUsers.Add(new ScheduleChatRemovedUser
+                {
+                    ScheduleId = scheduleId,
+                    UserId = memberId,
+                    RemovedByUserId = adminUserId
+                });
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new { success = true, message = "User removed from chat group." });
         }
     }
 }

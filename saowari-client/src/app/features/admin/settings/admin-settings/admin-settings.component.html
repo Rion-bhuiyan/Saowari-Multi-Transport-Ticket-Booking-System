@@ -58,6 +58,26 @@
     </div>
   </div>
 
+  <!-- ══ SECTION 1.5: Site Appearance ══════════════════════════════════════════ -->
+  <div class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden">
+    <div class="bg-saowari-primary-light px-6 py-4 border-b border-blue-100">
+      <h2 class="font-bold text-lg text-saowari-primary flex items-center gap-2">
+        <i class="fas fa-magic"></i> Site Appearance
+      </h2>
+      <p class="text-xs text-saowari-text-secondary mt-1">Configure global appearance settings like background patterns.</p>
+    </div>
+    <div class="p-8 flex items-center justify-between">
+      <div>
+        <p class="text-sm font-semibold text-gray-700 mb-1">Transport Background Pattern</p>
+        <p class="text-xs text-saowari-text-secondary">Enable a minimalistic transport-themed typography and emoji pattern across the site's background.</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <span *ngIf="isAppearanceLoading" class="loading loading-spinner loading-sm text-saowari-primary"></span>
+        <input type="checkbox" class="toggle toggle-primary" [(ngModel)]="enableBackgroundPattern" (change)="toggleBackgroundPattern()" [disabled]="isAppearanceLoading" />
+      </div>
+    </div>
+  </div>
+
   <!-- ══ SECTION 2: Ticket Background ═══════════════════════════ -->
   <div class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden">
     <div class="bg-gradient-to-r from-violet-50 to-purple-50 px-6 py-4 border-b border-purple-100">

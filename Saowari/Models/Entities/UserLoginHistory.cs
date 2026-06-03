@@ -23,6 +23,11 @@ namespace Saowari.Models.Entities
 
         public DateTime LoginTime { get; set; } = DateTime.UtcNow;
 
+        public DateTime? LastActiveTime { get; set; }
+
+        [NotMapped]
+        public double SessionDurationMinutes => LastActiveTime.HasValue ? Math.Min((LastActiveTime.Value - LoginTime).TotalMinutes, 120) : 0;
+
         public bool IsActive { get; set; } = true;
 
         public virtual User User { get; set; } = null!;

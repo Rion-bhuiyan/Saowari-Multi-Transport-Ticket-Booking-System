@@ -34,13 +34,28 @@ namespace Saowari.Controllers
 
         /// <summary>Get all users (Admin only)</summary>
         [HttpGet]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<IEnumerable<UserResponseDto>>>> GetAll()
         {
-            var users = await _context.Users
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            int? companyId = null;
+            if (userRole == "CompanyManager" || userRole == "Manager")
+            {
+                var companyIdStr = User.FindFirst("CompanyId")?.Value;
+                if (int.TryParse(companyIdStr, out int cid)) companyId = cid;
+            }
+
+            var query = _context.Users
                 .Include(u => u.UserRole)
                 .Include(u => u.Company)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (companyId.HasValue)
+            {
+                query = query.Where(u => u.CompanyId == companyId.Value);
+            }
+
+            var users = await query.ToListAsync();
                 
             var dtos = _mapper.Map<IEnumerable<UserResponseDto>>(users).ToList();
             foreach (var dto in dtos)
@@ -53,9 +68,17 @@ namespace Saowari.Controllers
 
         /// <summary>Create a user (Admin only)</summary>
         [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<UserResponseDto>>> CreateUser([FromBody] UserAdminCreateDto dto)
         {
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            int? companyId = null;
+            if (userRoleClaim == "CompanyManager" || userRoleClaim == "Manager")
+            {
+                var companyIdStr = User.FindFirst("CompanyId")?.Value;
+                if (int.TryParse(companyIdStr, out int cid)) companyId = cid;
+            }
+
             var userRole = await _context.UserRoles.FindAsync(dto.RoleID);
             if (userRole == null) return BadRequest(ApiResponse<UserResponseDto>.Fail("Invalid Role ID."));
 
@@ -88,7 +111,7 @@ namespace Saowari.Controllers
 
             if (userRole.UserRoleName != "Customer")
             {
-                user.CompanyId = dto.CompanyId;
+                user.CompanyId = companyId.HasValue ? companyId.Value : dto.CompanyId;
             }
             else
             {
@@ -104,11 +127,24 @@ namespace Saowari.Controllers
 
         /// <summary>Update user (Admin only)</summary>
         [HttpPut("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<UserResponseDto>>> UpdateUser(int id, [FromBody] UserAdminUpdateDto dto)
         {
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            int? companyId = null;
+            if (userRoleClaim == "CompanyManager" || userRoleClaim == "Manager")
+            {
+                var companyIdStr = User.FindFirst("CompanyId")?.Value;
+                if (int.TryParse(companyIdStr, out int cid)) companyId = cid;
+            }
+
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound(ApiResponse<UserResponseDto>.Fail("User not found"));
+
+            if (companyId.HasValue && user.CompanyId != companyId.Value)
+            {
+                return Forbid();
+            }
 
             var userRole = await _context.UserRoles.FindAsync(dto.RoleID);
             if (userRole == null) return BadRequest(ApiResponse<UserResponseDto>.Fail("Invalid Role ID."));
@@ -161,7 +197,7 @@ namespace Saowari.Controllers
 
             if (userRole.UserRoleName != "Customer")
             {
-                user.CompanyId = dto.CompanyId;
+                user.CompanyId = companyId.HasValue ? companyId.Value : dto.CompanyId;
             }
             else
             {
@@ -176,24 +212,40 @@ namespace Saowari.Controllers
 
         /// <summary>Get user by Email (Admin only)</summary>
         [HttpGet("by-email/{email}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<UserResponseDto>>> GetByEmail(string email)
         {
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            int? companyId = null;
+            if (userRoleClaim == "CompanyManager" || userRoleClaim == "Manager")
+            {
+                var companyIdStr = User.FindFirst("CompanyId")?.Value;
+                if (int.TryParse(companyIdStr, out int cid)) companyId = cid;
+            }
             var user = await _context.Users
                 .Include(u => u.UserRole)
                 .Include(u => u.Company)
                 .FirstOrDefaultAsync(u => u.Email == email);
             if (user == null) return NotFound(ApiResponse<UserResponseDto>.Fail("User not found"));
+            if (companyId.HasValue && user.CompanyId != companyId.Value) return Forbid();
             return Ok(ApiResponse<UserResponseDto>.Ok(_mapper.Map<UserResponseDto>(user)));
         }
 
         /// <summary>Get user by ID (Admin only)</summary>
         [HttpGet("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<UserResponseDto>>> GetById(int id)
         {
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            int? companyId = null;
+            if (userRoleClaim == "CompanyManager" || userRoleClaim == "Manager")
+            {
+                var companyIdStr = User.FindFirst("CompanyId")?.Value;
+                if (int.TryParse(companyIdStr, out int cid)) companyId = cid;
+            }
             var user = await _context.Users.Include(u => u.UserRole).Include(u => u.Company).FirstOrDefaultAsync(u => u.UserID == id);
             if (user == null) return NotFound(ApiResponse<UserResponseDto>.Fail("User not found"));
+            if (companyId.HasValue && user.CompanyId != companyId.Value) return Forbid();
             return Ok(ApiResponse<UserResponseDto>.Ok(_mapper.Map<UserResponseDto>(user)));
         }
 
@@ -386,9 +438,16 @@ namespace Saowari.Controllers
 
         /// <summary>Toggle user active status (Admin only)</summary>
         [HttpPatch("{id}/active")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<bool>>> PatchActive(int id, [FromBody] bool isActive)
         {
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            int? companyId = null;
+            if (userRoleClaim == "CompanyManager" || userRoleClaim == "Manager")
+            {
+                var companyIdStr = User.FindFirst("CompanyId")?.Value;
+                if (int.TryParse(companyIdStr, out int cid)) companyId = cid;
+            }
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound(ApiResponse<bool>.Fail("User not found"));
             user.IsActive = isActive;
@@ -398,9 +457,16 @@ namespace Saowari.Controllers
 
         /// <summary>Assign a role to a user (Admin only)</summary>
         [HttpPatch("{id}/role")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<bool>>> AssignRole(int id, [FromBody] int roleId)
         {
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            int? companyId = null;
+            if (userRoleClaim == "CompanyManager" || userRoleClaim == "Manager")
+            {
+                var companyIdStr = User.FindFirst("CompanyId")?.Value;
+                if (int.TryParse(companyIdStr, out int cid)) companyId = cid;
+            }
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound(ApiResponse<bool>.Fail("User not found"));
             user.RoleID = roleId;
@@ -410,9 +476,16 @@ namespace Saowari.Controllers
 
         /// <summary>Soft delete user (Admin only)</summary>
         [HttpDelete("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<bool>>> Delete(int id)
         {
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            int? companyId = null;
+            if (userRoleClaim == "CompanyManager" || userRoleClaim == "Manager")
+            {
+                var companyIdStr = User.FindFirst("CompanyId")?.Value;
+                if (int.TryParse(companyIdStr, out int cid)) companyId = cid;
+            }
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound(ApiResponse<bool>.Fail("User not found"));
             user.IsActive = false;
@@ -422,15 +495,24 @@ namespace Saowari.Controllers
 
         /// <summary>Get full admin profile details for a user (Admin only)</summary>
         [HttpGet("{id}/admin-profile")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<UserAdminProfileDto>>> GetAdminProfile(int id)
         {
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            int? companyId = null;
+            if (userRoleClaim == "CompanyManager" || userRoleClaim == "Manager")
+            {
+                var companyIdStr = User.FindFirst("CompanyId")?.Value;
+                if (int.TryParse(companyIdStr, out int cid)) companyId = cid;
+            }
+
             var user = await _context.Users
                 .Include(u => u.UserRole)
                 .Include(u => u.Company)
                 .FirstOrDefaultAsync(u => u.UserID == id);
 
             if (user == null) return NotFound(ApiResponse<UserAdminProfileDto>.Fail("User not found"));
+            if (companyId.HasValue && user.CompanyId != companyId.Value) return Forbid();
 
             var profile = new UserAdminProfileDto
             {

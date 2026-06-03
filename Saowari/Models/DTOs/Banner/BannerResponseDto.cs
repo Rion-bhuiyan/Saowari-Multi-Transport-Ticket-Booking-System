@@ -9,6 +9,7 @@ namespace Saowari.Models.DTOs.Banner
         public string ImageUrl { get; set; } = null!;
         public string? LinkUrl { get; set; }
         public string Position { get; set; } = null!;
+        public string SizeTemplate { get; set; } = "Horizontal";
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
     }

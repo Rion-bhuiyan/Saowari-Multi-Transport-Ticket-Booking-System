@@ -1,34 +1,41 @@
+<!-- ===== MODERN AURORA BACKGROUND ===== -->
+<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+  <div class="absolute top-0 -left-1/4 w-1/2 h-1/2 rounded-full bg-saowari-primary/30 blur-[120px] animate-pulse" style="animation-duration: 8s;"></div>
+  <div class="absolute top-1/3 -right-1/4 w-1/2 h-1/2 rounded-full bg-saowari-accent/30 blur-[150px] animate-pulse" style="animation-duration: 10s; animation-delay: 2s;"></div>
+  <div class="absolute -bottom-1/4 left-1/4 w-1/2 h-1/2 rounded-full bg-saowari-secondary/30 blur-[120px] animate-pulse" style="animation-duration: 12s; animation-delay: 4s;"></div>
+</div>
+
 <!-- ===== HERO SECTION ===== -->
-<section class="w-full px-4 pt-24 pb-4 bg-saowari-surface-alt">
-  <div class="container mx-auto max-w-7xl">
+<section class="w-full relative z-10">
+  <div class="w-full">
     <app-home-slider></app-home-slider>
   </div>
 </section>
 
 <!-- ===== SEARCH BOX ===== -->
-<div class="relative z-30 mt-8 px-4 pb-12">
+<div appScrollAnimate animationClass="animate-fade-in-up" class="relative z-30 -mt-24 md:-mt-32 lg:-mt-40 xl:-mt-48 px-4 pb-8">
   <div class="container mx-auto max-w-4xl">
-    <div class="bg-saowari-surface rounded-3xl shadow-[0_20px_60px_-10px_rgba(0,85,159,0.2)] p-5 md:p-7 border border-blue-50">
+    <div class="bg-saowari-primary/10 backdrop-blur-xl rounded-3xl shadow-2xl p-5 md:p-7 border border-white/20 transition-all duration-700 hover:bg-saowari-primary/20 hover:border-saowari-primary/50 hover:shadow-[0_0_60px_-15px_rgba(var(--saowari-primary-rgb),0.5)] group/search">
 
       <!-- Tabs: Transport type -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
 
-        <div class="flex items-center gap-1 bg-saowari-surface-alt border border-saowari-border p-1 rounded-xl w-fit">
+        <div class="flex items-center gap-1 bg-white/10 backdrop-blur-md border border-white/20 p-1 rounded-xl w-fit shadow-sm">
           <button type="button"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200"
-            [ngClass]="searchParams.transportType === 'Bus' ? 'bg-saowari-primary text-white' : 'text-saowari-text-secondary hover:bg-saowari-surface'"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300"
+            [ngClass]="searchParams.transportType === 'Bus' ? 'bg-white text-saowari-primary shadow-md' : 'text-white/90 hover:bg-white/20'"
             (click)="searchParams.transportType = 'Bus'">
             <i class="fas fa-bus"></i> Bus
           </button>
           <button type="button"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200"
-            [ngClass]="searchParams.transportType === 'Launch' ? 'bg-saowari-primary text-white' : 'text-saowari-text-secondary hover:bg-saowari-surface'"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300"
+            [ngClass]="searchParams.transportType === 'Launch' ? 'bg-white text-saowari-primary shadow-md' : 'text-white/90 hover:bg-white/20'"
             (click)="searchParams.transportType = 'Launch'">
             <i class="fas fa-ship"></i> Launch
           </button>
           <button type="button"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200"
-            [ngClass]="searchParams.transportType === 'Airplane' ? 'bg-saowari-primary text-white' : 'text-saowari-text-secondary hover:bg-saowari-surface'"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300"
+            [ngClass]="searchParams.transportType === 'Airplane' ? 'bg-white text-saowari-primary shadow-md' : 'text-white/90 hover:bg-white/20'"
             (click)="searchParams.transportType = 'Airplane'">
             <i class="fas fa-plane"></i> Flight
           </button>
@@ -36,23 +43,23 @@
 
         <div class="flex items-center gap-4 text-sm">
           <label class="flex items-center gap-2 cursor-pointer font-bold transition-all duration-200" 
-            [ngClass]="searchParams.tripType === 'one-way' ? 'text-saowari-primary' : 'text-saowari-text-secondary'"
+            [ngClass]="searchParams.tripType === 'one-way' ? 'text-white' : 'text-white/70'"
             (click)="searchParams.tripType = 'one-way'">
             <span class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200" 
-              [ngClass]="searchParams.tripType === 'one-way' ? 'border-saowari-primary' : 'border-saowari-border'">
+              [ngClass]="searchParams.tripType === 'one-way' ? 'border-white' : 'border-white/50'">
               <span class="w-2 h-2 rounded-full transition-all duration-200" 
-                [ngClass]="searchParams.tripType === 'one-way' ? 'bg-saowari-primary' : 'bg-transparent'"></span>
+                [ngClass]="searchParams.tripType === 'one-way' ? 'bg-white' : 'bg-transparent'"></span>
             </span>
             One Way
           </label>
 
           <label class="flex items-center gap-2 cursor-pointer font-bold transition-all duration-200" 
-            [ngClass]="searchParams.tripType === 'round-way' ? 'text-saowari-primary' : 'text-saowari-text-secondary'"
+            [ngClass]="searchParams.tripType === 'round-way' ? 'text-white' : 'text-white/70'"
             (click)="searchParams.tripType = 'round-way'">
             <span class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200" 
-              [ngClass]="searchParams.tripType === 'round-way' ? 'border-saowari-primary' : 'border-saowari-border'">
+              [ngClass]="searchParams.tripType === 'round-way' ? 'border-white' : 'border-white/50'">
               <span class="w-2 h-2 rounded-full transition-all duration-200" 
-                [ngClass]="searchParams.tripType === 'round-way' ? 'bg-saowari-primary' : 'bg-transparent'"></span>
+                [ngClass]="searchParams.tripType === 'round-way' ? 'bg-white' : 'bg-transparent'"></span>
             </span>
             Round Way
           </label>
@@ -64,17 +71,17 @@
 
         <!-- FROM Custom Dropdown -->
         <div class="relative">
-          <div class="border-2 rounded-2xl p-3 cursor-pointer transition-all duration-200 bg-saowari-surface h-full"
-            [ngClass]="fromDropdownOpen ? 'border-saowari-primary' : 'border-saowari-border'"
+          <div class="border-2 rounded-2xl p-3 cursor-pointer transition-all duration-300 bg-white/95 backdrop-blur-md h-full hover:bg-white"
+            [ngClass]="fromDropdownOpen ? 'border-white' : 'border-transparent'"
             (click)="openFromDropdown(); $event.stopPropagation()">
             <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1 text-saowari-primary">
               <i class="fas fa-paper-plane mr-1"></i> From
             </label>
             <div class="flex items-center justify-between">
-              <span class="font-bold text-sm" [class.text-saowari-text-primary]="selectedFromName" [class.text-saowari-text-secondary]="!selectedFromName">
+              <span class="font-bold text-sm text-slate-800">
                 {{ selectedFromName || 'Leaving from...' }}
               </span>
-              <i class="fas fa-chevron-down text-xs text-saowari-text-secondary transition-transform duration-200"
+              <i class="fas fa-chevron-down text-xs text-slate-400 transition-transform duration-200"
                 [class.rotate-180]="fromDropdownOpen"></i>
             </div>
             <p *ngIf="formSubmitted && !searchParams.fromLocationId" class="text-red-500 text-[10px] mt-1 font-semibold">
@@ -115,24 +122,24 @@
         <!-- SWAP BUTTON -->
         <div class="flex items-center justify-center">
           <button type="button" (click)="swapLocations()"
-            class="w-11 h-11 rounded-full border-2 flex items-center justify-center transition-all duration-200 shadow-sm font-bold border-saowari-primary text-saowari-primary hover:bg-saowari-primary hover:text-white">
+            class="w-11 h-11 rounded-full border-2 flex items-center justify-center transition-all duration-200 shadow-sm font-bold border-white/30 text-white hover:bg-white hover:text-saowari-primary">
             <i class="fas fa-exchange-alt text-sm"></i>
           </button>
         </div>
 
         <!-- TO Custom Dropdown -->
         <div class="relative">
-          <div class="border-2 rounded-2xl p-3 cursor-pointer transition-all duration-200 bg-saowari-surface h-full"
-            [ngClass]="toDropdownOpen ? 'border-saowari-primary' : 'border-saowari-border'"
+          <div class="border-2 rounded-2xl p-3 cursor-pointer transition-all duration-300 bg-white/95 backdrop-blur-md h-full hover:bg-white"
+            [ngClass]="toDropdownOpen ? 'border-white' : 'border-transparent'"
             (click)="openToDropdown(); $event.stopPropagation()">
             <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1 text-saowari-primary">
               <i class="fas fa-map-marker-alt mr-1"></i> To
             </label>
             <div class="flex items-center justify-between">
-              <span class="font-bold text-sm" [class.text-saowari-text-primary]="selectedToName" [class.text-saowari-text-secondary]="!selectedToName">
+              <span class="font-bold text-sm text-slate-800">
                 {{ selectedToName || 'Going to...' }}
               </span>
-              <i class="fas fa-chevron-down text-xs text-saowari-text-secondary transition-transform duration-200"
+              <i class="fas fa-chevron-down text-xs text-slate-400 transition-transform duration-200"
                 [class.rotate-180]="toDropdownOpen"></i>
             </div>
             <p *ngIf="formSubmitted && !searchParams.toLocationId" class="text-red-500 text-[10px] mt-1 font-semibold">
@@ -174,41 +181,60 @@
         </div>
 
         <!-- DATE FIELDS (Split) -->
-        <div class="flex gap-0 border-2 rounded-2xl bg-saowari-surface overflow-hidden transition-all duration-200"
-          [ngClass]="(searchParams.departureDate && searchParams.tripType === 'one-way') || (searchParams.departureDate && searchParams.returnDate && searchParams.tripType === 'round-way') ? 'border-saowari-primary' : 'border-saowari-border'">
+        <div class="flex gap-0 border-2 rounded-2xl bg-saowari-surface/80 backdrop-blur-xl overflow-hidden transition-all duration-300 hover:bg-saowari-surface"
+            [ngClass]="(searchParams.departureDate && searchParams.tripType === 'one-way') || (searchParams.departureDate && searchParams.returnDate && searchParams.tripType === 'round-way') ? 'border-saowari-success' : 'border-saowari-border/50'">
           
           <!-- Departure Date -->
-          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 hover:bg-saowari-surface-alt border-r border-saowari-border relative">
-            <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1 text-saowari-primary">
+          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 hover:bg-saowari-surface-alt border-r border-saowari-border/50 relative group" (click)="pickerDep.open()">
+            <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1 text-saowari-primary group-hover:text-saowari-accent transition-colors">
               <i class="far fa-calendar-alt mr-1"></i> Journey Date
             </label>
-            <input type="date" [(ngModel)]="searchParams.departureDate" [min]="today"
-              class="w-full bg-transparent border-0 outline-none font-bold text-sm text-saowari-text-primary cursor-pointer p-0 custom-date-input" />
-            <p *ngIf="formSubmitted && !searchParams.departureDate" class="text-red-500 text-[10px] mt-1 font-semibold absolute bottom-1">
+            
+            <!-- Custom Date Display -->
+            <div class="font-black text-sm text-saowari-text-primary flex items-center justify-between pointer-events-none">
+              <span>{{ searchParams.departureDate ? (searchParams.departureDate | date:'dd MMM, yyyy') : 'Select Date' }}</span>
+              <i class="fas fa-calendar-day text-saowari-primary/50 group-hover:text-saowari-primary transition-colors"></i>
+            </div>
+            
+            <!-- Invisible Material Datepicker Input -->
+            <input matInput [matDatepicker]="pickerDep" [value]="searchParams.departureDate" (dateChange)="onDateChange('departureDate', $event.value)" [min]="today"
+              class="w-0 h-0 opacity-0 absolute pointer-events-none -z-10" />
+            <mat-datepicker #pickerDep></mat-datepicker>
+              
+            <p *ngIf="formSubmitted && !searchParams.departureDate" class="text-red-500 text-[10px] mt-1 font-semibold absolute bottom-1 right-2">
               <i class="fas fa-exclamation-circle"></i> Required
             </p>
           </div>
 
           <!-- Return Date -->
-          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 relative"
-            [ngClass]="searchParams.tripType === 'round-way' ? 'hover:bg-saowari-surface-alt' : 'bg-saowari-surface-alt opacity-70'"
-            (click)="searchParams.tripType === 'one-way' ? searchParams.tripType = 'round-way' : null">
+          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 relative group"
+            [ngClass]="searchParams.tripType === 'round-way' ? 'hover:bg-saowari-surface-alt' : 'bg-saowari-surface-alt/50 opacity-60'"
+            (click)="searchParams.tripType === 'round-way' ? pickerRet.open() : searchParams.tripType = 'round-way'">
             
             <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1" 
-              [ngClass]="searchParams.tripType === 'round-way' ? 'text-saowari-primary' : 'text-saowari-text-secondary'">
+              [ngClass]="searchParams.tripType === 'round-way' ? 'text-saowari-primary group-hover:text-saowari-accent transition-colors' : 'text-saowari-text-secondary'">
               <i class="far fa-calendar-check mr-1"></i> Return Date
             </label>
             
+            <!-- Invisible Material Datepicker (always in DOM) -->
+            <input matInput [matDatepicker]="pickerRet" [value]="searchParams.returnDate" (dateChange)="onDateChange('returnDate', $event.value)" [min]="searchParams.departureDate || today"
+              class="w-0 h-0 opacity-0 absolute pointer-events-none -z-10" />
+            <mat-datepicker #pickerRet></mat-datepicker>
+
             <ng-container *ngIf="searchParams.tripType === 'round-way'; else addReturnTpl">
-              <input type="date" [(ngModel)]="searchParams.returnDate" [min]="searchParams.departureDate || today"
-                class="w-full bg-transparent border-0 outline-none font-bold text-sm text-saowari-text-primary cursor-pointer p-0 custom-date-input" />
-              <p *ngIf="formSubmitted && searchParams.tripType === 'round-way' && !searchParams.returnDate" class="text-red-500 text-[10px] mt-1 font-semibold absolute bottom-1">
+              <!-- Custom Date Display -->
+              <div class="font-black text-sm text-saowari-text-primary flex items-center justify-between pointer-events-none">
+                <span>{{ searchParams.returnDate ? (searchParams.returnDate | date:'dd MMM, yyyy') : 'Select Date' }}</span>
+                <i class="fas fa-calendar-day text-saowari-primary/50 group-hover:text-saowari-primary transition-colors"></i>
+              </div>
+                
+              <p *ngIf="formSubmitted && searchParams.tripType === 'round-way' && !searchParams.returnDate" class="text-red-500 text-[10px] mt-1 font-semibold absolute bottom-1 right-2">
                 <i class="fas fa-exclamation-circle"></i> Required
               </p>
             </ng-container>
 
             <ng-template #addReturnTpl>
-              <div class="w-full h-[20px] flex items-center font-bold text-sm transition-colors text-saowari-primary">
+              <div class="w-full h-[20px] flex items-center font-bold text-sm transition-colors text-saowari-text-secondary group-hover:text-saowari-primary">
                 + Add Return
               </div>
             </ng-template>
@@ -219,7 +245,7 @@
 
       <!-- Search Button -->
       <button type="button" (click)="onSearch()"
-        class="mt-4 w-full py-4 rounded-2xl text-white font-extrabold text-lg tracking-wide shadow-lg transition-all duration-300 flex items-center justify-center gap-3 group bg-saowari-primary hover:bg-saowari-primary-dark hover:shadow-xl">
+        class="mt-5 w-full py-4 rounded-2xl text-saowari-primary font-black text-lg tracking-wide shadow-lg transition-all duration-300 flex items-center justify-center gap-3 group bg-white hover:bg-slate-50 hover:shadow-xl hover:-translate-y-1">
         <i class="fas fa-search group-hover:scale-110 transition-transform"></i>
         SEARCH TICKETS
       </button>
@@ -228,186 +254,327 @@
   </div>
 </div>
 
-<!-- ===== UPCOMING TRIPS / SCHEDULES ===== -->
-<section *ngIf="upcomingSchedules && upcomingSchedules.length > 0" class="py-16 bg-saowari-surface border-t border-saowari-border">
-  <div class="container mx-auto px-4">
-    <div class="text-center mb-12">
-      <span class="text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full bg-saowari-primary-light text-saowari-primary border border-saowari-primary-light">Live Departures</span>
-      <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mt-3 mb-2">Upcoming Scheduled Trips</h2>
-      <p class="text-saowari-text-secondary">Book your tickets early on these soon-to-depart premium routes with live seat availability.</p>
+<!-- ===== REAL-TIME PLATFORM STATS ===== -->
+<div appScrollAnimate animationClass="animate-fade-in-up" class="container mx-auto px-4 -mt-4 mb-16 relative z-30 max-w-5xl">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Active Routes -->
+    <div class="flex items-center gap-4 bg-white/80 backdrop-blur-md rounded-2xl p-5 shadow-lg border border-saowari-border/50 hover:shadow-xl transition-all duration-300">
+      <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-saowari-primary text-2xl shadow-sm">
+        <i class="fas fa-route"></i>
+      </div>
+      <div>
+        <h4 class="text-3xl font-black text-gray-900 leading-none">{{ totalRoutesCount }}</h4>
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Active Routes</p>
+      </div>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center justify-items-center">
-      <div *ngFor="let trip of upcomingSchedules"
-        class="w-full max-w-[380px] group bg-saowari-surface rounded-3xl border border-saowari-border shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden flex flex-col justify-between">
-        
-        <!-- Top Info Header -->
-        <div class="p-6 pb-4 border-b border-dashed border-saowari-border">
-          <div class="flex items-center justify-between mb-4">
-            <!-- Company Logo/Info -->
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-saowari-surface-alt border border-saowari-border p-1.5 flex-shrink-0">
-                <img *ngIf="trip.companyLogo" [src]="trip.companyLogo" [alt]="trip.companyName" class="max-h-full max-w-full object-contain" />
-                <div *ngIf="!trip.companyLogo" class="w-full h-full flex items-center justify-center bg-saowari-primary-light text-saowari-primary font-extrabold text-sm rounded-lg">
-                  {{ (trip.companyName || trip.vehicleName || 'SW').substring(0, 2).toUpperCase() }}
-                </div>
-              </div>
-              <div>
-                <h4 class="font-extrabold text-saowari-text-primary text-sm tracking-wide line-clamp-1">{{ trip.companyName || trip.vehicleName }}</h4>
-                <p class="text-[10px] font-bold text-saowari-text-secondary tracking-wider uppercase mt-0.5">{{ trip.vehicleNumber }}</p>
-              </div>
-            </div>
-            
-            <!-- Type Badge -->
-            <span class="flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wider rounded-xl px-3 py-1.5 shadow-sm"
-              [ngClass]="trip.vehicleType === 'Airplane' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400' : trip.vehicleType === 'Launch' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-saowari-primary-light text-saowari-primary'">
-              <i class="fas" [ngClass]="{'fa-bus': trip.vehicleType === 'Bus', 'fa-ship': trip.vehicleType === 'Launch', 'fa-plane': trip.vehicleType === 'Airplane'}"></i>
-              {{ trip.vehicleType }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Route Path & Route Details Section -->
-        <div class="p-6 py-4 flex-1 flex flex-col justify-between gap-5">
-          <!-- Premium Route Path Line -->
-          <div class="flex items-center justify-between px-2">
-            <!-- From Location -->
-            <div class="text-left w-[40%]">
-              <p class="text-[10px] font-bold text-saowari-text-secondary uppercase tracking-widest">Leaving From</p>
-              <h5 class="font-extrabold text-saowari-text-primary text-base mt-1 line-clamp-1">{{ trip.fromLocation }}</h5>
-              <p class="text-[11px] font-semibold text-saowari-primary mt-0.5">{{ formatTime(trip.departureDateTime) }}</p>
-            </div>
-
-            <!-- Route Path Line Animation Graphic -->
-            <div class="flex-1 flex flex-col items-center justify-center relative min-w-[60px]">
-              <div class="w-full border-t-2 border-dashed border-saowari-border absolute top-1/2 left-0 -translate-y-1/2"></div>
-              <div class="w-8 h-8 rounded-full bg-saowari-primary-light border border-saowari-border flex items-center justify-center relative z-10 shadow-sm group-hover:scale-110 transition-transform duration-300 text-saowari-primary">
-                <i class="fas text-[10px]" 
-                  [ngClass]="{'fa-bus': trip.vehicleType === 'Bus', 'fa-ship': trip.vehicleType === 'Launch', 'fa-plane': trip.vehicleType === 'Airplane'}"></i>
-              </div>
-            </div>
-
-            <!-- To Location -->
-            <div class="text-right w-[40%]">
-              <p class="text-[10px] font-bold text-saowari-text-secondary uppercase tracking-widest">Going To</p>
-              <h5 class="font-extrabold text-saowari-text-primary text-base mt-1 line-clamp-1">{{ trip.toLocation }}</h5>
-              <p class="text-[11px] font-semibold text-saowari-success mt-0.5">{{ formatTime(trip.arrivalDateTime) }}</p>
-            </div>
-          </div>
-
-          <!-- Quick Date & Duration Info -->
-          <div class="flex items-center justify-between bg-saowari-surface-alt rounded-2xl p-3 border border-saowari-border">
-            <div class="flex items-center gap-2">
-              <i class="far fa-calendar-alt text-saowari-text-secondary text-xs"></i>
-              <span class="text-xs font-bold text-saowari-text-primary">{{ trip.departureDateTime | date:'EEE, MMM d, y' }}</span>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <i class="far fa-clock text-saowari-text-secondary text-xs"></i>
-              <span class="text-xs font-semibold text-saowari-text-secondary">{{ formatDuration(trip.departureDateTime, trip.arrivalDateTime) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Price, Seats left & Book Seats CTA Footer -->
-        <div class="p-6 pt-4 border-t border-saowari-border bg-saowari-surface-alt flex items-center justify-between">
-          <div>
-            <p class="text-[10px] font-bold text-saowari-text-secondary uppercase tracking-wider">Ticket Price</p>
-            <p class="text-xl font-black text-saowari-text-primary mt-0.5">৳{{ trip.basePrice }}</p>
-          </div>
-          
-          <div class="flex flex-col items-end gap-2">
-            <span class="text-[11px] font-bold" 
-              [ngClass]="trip.availableSeats > 10 ? 'text-saowari-success' : 'text-saowari-danger animate-pulse'">
-              <i class="fas fa-couch mr-1"></i> {{ trip.availableSeats }} seats left
-            </span>
-            <button (click)="viewSeats(trip.scheduleId)"
-              class="text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all hover:scale-105 active:scale-95 group-hover:opacity-95 bg-saowari-primary border-0">
-              Book Seats
-            </button>
-          </div>
-        </div>
-
+    
+    <!-- Partner Operators -->
+    <div class="flex items-center gap-4 bg-white/80 backdrop-blur-md rounded-2xl p-5 shadow-lg border border-saowari-border/50 hover:shadow-xl transition-all duration-300">
+      <div class="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-2xl shadow-sm">
+        <i class="fas fa-bus-alt"></i>
+      </div>
+      <div>
+        <h4 class="text-3xl font-black text-gray-900 leading-none">{{ totalOperatorsCount }}</h4>
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Partner Operators</p>
+      </div>
+    </div>
+    
+    <!-- Connected Districts -->
+    <div class="flex items-center gap-4 bg-white/80 backdrop-blur-md rounded-2xl p-5 shadow-lg border border-saowari-border/50 hover:shadow-xl transition-all duration-300">
+      <div class="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-2xl shadow-sm">
+        <i class="fas fa-map-marked-alt"></i>
+      </div>
+      <div>
+        <h4 class="text-3xl font-black text-gray-900 leading-none">{{ totalLocationsCount }}</h4>
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Connected Locations</p>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ===== UPCOMING TRIPS BANNERS ===== -->
-<section *ngIf="upcomingTripsBanners.length > 0" class="py-8 bg-saowari-surface-alt">
-  <div class="container mx-auto px-4">
-    <div class="flex flex-col gap-6">
-      <a *ngFor="let banner of upcomingTripsBanners" 
+<!-- ===== TOP HERO BANNERS ===== -->
+<section *ngIf="topHeroBanners.length > 0" class="py-12 relative z-20">
+  <div class="container mx-auto max-w-7xl px-4">
+    <div class="flex flex-wrap justify-center gap-6">
+      <a *ngFor="let banner of topHeroBanners" 
          [href]="banner.linkUrl || 'javascript:void(0)'" 
          [target]="banner.linkUrl ? '_blank' : ''"
-         class="block w-full overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.01]">
-        <!-- Responsive wrapper to enforce roughly 1800x860 ratio (about 2.1:1), using aspect-video as a fallback or pb-[47.7%] -->
-        <div class="relative w-full pb-[47.77%] bg-slate-200">
+         [ngClass]="getBannerClass(banner.sizeTemplate)"
+         class="block relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-slate-100 flex-shrink-0">
           <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
-        </div>
       </a>
     </div>
   </div>
 </section>
 
-<!-- ===== POPULAR ROUTES ===== -->
-<section class="py-16 bg-saowari-surface border-t border-saowari-border">
+<!-- ===== UPCOMING TRIPS / SCHEDULES ===== -->
+<section *ngIf="upcomingSchedules && upcomingSchedules.length > 0" class="py-16 relative z-20">
   <div class="container mx-auto px-4">
-    <div class="text-center mb-10">
-      <span class="text-xs font-extrabold uppercase tracking-widest text-saowari-primary">Explore Bangladesh</span>
-      <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mt-1 mb-2">Popular Routes</h2>
-      <p class="text-saowari-text-secondary">Discover our most traveled destinations across the country.</p>
+    <div appScrollAnimate animationClass="animate-fade-in-up" class="text-center mb-12">
+      <span class="text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full bg-saowari-primary-light text-saowari-primary border border-saowari-primary-light">Live Departures</span>
+      <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mt-3 mb-2">Upcoming Scheduled Trips</h2>
+      <p class="text-saowari-text-secondary">Book your tickets early on these soon-to-depart premium routes with live seat availability.</p>
     </div>
 
-    <div class="flex flex-wrap justify-center gap-6">
-      <div *ngFor="let route of featuredRoutes"
-        class="w-full sm:w-[280px] flex-shrink-0 group bg-saowari-surface rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border border-saowari-border hover:-translate-y-1.5">
-        <div class="h-44 relative overflow-hidden">
-          <img [src]="route.image" [alt]="route.to"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-          <span class="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider rounded-full px-3 py-1 shadow-sm bg-saowari-surface text-saowari-primary">
-            <i class="fas" [ngClass]="{'fa-bus': route.type === 'Bus', 'fa-ship': route.type === 'Launch', 'fa-plane': route.type === 'Airplane'}"></i>
-            {{ route.type }}
-          </span>
-          <div class="absolute bottom-4 left-0 right-0 text-center text-white px-3">
-            <p class="font-black text-base tracking-wide drop-shadow-md">{{ route.from }} → {{ route.to }}</p>
+    <div class="flex gap-10 justify-center">
+      <!-- Left Side Banners -->
+      <div *ngIf="getVerticalBanners(upcomingTripsBanners, 'left').length > 0" class="hidden xl:flex flex-col gap-6 w-[160px] flex-shrink-0 pt-2">
+        <a *ngFor="let banner of getVerticalBanners(upcomingTripsBanners, 'left')" 
+           [href]="banner.linkUrl || 'javascript:void(0)'" 
+           [target]="banner.linkUrl ? '_blank' : ''"
+           [ngClass]="getBannerClass(banner.sizeTemplate)"
+           class="block relative overflow-hidden rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-slate-100 flex-shrink-0 mx-auto">
+            <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
+        </a>
+      </div>
+
+      <div class="flex-1 max-w-[1200px]">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center justify-items-center">
+          <div *ngFor="let trip of upcomingSchedules"
+            class="w-full max-w-[340px] mx-auto group rounded-[2rem] border border-white/40 bg-white/10 backdrop-blur-3xl shadow-[0_4px_24px_rgba(31,38,135,0.05)] hover:shadow-[0_12px_32px_rgba(31,38,135,0.1)] hover:-translate-y-1 transition-all duration-300 flex flex-col relative mb-6">
+            <!-- Glass reflection effect -->
+            <div class="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[2rem]"></div>
+            
+            <div class="flex flex-col cursor-pointer select-none relative z-10" (click)="viewSeats(trip.scheduleId)">
+              <!-- Top section (Company) -->
+              <div class="p-3.5 flex items-center justify-between border-b border-dashed border-gray-300/60 mx-3">
+                <div class="flex items-center gap-2.5 flex-1 min-w-0 pr-2">
+                  <div class="w-10 h-10 rounded-[0.9rem] bg-white/80 backdrop-blur-md shadow-sm flex items-center justify-center p-1 border border-white flex-shrink-0">
+                    <img *ngIf="trip.companyLogo" [src]="trip.companyLogo" [alt]="trip.companyName" class="max-h-full max-w-full object-contain" />
+                    <div *ngIf="!trip.companyLogo" class="w-full h-full flex items-center justify-center bg-blue-50 text-blue-600 font-extrabold text-[11px] rounded-lg">
+                      {{ (trip.companyName || trip.vehicleName || 'SW').substring(0, 2).toUpperCase() }}
+                    </div>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <h4 class="font-bold text-gray-800 text-xs tracking-wide break-words leading-tight">{{ trip.companyName || trip.vehicleName }}</h4>
+                    <p class="text-[9px] font-semibold text-gray-500 tracking-wider uppercase mt-0.5">{{ trip.vehicleNumber }}</p>
+                  </div>
+                </div>
+                <div class="bg-blue-100/70 text-blue-800 px-2.5 py-1 rounded-lg font-bold text-[9px] uppercase tracking-wider border border-white/60 backdrop-blur-md text-center flex items-center justify-center min-w-[45px] shadow-sm flex-shrink-0">
+                  {{ trip.vehicleType === 'Airplane' ? 'FLIGHT' : (trip.vehicleType === 'Launch' ? 'LAUNCH' : 'AC BUS') }}
+                </div>
+              </div>
+
+              <!-- Middle section (Route & Time) -->
+              <div class="p-4 flex flex-col gap-4 relative">
+                <div class="flex items-center justify-between px-1 w-full">
+                  <!-- Departure -->
+                  <div class="flex-[2] text-left relative z-10 min-w-0">
+                    <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">Leaving From</p>
+                    <h3 class="text-base font-black text-gray-900 leading-tight pr-2 break-words">{{ trip.fromLocation }}</h3>
+                    <p class="text-[11px] font-bold text-blue-700 mt-1">{{ formatTime(trip.departureDateTime) }}</p>
+                  </div>
+
+                  <!-- Center Circle -->
+                  <div class="flex-1 flex flex-col items-center justify-center relative min-w-[35px] mx-1">
+                    <div class="absolute top-1/2 left-0 w-full border-t-2 border-dashed border-gray-400/40 -z-10"></div>
+                    <div class="w-5 h-5 rounded-full bg-white/90 border border-blue-200 flex items-center justify-center shadow-sm text-blue-400 backdrop-blur-md">
+                    </div>
+                  </div>
+
+                  <!-- Arrival -->
+                  <div class="flex-[2] text-right relative z-10 min-w-0">
+                    <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">Going To</p>
+                    <h3 class="text-base font-black text-gray-900 leading-tight pl-2 break-words">{{ trip.toLocation }}</h3>
+                    <p class="text-[11px] font-bold text-green-700 mt-1">{{ formatTime(trip.arrivalDateTime) }}</p>
+                  </div>
+                </div>
+
+                <!-- Date/Duration Pill -->
+                <div class="bg-white/50 backdrop-blur-md px-4 py-1.5 rounded-xl flex items-center justify-center gap-3 text-[10px] font-bold text-gray-700 border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.02)] mx-auto w-fit">
+                  <span class="flex items-center gap-1.5"><i class="far fa-calendar-alt text-gray-500"></i> {{ trip.departureDateTime | date:'EEE, MMM d, y' }}</span>
+                  <span class="w-1 h-1 rounded-full bg-gray-400/50"></span>
+                  <span class="flex items-center gap-1.5"><i class="far fa-clock text-gray-500"></i> {{ formatDuration(trip.departureDateTime, trip.arrivalDateTime) }}</span>
+                </div>
+              </div>
+
+              <!-- Bottom section (Price & Action) -->
+              <div class="bg-white/30 backdrop-blur-3xl p-4 flex flex-col border-t border-white/40 rounded-b-[2rem]">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">Ticket Price</p>
+                    <div class="flex items-baseline gap-1">
+                      <span class="text-xl font-black text-gray-900 drop-shadow-sm">৳{{ trip.basePrice }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="flex flex-col items-end gap-1.5 text-right">
+                     <span class="text-[10px] font-bold flex items-center gap-1"
+                           [ngClass]="trip.availableSeats > 5 ? 'text-green-700' : 'text-red-600 animate-pulse'">
+                       <i class="fas fa-couch"></i> {{ trip.availableSeats }} seats left
+                     </span>
+                     <button class="bg-gradient-to-r from-[#00559F] to-[#004480] hover:from-[#004480] hover:to-[#003366] text-white px-5 py-2 rounded-[0.8rem] font-bold shadow-md shadow-blue-900/20 transition-all active:scale-95 text-xs" (click)="$event.stopPropagation(); viewSeats(trip.scheduleId)">
+                       Book Seats
+                     </button>
+                  </div>
+                </div>
+                
+                <!-- Full Details Toggle inside card -->
+                <div class="mt-4 border-t border-gray-300/40 pt-2.5 text-center">
+                  <button class="text-[10px] text-blue-700 font-bold hover:text-blue-900 cursor-pointer flex items-center justify-center gap-1 mx-auto transition-colors px-3 py-1 rounded-md hover:bg-blue-50/50" (click)="$event.stopPropagation(); trip.showDetails = !trip.showDetails">
+                      <i class="fas" [ngClass]="trip.showDetails ? 'fa-chevron-up' : 'fa-info-circle'"></i> {{ trip.showDetails ? 'Hide Details' : 'View Full Details' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Full Details Section -->
+            <div *ngIf="trip.showDetails" class="border-t border-white/40 bg-white/30 backdrop-blur-3xl p-4 text-xs text-gray-800 shadow-inner relative z-0 rounded-b-[2rem]" (click)="$event.stopPropagation()">
+               <div class="flex flex-col gap-3">
+                  <div>
+                     <p class="font-bold text-gray-900 mb-2.5 border-b border-gray-300/40 pb-1.5 flex items-center text-[10px] uppercase tracking-wider"><i class="fas fa-map-marker-alt text-blue-600 mr-2"></i> Boarding & Dropping</p>
+                     <ul class="space-y-3 text-[11px]">
+                       <li class="flex items-start gap-2.5">
+                         <div class="w-5 h-5 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center flex-shrink-0 text-blue-600 shadow-sm mt-0.5">
+                           <i class="fas fa-arrow-up text-[9px]"></i>
+                         </div>
+                         <div>
+                           <strong class="block text-gray-900 mb-0.5">Boarding Point</strong>
+                           <span class="text-gray-700 block">{{ trip.fromLocation }}</span>
+                           <span class="text-blue-700 font-bold mt-1 inline-flex items-center bg-blue-50/80 px-2 py-0.5 rounded border border-blue-100 text-[10px]"><i class="far fa-clock mr-1.5"></i>{{ formatTime(trip.departureDateTime) }}</span>
+                         </div>
+                       </li>
+                       <li class="flex items-start gap-2.5">
+                         <div class="w-5 h-5 rounded-full bg-green-100 border border-green-200 flex items-center justify-center flex-shrink-0 text-green-600 shadow-sm mt-0.5">
+                           <i class="fas fa-arrow-down text-[9px]"></i>
+                         </div>
+                         <div>
+                           <strong class="block text-gray-900 mb-0.5">Dropping Point</strong>
+                           <span class="text-gray-700 block">{{ trip.toLocation }}</span>
+                           <span class="text-green-700 font-bold mt-1 inline-flex items-center bg-green-50/80 px-2 py-0.5 rounded border border-green-100 text-[10px]"><i class="far fa-clock mr-1.5"></i>{{ formatTime(trip.arrivalDateTime) }}</span>
+                         </div>
+                       </li>
+                     </ul>
+                  </div>
+                  
+                  <div *ngIf="trip.companyName">
+                    <p class="font-bold text-gray-900 mb-2 border-b border-gray-300/40 pb-1.5 flex items-center text-[10px] uppercase tracking-wider"><i class="fas fa-bus text-orange-500 mr-2"></i> Operator Info</p>
+                    <p class="text-[10px] text-gray-800 bg-white/60 backdrop-blur-md p-2 rounded-lg border border-white shadow-sm font-medium">Operated by <strong>{{ trip.companyName }}</strong>. Standard policies apply for this {{ trip.vehicleType }}.</p>
+                  </div>
+               </div>
+            </div>
           </div>
         </div>
-        <div class="p-5 flex flex-col items-center justify-center text-center gap-4">
-          <div>
-            <p class="text-[10px] text-saowari-text-secondary font-bold uppercase tracking-widest">Distance / Time</p>
-            <p class="text-sm font-extrabold mt-0.5 text-saowari-primary">{{ route.distance }} KM • {{ route.estimatedHours }}h</p>
-          </div>
-          <button (click)="quickSearch(route)"
-            class="w-full text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all hover:opacity-90 bg-saowari-primary border-0">
-            Book Now
-          </button>
+        
+        <!-- Horizontal Banners -->
+        <div *ngIf="getHorizontalBanners(upcomingTripsBanners).length > 0" class="flex flex-wrap justify-center gap-6 mt-10">
+          <a *ngFor="let banner of getHorizontalBanners(upcomingTripsBanners)" 
+             [href]="banner.linkUrl || 'javascript:void(0)'" 
+             [target]="banner.linkUrl ? '_blank' : ''"
+             [ngClass]="getBannerClass(banner.sizeTemplate)"
+             class="block relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-slate-100 flex-shrink-0">
+              <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
+          </a>
         </div>
+      </div>
+
+      <!-- Right Side Banners -->
+      <div *ngIf="getVerticalBanners(upcomingTripsBanners, 'right').length > 0" class="hidden xl:flex flex-col gap-6 w-[160px] flex-shrink-0 pt-2">
+        <a *ngFor="let banner of getVerticalBanners(upcomingTripsBanners, 'right')" 
+           [href]="banner.linkUrl || 'javascript:void(0)'" 
+           [target]="banner.linkUrl ? '_blank' : ''"
+           [ngClass]="getBannerClass(banner.sizeTemplate)"
+           class="block relative overflow-hidden rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-slate-100 flex-shrink-0 mx-auto">
+            <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
+        </a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===== POPULAR ROUTES BANNERS ===== -->
-<section *ngIf="popularRoutesBanners.length > 0" class="py-8 bg-saowari-surface">
+<!-- ===== POPULAR ROUTES ===== -->
+<section class="py-16 relative z-20">
   <div class="container mx-auto px-4">
-    <div class="flex flex-col gap-6">
-      <a *ngFor="let banner of popularRoutesBanners" 
+    <div appScrollAnimate animationClass="animate-fade-in-up" class="text-center mb-10">
+      <span class="text-xs font-extrabold uppercase tracking-widest text-saowari-primary">Explore Bangladesh</span>
+      <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mt-1 mb-2">Popular Routes</h2>
+      <p class="text-saowari-text-secondary">Discover our most traveled destinations across the country.</p>
+    </div>
+
+    <div class="flex gap-10 justify-center">
+      <!-- Left Side Banners -->
+      <div *ngIf="getVerticalBanners(popularRoutesBanners, 'left').length > 0" class="hidden xl:flex flex-col gap-6 w-[160px] flex-shrink-0 pt-2">
+        <a *ngFor="let banner of getVerticalBanners(popularRoutesBanners, 'left')" 
+           [href]="banner.linkUrl || 'javascript:void(0)'" 
+           [target]="banner.linkUrl ? '_blank' : ''"
+           [ngClass]="getBannerClass(banner.sizeTemplate)"
+           class="block relative overflow-hidden rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-slate-100 flex-shrink-0 mx-auto">
+            <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
+        </a>
+      </div>
+
+      <div class="flex-1 max-w-[1200px]">
+        <div class="flex flex-wrap justify-center gap-6">
+          <div *ngFor="let route of featuredRoutes"
+            class="w-full sm:w-[280px] flex-shrink-0 group bg-saowari-surface/60 backdrop-blur-2xl rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden cursor-pointer border border-saowari-border/50 hover:-translate-y-2 hover:bg-saowari-surface/80">
+            <div class="h-44 relative overflow-hidden">
+              <img [src]="route.image" [alt]="route.to"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <span class="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider rounded-full px-3 py-1 shadow-sm bg-saowari-surface text-saowari-primary">
+                <i class="fas" [ngClass]="{'fa-bus': route.type === 'Bus', 'fa-ship': route.type === 'Launch', 'fa-plane': route.type === 'Airplane'}"></i>
+                {{ route.type }}
+              </span>
+              <div class="absolute bottom-4 left-0 right-0 text-center text-white px-3">
+                <p class="font-black text-base tracking-wide drop-shadow-md">{{ route.from }} → {{ route.to }}</p>
+              </div>
+            </div>
+            <div class="p-5 flex flex-col items-center justify-center text-center gap-4">
+              <div>
+                <p class="text-[10px] text-saowari-text-secondary font-bold uppercase tracking-widest">Distance / Time</p>
+                <p class="text-sm font-extrabold mt-0.5 text-saowari-primary">{{ route.distance }} KM • {{ route.estimatedHours }}h</p>
+              </div>
+              <button (click)="quickSearch(route)"
+                class="w-full text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all hover:opacity-90 bg-saowari-primary border-0">
+                Book Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Horizontal Banners -->
+        <div *ngIf="getHorizontalBanners(popularRoutesBanners).length > 0" class="flex flex-wrap justify-center gap-6 mt-10">
+          <a *ngFor="let banner of getHorizontalBanners(popularRoutesBanners)" 
+             [href]="banner.linkUrl || 'javascript:void(0)'" 
+             [target]="banner.linkUrl ? '_blank' : ''"
+             [ngClass]="getBannerClass(banner.sizeTemplate)"
+             class="block relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-slate-100 flex-shrink-0">
+              <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Side Banners -->
+      <div *ngIf="getVerticalBanners(popularRoutesBanners, 'right').length > 0" class="hidden xl:flex flex-col gap-6 w-[160px] flex-shrink-0 pt-2">
+        <a *ngFor="let banner of getVerticalBanners(popularRoutesBanners, 'right')" 
+           [href]="banner.linkUrl || 'javascript:void(0)'" 
+           [target]="banner.linkUrl ? '_blank' : ''"
+           [ngClass]="getBannerClass(banner.sizeTemplate)"
+           class="block relative overflow-hidden rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-slate-100 flex-shrink-0 mx-auto">
+            <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
+        </a>
+      </div>
+    </div>
+
+<!-- ===== MIDDLE CONTENT BANNERS ===== -->
+<section *ngIf="middleContentBanners.length > 0" class="py-8 relative z-20">
+  <div class="container mx-auto px-4">
+    <div class="flex flex-wrap justify-center gap-6">
+      <a *ngFor="let banner of middleContentBanners" 
          [href]="banner.linkUrl || 'javascript:void(0)'" 
          [target]="banner.linkUrl ? '_blank' : ''"
-         class="block w-full overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.01]">
-        <div class="relative w-full pb-[47.77%] bg-slate-200">
+         [ngClass]="getBannerClass(banner.sizeTemplate)"
+         class="block relative overflow-hidden rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-slate-100 flex-shrink-0">
           <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
-        </div>
       </a>
     </div>
   </div>
 </section>
 
 <!-- ===== WHY CHOOSE US ===== -->
-<section class="py-16 bg-saowari-surface">
+<section class="py-16 relative z-20">
   <div class="container mx-auto px-4">
-    <div class="text-center mb-12">
+    <div appScrollAnimate animationClass="animate-fade-in-up" class="text-center mb-12">
       <span class="text-xs font-extrabold uppercase tracking-widest text-saowari-primary">Our Promise</span>
       <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mt-1 mb-2">Why Choose Saowari?</h2>
       <p class="text-saowari-text-secondary">We provide the best booking experience with premium services.</p>
@@ -418,8 +585,8 @@
         {icon: 'fa-ticket-alt', title: 'Easy Booking', text: 'Book your tickets in just a few clicks with our user-friendly interface.'},
         {icon: 'fa-shield-alt', title: 'Secure Payments', text: 'Your transactions are highly secured with top-notch encryption.'},
         {icon: 'fa-headset', title: '24/7 Support', text: 'Our dedicated support team is always ready to assist you anytime.'}
-      ]" class="group flex flex-col items-center text-center p-8 rounded-2xl border border-saowari-border hover:border-saowari-primary hover:bg-saowari-surface-alt transition-all duration-300">
-        <div class="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl mb-5 shadow-sm transition-all duration-300 group-hover:scale-110 bg-saowari-primary-light text-saowari-primary">
+      ]" appScrollAnimate animationClass="animate-zoom-in" class="group flex flex-col items-center text-center p-8 rounded-3xl border border-saowari-border/30 bg-saowari-primary/5 backdrop-blur-xl hover:border-saowari-primary/50 hover:bg-saowari-primary/15 hover:-translate-y-2 hover:shadow-xl transition-all duration-500">
+        <div class="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl mb-5 shadow-sm transition-all duration-500 group-hover:scale-110 bg-saowari-primary/10 border border-saowari-primary/20 text-saowari-primary">
           <i class="fas" [ngClass]="feature.icon"></i>
         </div>
         <h3 class="text-xl font-bold mb-2 text-saowari-text-primary">{{ feature.title }}</h3>
@@ -430,30 +597,65 @@
 </section>
 
 <!-- ===== OUR TRANSPORT PARTNERS ===== -->
-<section *ngIf="companies && companies.length > 0" class="py-16 bg-saowari-surface-alt border-t border-saowari-border">
+<section *ngIf="companies && companies.length > 0" class="py-16 relative z-20">
   <div class="container mx-auto px-4">
-    <div class="text-center mb-12">
+    <div appScrollAnimate animationClass="animate-fade-in-up" class="text-center mb-12">
       <span class="text-xs font-extrabold uppercase tracking-widest text-saowari-primary">Trusted Operators</span>
       <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mt-1 mb-2">Our Transport Partners</h2>
       <p class="text-saowari-text-secondary">We partner with the leading and most reliable transport operators in the country.</p>
     </div>
 
-    <div class="flex flex-wrap justify-center gap-6">
-      <div *ngFor="let company of companies" 
-        class="w-[180px] flex-shrink-0 group bg-saowari-surface p-6 rounded-2xl shadow-sm hover:shadow-lg border border-saowari-border transition-all duration-300 flex flex-col items-center justify-center text-center hover:-translate-y-1">
-        <div class="w-24 h-24 rounded-2xl flex items-center justify-center overflow-hidden mb-4 bg-saowari-surface-alt border border-saowari-border p-2 group-hover:scale-105 transition-transform duration-300">
-          <img *ngIf="company.logoURL" [src]="company.logoURL" [alt]="company.companyName" class="max-h-full max-w-full object-contain" />
-          <div *ngIf="!company.logoURL" class="w-full h-full flex items-center justify-center bg-saowari-primary-light text-saowari-primary font-extrabold text-2xl rounded-2xl">
-            {{ company.companyName.substring(0, 2).toUpperCase() }}
+    <div class="flex gap-10 justify-center">
+      <!-- Left Side Banners -->
+      <div *ngIf="getVerticalBanners(transportPartnersBanners, 'left').length > 0" class="hidden xl:flex flex-col gap-6 w-[160px] flex-shrink-0 pt-2">
+        <a *ngFor="let banner of getVerticalBanners(transportPartnersBanners, 'left')" 
+           [href]="banner.linkUrl || 'javascript:void(0)'" 
+           [target]="banner.linkUrl ? '_blank' : ''"
+           [ngClass]="getBannerClass(banner.sizeTemplate)"
+           class="block relative overflow-hidden rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-slate-100 flex-shrink-0 mx-auto">
+            <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
+        </a>
+      </div>
+
+      <div class="flex-1 max-w-[1200px]">
+        <div class="flex flex-wrap justify-center gap-6">
+          <div *ngFor="let company of companies" appScrollAnimate animationClass="animate-zoom-in"
+            class="w-[180px] flex-shrink-0 group bg-saowari-surface/60 backdrop-blur-xl p-6 rounded-3xl shadow-md hover:shadow-2xl border border-saowari-border/50 transition-all duration-500 flex flex-col items-center justify-center text-center hover:-translate-y-2 hover:bg-saowari-surface/80">
+            <div class="w-24 h-24 rounded-2xl flex items-center justify-center overflow-hidden mb-4 bg-saowari-surface/40 backdrop-blur-md border border-saowari-border/30 p-2 group-hover:scale-110 transition-transform duration-500">
+              <img *ngIf="company.logoURL" [src]="company.logoURL" [alt]="company.companyName" class="max-h-full max-w-full object-contain" />
+              <div *ngIf="!company.logoURL" class="w-full h-full flex items-center justify-center bg-saowari-primary-light text-saowari-primary font-extrabold text-2xl rounded-2xl">
+                {{ company.companyName.substring(0, 2).toUpperCase() }}
+              </div>
+            </div>
+            <h4 class="font-bold text-saowari-text-primary text-sm tracking-wide group-hover:text-saowari-primary transition-colors line-clamp-1">
+              {{ company.companyName }}
+            </h4>
+            <span class="text-[10px] text-saowari-text-secondary font-semibold mt-1 uppercase tracking-wider">
+              {{ company.contactPhone || 'Active Operator' }}
+            </span>
           </div>
         </div>
-        <h4 class="font-bold text-saowari-text-primary text-sm tracking-wide group-hover:text-saowari-primary transition-colors line-clamp-1">
-          {{ company.companyName }}
-        </h4>
-        <span class="text-[10px] text-saowari-text-secondary font-semibold mt-1 uppercase tracking-wider">
-          {{ company.contactPhone || 'Active Operator' }}
-        </span>
+
+        <!-- Horizontal Banners -->
+        <div *ngIf="getHorizontalBanners(transportPartnersBanners).length > 0" class="flex flex-wrap justify-center gap-6 mt-10">
+          <a *ngFor="let banner of getHorizontalBanners(transportPartnersBanners)" 
+             [href]="banner.linkUrl || 'javascript:void(0)'" 
+             [target]="banner.linkUrl ? '_blank' : ''"
+             [ngClass]="getBannerClass(banner.sizeTemplate)"
+             class="block relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-slate-100 flex-shrink-0">
+              <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Side Banners -->
+      <div *ngIf="getVerticalBanners(transportPartnersBanners, 'right').length > 0" class="hidden xl:flex flex-col gap-6 w-[160px] flex-shrink-0 pt-2">
+        <a *ngFor="let banner of getVerticalBanners(transportPartnersBanners, 'right')" 
+           [href]="banner.linkUrl || 'javascript:void(0)'" 
+           [target]="banner.linkUrl ? '_blank' : ''"
+           [ngClass]="getBannerClass(banner.sizeTemplate)"
+           class="block relative overflow-hidden rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-slate-100 flex-shrink-0 mx-auto">
+            <img [src]="banner.imageUrl" [alt]="banner.title || 'Promotional Banner'" class="absolute inset-0 w-full h-full object-cover" />
+        </a>
       </div>
     </div>
-  </div>
-</section>

@@ -341,14 +341,14 @@
             <div class="space-y-2 mb-4 pb-4 border-b border-gray-100">
               <div *ngFor="let id of seatIds; let i = index" class="flex justify-between text-gray-700 text-sm mb-2">
                 <span>Seat {{ seatNumbers[i] }}</span>
-                <span>৳{{ seatPrices[id] ?? schedule?.basePrice ?? 0 }}</span>
+                <span>৳{{ seatPrices[id] || schedule.basePrice }}</span>
               </div>
               <!-- Return Seats -->
               <div *ngIf="isRoundTrip && returnSchedule" class="mt-4 border-t pt-2">
                 <p class="text-xs text-gray-500 font-medium mb-2 uppercase">Return Trip Seats</p>
                 <div *ngFor="let id of returnSeatIds; let i = index" class="flex justify-between text-gray-700 text-sm mb-2">
                   <span>Seat {{ returnSeatNumbers[i] }}</span>
-                  <span>৳{{ returnSeatPrices[id] ?? returnSchedule?.basePrice ?? 0 }}</span>
+                  <span>৳{{ returnSeatPrices[id] || returnSchedule.basePrice }}</span>
                 </div>
               </div>
             </div>

@@ -13,11 +13,15 @@ import { HomeSliderComponent } from './components/home-slider/home-slider.compon
 import { ScheduleService } from '../../core/services/api/schedule.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatInputModule } from '@angular/material/input';
+import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HomeSliderComponent],
+  imports: [CommonModule, RouterModule, FormsModule, HomeSliderComponent, MatDatepickerModule, MatNativeDateModule, MatInputModule, ScrollAnimateDirective],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -87,8 +91,23 @@ export class HomeComponent implements OnInit {
   companies: any[] = [];
   upcomingSchedules: TripSearchResult[] = [];
 
+  get totalRoutesCount(): number {
+    return this.featuredRoutes.length; 
+  }
+
+  get totalOperatorsCount(): number {
+    return this.companies.length; 
+  }
+
+  get totalLocationsCount(): number {
+    return this.locations.length; 
+  }
+
   upcomingTripsBanners: any[] = [];
   popularRoutesBanners: any[] = [];
+  topHeroBanners: any[] = [];
+  middleContentBanners: any[] = [];
+  transportPartnersBanners: any[] = [];
 
   constructor(
     private locationService: LocationService,
@@ -134,6 +153,9 @@ export class HomeComponent implements OnInit {
         if (res.success) {
           this.upcomingTripsBanners = res.data.filter((b: any) => b.position === 'UpcomingTrips');
           this.popularRoutesBanners = res.data.filter((b: any) => b.position === 'PopularRoutes');
+          this.topHeroBanners = res.data.filter((b: any) => b.position === 'TopHero');
+          this.middleContentBanners = res.data.filter((b: any) => b.position === 'MiddleContent');
+          this.transportPartnersBanners = res.data.filter((b: any) => b.position === 'TransportPartners' || b.position === 'BottomFooter' || b.position === 'LeftSidebar' || b.position === 'RightSidebar');
         }
       }
     });
@@ -243,6 +265,17 @@ export class HomeComponent implements OnInit {
     this.sameLocationError = false;
   }
 
+  onDateChange(field: 'departureDate' | 'returnDate', date: Date) {
+    if (date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      this.searchParams[field] = `${year}-${month}-${day}`;
+    } else {
+      this.searchParams[field] = '';
+    }
+  }
+
   viewSeats(scheduleId: number) {
     const trip = this.upcomingSchedules.find(t => t.scheduleId === scheduleId);
     if (trip) {
@@ -279,6 +312,19 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  getVerticalBanners(banners: any[], side: 'left' | 'right'): any[] {
+    const vertical = banners.filter(b => b.sizeTemplate === 'Vertical' || b.sizeTemplate === 'Square');
+    if (side === 'left') {
+      return vertical.filter((_, i) => i % 2 === 0); // Evens to the left
+    } else {
+      return vertical.filter((_, i) => i % 2 !== 0); // Odds to the right
+    }
+  }
+
+  getHorizontalBanners(banners: any[]): any[] {
+    return banners.filter(b => b.sizeTemplate !== 'Vertical' && b.sizeTemplate !== 'Square');
+  }
+
   getLocationName(id: string | number): string {
     if (!id || !this.locations || this.locations.length === 0) return 'Loading...';
     const loc = this.locations.find(l => l.locationId && l.locationId.toString() === id.toString());
@@ -294,5 +340,20 @@ export class HomeComponent implements OnInit {
     const diffHrs = Math.floor(diffMs / 3600000);
     const diffMins = Math.round((diffMs % 3600000) / 60000);
     return `${diffHrs}h ${diffMins}m`;
+  }
+
+  getBannerClass(sizeTemplate: string): string {
+    // Returns Tailwind classes for width and aspect ratio to ensure banners look normal, not gigantic.
+    switch (sizeTemplate) {
+      case 'Square': 
+        return 'w-full max-w-[220px] aspect-square'; 
+      case 'Vertical': 
+        return 'w-full max-w-[200px] aspect-[9/16]'; 
+      case 'Standard': 
+        return 'w-full max-w-[480px] aspect-video'; 
+      case 'Horizontal':
+      default:
+        return 'w-full max-w-[900px] h-[120px] md:h-[180px] lg:h-[220px]'; 
+    }
   }
 }

@@ -105,9 +105,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CustomerOnly", policy => policy.RequireRole("Customer"));
     options.AddPolicy("DriverOnly",   policy => policy.RequireRole("Driver"));
     options.AddPolicy("AnyStaff",     policy => policy.RequireRole("Admin", "Agent", "Supervisor", "Driver"));
-    options.AddPolicy("AdminOrManager", policy => policy.RequireRole("Admin", "CompanyManager"));
-    options.AddPolicy("ManagerOrSupervisor", policy => policy.RequireRole("Admin", "CompanyManager", "Supervisor"));
-    options.AddPolicy("ScheduleViewer", policy => policy.RequireRole("Admin", "CompanyManager", "Supervisor", "Driver"));
+    options.AddPolicy("AdminOrManager", policy => policy.RequireRole("Admin", "CompanyManager", "Manager"));
+    options.AddPolicy("ManagerOrSupervisor", policy => policy.RequireRole("Admin", "CompanyManager", "Manager", "Supervisor"));
+    options.AddPolicy("ScheduleViewer", policy => policy.RequireRole("Admin", "CompanyManager", "Manager", "Supervisor", "Driver"));
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -134,7 +134,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<SaowariDbContext>();
     await DataSeeder.SeedAsync(context);
-}
+}   
 
 // 3. Swagger (development only)
 if (app.Environment.IsDevelopment())

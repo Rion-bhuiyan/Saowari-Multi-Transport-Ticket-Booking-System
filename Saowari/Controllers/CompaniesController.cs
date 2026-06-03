@@ -61,16 +61,40 @@ namespace Saowari.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<CompanyResponseDto>>> Update(int id, [FromForm] CompanyUpdateDto dto)
         {
+            var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            if (userRole == "CompanyManager")
+            {
+                var companyIdStr = User.FindFirst("CompanyId")?.Value;
+                if (!int.TryParse(companyIdStr, out int userCompanyId) || userCompanyId != id)
+                {
+                    return Forbid();
+                }
+            }
+            var existingResult = await _service.GetByIdAsync(id);
+            if (!existingResult.Success || existingResult.Data == null)
+            {
+                return NotFound(existingResult);
+            }
+
             if (dto.LogoFile != null)
             {
                 dto.LogoURL = await SaveLogoFileAsync(dto.LogoFile);
             }
+            else
+            {
+                dto.LogoURL = existingResult.Data.LogoURL;
+            }
+
             if (dto.TicketBackgroundImage != null)
             {
                 dto.TicketBackgroundUrl = await SaveLogoFileAsync(dto.TicketBackgroundImage);
+            }
+            else
+            {
+                dto.TicketBackgroundUrl = existingResult.Data.TicketBackgroundUrl;
             }
 
             var result = await _service.UpdateAsync(id, dto);

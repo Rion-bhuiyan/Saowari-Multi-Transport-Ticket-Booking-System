@@ -23,7 +23,8 @@ export class AdminBannersComponent implements OnInit {
   bannerForm = {
     title: '',
     linkUrl: '',
-    position: 'UpcomingTrips',
+    position: 'TopHero',
+    sizeTemplate: 'Horizontal',
     isActive: true
   };
   
@@ -55,7 +56,7 @@ export class AdminBannersComponent implements OnInit {
   openAddModal() {
     this.isEditing = false;
     this.currentBannerId = null;
-    this.bannerForm = { title: '', linkUrl: '', position: 'UpcomingTrips', isActive: true };
+    this.bannerForm = { title: '', linkUrl: '', position: 'TopHero', sizeTemplate: 'Horizontal', isActive: true };
     this.selectedFile = null;
     this.imagePreview = null;
     this.isModalOpen = true;
@@ -68,11 +69,23 @@ export class AdminBannersComponent implements OnInit {
       title: banner.title || '',
       linkUrl: banner.linkUrl || '',
       position: banner.position,
+      sizeTemplate: banner.sizeTemplate || 'Horizontal',
       isActive: banner.isActive
     };
     this.selectedFile = null;
     this.imagePreview = banner.imageUrl;
     this.isModalOpen = true;
+  }
+
+  getImageHint(): string {
+    switch (this.bannerForm.sizeTemplate) {
+      case 'Square': return 'Recommended: 220 x 220 pixels (1:1 ratio).';
+      case 'Vertical': return 'Recommended: 200 x 355 pixels (9:16 ratio).';
+      case 'Standard': return 'Recommended: 480 x 270 pixels (16:9 ratio).';
+      case 'Horizontal':
+      default:
+        return 'Recommended: 900 x 220 pixels (approx 4:1 ratio).';
+    }
   }
 
   closeModal() {
@@ -101,6 +114,7 @@ export class AdminBannersComponent implements OnInit {
     if (this.bannerForm.title) formData.append('Title', this.bannerForm.title);
     if (this.bannerForm.linkUrl) formData.append('LinkUrl', this.bannerForm.linkUrl);
     formData.append('Position', this.bannerForm.position);
+    formData.append('SizeTemplate', this.bannerForm.sizeTemplate);
     formData.append('IsActive', String(this.bannerForm.isActive));
     
     if (this.selectedFile) {

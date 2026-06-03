@@ -9,7 +9,10 @@ namespace Saowari.Models.DTOs.Banner
         public string? LinkUrl { get; set; }
 
         [Required]
-        public string Position { get; set; } = null!; // "UpcomingTrips" or "PopularRoutes"
+        public string Position { get; set; } = null!; // "UpcomingTrips", "PopularRoutes", "TopHero", "MiddleContent", "BottomFooter"
+
+        [Required]
+        public string SizeTemplate { get; set; } = "Horizontal"; // "Horizontal", "Vertical", "Square", "Standard"
 
         public bool IsActive { get; set; } = true;
 

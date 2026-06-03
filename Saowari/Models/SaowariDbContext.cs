@@ -66,6 +66,11 @@ namespace Saowari.Data
         public DbSet<SupportRoom> SupportRooms { get; set; }
         public DbSet<SupportMessage> SupportMessages { get; set; }
         public DbSet<ScheduleChatMessage> ScheduleChatMessages { get; set; }
+        public DbSet<ScheduleChatRemovedUser> ScheduleChatRemovedUsers { get; set; }
+
+        // Schedule Workflow
+        public DbSet<ScheduleApplication> ScheduleApplications { get; set; }
+        public DbSet<ScheduleExchangeRequest> ScheduleExchangeRequests { get; set; }
 
         // Driver
         public DbSet<DriverInformtion> DriverInformtions { get; set; }
@@ -515,6 +520,94 @@ namespace Saowari.Data
                 .HasOne(sc => sc.Sender)
                 .WithMany()
                 .HasForeignKey(sc => sc.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // =====================
+            // SCHEDULE CHAT REMOVED USER
+            // =====================
+
+            modelBuilder.Entity<ScheduleChatRemovedUser>()
+                .HasOne(r => r.Schedule)
+                .WithMany()
+                .HasForeignKey(r => r.ScheduleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ScheduleChatRemovedUser>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ScheduleChatRemovedUser>()
+                .HasOne(r => r.RemovedByUser)
+                .WithMany()
+                .HasForeignKey(r => r.RemovedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ScheduleChatRemovedUser>()
+                .HasIndex(r => new { r.ScheduleId, r.UserId })
+                .IsUnique();
+
+            // =====================
+            // SCHEDULE APPLICATION
+            // =====================
+
+            modelBuilder.Entity<ScheduleApplication>()
+                .HasOne(a => a.Requester)
+                .WithMany()
+                .HasForeignKey(a => a.RequesterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ScheduleApplication>()
+                .HasOne(a => a.Company)
+                .WithMany()
+                .HasForeignKey(a => a.CompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ScheduleApplication>()
+                .HasOne(a => a.Route)
+                .WithMany()
+                .HasForeignKey(a => a.RouteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ScheduleApplication>()
+                .HasOne(a => a.Vehicle)
+                .WithMany()
+                .HasForeignKey(a => a.VehicleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ScheduleApplication>()
+                .HasOne(a => a.CreatedSchedule)
+                .WithMany()
+                .HasForeignKey(a => a.CreatedScheduleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // =====================
+            // SCHEDULE EXCHANGE REQUEST
+            // =====================
+
+            modelBuilder.Entity<ScheduleExchangeRequest>()
+                .HasOne(e => e.Requester)
+                .WithMany()
+                .HasForeignKey(e => e.RequesterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ScheduleExchangeRequest>()
+                .HasOne(e => e.RequesterSchedule)
+                .WithMany()
+                .HasForeignKey(e => e.RequesterScheduleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ScheduleExchangeRequest>()
+                .HasOne(e => e.TargetUser)
+                .WithMany()
+                .HasForeignKey(e => e.TargetUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ScheduleExchangeRequest>()
+                .HasOne(e => e.TargetSchedule)
+                .WithMany()
+                .HasForeignKey(e => e.TargetScheduleId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

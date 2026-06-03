@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5293/api',
+  apiUrl: '/api',
   appName: 'Saowari',
   cookieDomain: 'localhost',
   accessTokenKey: 'saowari_access_token',

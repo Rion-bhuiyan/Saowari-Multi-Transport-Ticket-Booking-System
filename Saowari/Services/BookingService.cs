@@ -36,7 +36,11 @@ namespace Saowari.Services
 
         public async Task<ApiResponse<IEnumerable<BookingResponseDto>>> GetAllAsync()
         {
-            var entities = await _context.Bookings
+            var user = _httpContextAccessor.HttpContext?.User;
+            var userRole = user?.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            var companyIdStr = user?.FindFirst("CompanyId")?.Value;
+
+            var query = _context.Bookings
                 .Include(b => b.BookingStatus)
                 .Include(b => b.BookingSeats)
                     .ThenInclude(bs => bs.Seat)
@@ -48,8 +52,14 @@ namespace Saowari.Services
                         .ThenInclude(r => r.ToLocation)
                 .Include(b => b.Schedule)
                     .ThenInclude(s => s.Vehicle)
-                .OrderByDescending(b => b.BookingDate)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (userRole == "CompanyManager" && int.TryParse(companyIdStr, out int companyId))
+            {
+                query = query.Where(b => b.Schedule != null && b.Schedule.Vehicle != null && b.Schedule.Vehicle.CompanyId == companyId);
+            }
+
+            var entities = await query.OrderByDescending(b => b.BookingDate).ToListAsync();
 
             var dtos = _mapper.Map<IEnumerable<BookingResponseDto>>(entities);
             return ApiResponse<IEnumerable<BookingResponseDto>>.Ok(dtos);

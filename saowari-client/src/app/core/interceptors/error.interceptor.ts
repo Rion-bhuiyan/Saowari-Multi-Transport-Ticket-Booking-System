@@ -12,8 +12,18 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         let errorMsg = '';
+        
+        // Handle server down / network errors (0 = direct, 504/502 = via proxy)
+        if (error.status === 0 || error.status === 504 || error.status === 502) {
+          errorMsg = 'Cannot connect to the server. Please ensure the server is running or check your internet connection.';
+          this.notificationService.error(errorMsg, 'Network Error');
+          alert(errorMsg); // Fallback native browser popup so it's impossible to miss
+          return throwError(() => error);
+        }
+
         if (error.error instanceof ErrorEvent) {
           errorMsg = `Error: ${error.error.message}`;
+          this.notificationService.error(errorMsg, 'Client Error');
         } else {
           switch (error.status) {
             case 400:
@@ -31,8 +41,12 @@ export class ErrorInterceptor implements HttpInterceptor {
               this.notificationService.error(errorMsg, 'Forbidden');
               break;
             case 404:
-              errorMsg = 'Requested resource not found.';
-              this.notificationService.info(errorMsg, 'Not Found');
+              // Suppress toast for expected 404s (e.g. user lookup by email for guest/unregistered users)
+              const url = request.url || '';
+              if (!url.includes('by-email')) {
+                errorMsg = 'Requested resource not found.';
+                this.notificationService.info(errorMsg, 'Not Found');
+              }
               break;
             case 500:
               errorMsg = 'Internal Server Error. Please try again later.';

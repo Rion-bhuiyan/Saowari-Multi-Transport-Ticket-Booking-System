@@ -28,6 +28,10 @@ namespace Saowari.Models.Entities
         [MaxLength(50)]
         public string Position { get; set; } = null!;
 
+        [Required]
+        [MaxLength(20)]
+        public string SizeTemplate { get; set; } = "Horizontal";
+
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

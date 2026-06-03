@@ -15,6 +15,7 @@ export interface TripSearchResult {
   seatLayoutConfig?: string;
   seatClassOptions?: any;
   boardingTime?: string;
+  showDetails?: boolean;
 }
 
 export interface SeatMapItem {

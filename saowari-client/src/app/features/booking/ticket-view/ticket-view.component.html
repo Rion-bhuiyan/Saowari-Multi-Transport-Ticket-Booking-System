@@ -40,7 +40,7 @@
            style="position:absolute;inset:0;z-index:0;pointer-events:none;">
         <img [src]="ticketData.ticketBackgroundUrl" alt=""
              [style.width]="'100%'" [style.height]="'100%'" [style.objectFit]="'cover'"
-             [style.opacity]="ticketData.ticketBackgroundOpacity || 0.1"
+             [style.opacity]="ticketData.ticketBackgroundOpacity != null ? ticketData.ticketBackgroundOpacity : 0.1"
              (error)="onImgError($event)" />
       </div>
 

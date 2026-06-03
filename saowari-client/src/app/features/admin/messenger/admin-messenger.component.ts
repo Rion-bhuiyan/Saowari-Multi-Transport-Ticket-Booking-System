@@ -202,6 +202,10 @@ export class AdminMessengerComponent implements OnInit, AfterViewChecked, OnDest
           if (res.success && res.data) {
             this.selectedRoomUser = res.data;
           }
+        },
+        error: () => {
+          // Silently handle - user is a guest or not registered
+          this.selectedRoomUser = null;
         }
       });
     }
@@ -309,7 +313,17 @@ export class AdminMessengerComponent implements OnInit, AfterViewChecked, OnDest
         },
         error: () => {
           this.loadingUserInfo = false;
-          this.activeUserInfo = { email: emailOrIp, isGuest: false, notFound: true };
+          // User not registered - show as guest with their email
+          this.activeUserInfo = {
+            email: emailOrIp,
+            fullName: emailOrIp.split('@')[0],
+            isGuest: true,
+            phone: 'Not Available',
+            roleName: 'Guest (Unregistered)',
+            companyName: 'N/A',
+            isActive: true,
+            createdAt: this.selectedRoom?.createdAt
+          };
         }
       });
     } else {

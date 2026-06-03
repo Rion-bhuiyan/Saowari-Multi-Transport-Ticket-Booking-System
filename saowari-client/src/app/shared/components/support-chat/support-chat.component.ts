@@ -76,15 +76,12 @@ export class SupportChatComponent implements OnInit, AfterViewChecked, OnDestroy
       this.userIdentity = currentUser.email;
       this.userId = currentUser.userId || (currentUser as any).userID;
     } else {
-      // Resolve client IP using helper or offline backup
-      this.chatService.getClientIP().subscribe({
-        next: (res) => {
-          this.userIdentity = `Guest-${res.ip}`;
-        },
-        error: () => {
-          this.userIdentity = `Guest-${Math.floor(1000 + Math.random() * 9000)}`;
-        }
-      });
+      let guestId = localStorage.getItem('saowari_guest_id');
+      if (!guestId) {
+        guestId = `Guest-${Math.floor(100000 + Math.random() * 900000)}`;
+        localStorage.setItem('saowari_guest_id', guestId);
+      }
+      this.userIdentity = guestId;
     }
 
     // Connect to Hub

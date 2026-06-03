@@ -142,5 +142,14 @@ namespace Saowari.Controllers
 
             return Ok(ApiResponse<bool>.Ok(true, "Ticket background removed"));
         }
+
+        [HttpGet("system")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPublicSystemSettings([FromServices] Saowari.Data.SaowariDbContext context)
+        {
+            var settings = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync(
+                context.SystemSettings, s => s.Key, s => s.Value ?? string.Empty);
+            return Ok(ApiResponse<System.Collections.Generic.Dictionary<string, string>>.Ok(settings));
+        }
     }
 }

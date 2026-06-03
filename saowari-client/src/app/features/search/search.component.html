@@ -172,33 +172,45 @@
           [style.border-color]="(searchParams.departureDate && searchParams.tripType === 'one-way') || (searchParams.departureDate && searchParams.returnDate && searchParams.tripType === 'round-way') ? '#00559F' : '#e5e7eb'">
           
           <!-- Departure Date -->
-          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 hover:bg-saowari-surface-alt border-r border-saowari-border relative">
-            <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1" style="color: #00559F;">
+          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 hover:bg-saowari-surface-alt border-r border-saowari-border relative group" (click)="pickerDep.open()">
+            <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1 text-saowari-primary group-hover:text-saowari-accent transition-colors">
               <i class="far fa-calendar-alt mr-1"></i> Journey Date
             </label>
-            <input type="date" [(ngModel)]="searchParams.departureDate"
-              class="w-full bg-transparent border-0 outline-none font-bold text-sm text-saowari-text-primary cursor-pointer p-0"
-              style="color-scheme: light;" />
+            
+            <div class="font-black text-sm text-saowari-text-primary flex items-center justify-between pointer-events-none">
+              <span>{{ searchParams.departureDate ? (searchParams.departureDate | date:'dd MMM, yyyy') : 'Select Date' }}</span>
+              <i class="fas fa-calendar-day text-saowari-primary/50 group-hover:text-saowari-primary transition-colors"></i>
+            </div>
+            
+            <input matInput [matDatepicker]="pickerDep" [value]="searchParams.departureDate" (dateChange)="onDateChange('departureDate', $event.value)" [min]="today"
+              class="w-0 h-0 opacity-0 absolute pointer-events-none -z-10" />
+            <mat-datepicker #pickerDep></mat-datepicker>
           </div>
 
           <!-- Return Date -->
-          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 relative"
+          <div class="flex-1 p-3 cursor-pointer transition-all duration-200 relative group"
             [ngClass]="searchParams.tripType === 'round-way' ? 'hover:bg-saowari-surface-alt' : 'bg-saowari-surface-alt opacity-70'"
-            (click)="setTripType('round-way')">
+            (click)="searchParams.tripType === 'round-way' ? pickerRet.open() : setTripType('round-way')">
             
             <label class="block text-[10px] font-extrabold uppercase tracking-widest mb-1" 
-              [style.color]="searchParams.tripType === 'round-way' ? '#00559F' : '#9ca3af'">
+              [ngClass]="searchParams.tripType === 'round-way' ? 'text-saowari-primary group-hover:text-saowari-accent transition-colors' : 'text-gray-400'">
               <i class="far fa-calendar-check mr-1"></i> Return Date
             </label>
             
+            <!-- Invisible Material Datepicker (always in DOM) -->
+            <input matInput [matDatepicker]="pickerRet" [value]="searchParams.returnDate" (dateChange)="onDateChange('returnDate', $event.value)" [min]="searchParams.departureDate || today"
+              class="w-0 h-0 opacity-0 absolute pointer-events-none -z-10" />
+            <mat-datepicker #pickerRet></mat-datepicker>
+
             <ng-container *ngIf="searchParams.tripType === 'round-way'; else addReturnTpl">
-              <input type="date" [(ngModel)]="searchParams.returnDate" [min]="searchParams.departureDate"
-                class="w-full bg-transparent border-0 outline-none font-bold text-sm text-saowari-text-primary cursor-pointer p-0"
-                style="color-scheme: light;" />
+              <div class="font-black text-sm text-saowari-text-primary flex items-center justify-between pointer-events-none">
+                <span>{{ searchParams.returnDate ? (searchParams.returnDate | date:'dd MMM, yyyy') : 'Select Date' }}</span>
+                <i class="fas fa-calendar-day text-saowari-primary/50 group-hover:text-saowari-primary transition-colors"></i>
+              </div>
             </ng-container>
 
             <ng-template #addReturnTpl>
-              <div class="w-full h-[20px] flex items-center font-bold text-sm transition-colors" style="color: #00559F;">
+              <div class="w-full h-[20px] flex items-center font-bold text-sm transition-colors text-saowari-primary group-hover:text-saowari-accent">
                 + Add Return
               </div>
             </ng-template>
@@ -374,54 +386,119 @@
       </div>
 
       <ng-template #tripCardTemplate let-trip="trip">
-        <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border hover:shadow-md transition-all flex flex-col overflow-hidden">
-          
+        <div class="rounded-[2.5rem] border border-white/60 bg-white/50 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,85,159,0.06)] hover:shadow-[0_16px_48px_rgba(0,85,159,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden relative mb-6 group">
+          <!-- Glass reflection effect -->
+          <div class="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
           <!-- Trip Card Header (Clickable for Expand) -->
-          <div class="flex flex-col md:flex-row cursor-pointer select-none" (click)="toggleExpandTrip(trip.scheduleId)">
-            <!-- Company & Vehicle Info -->
-            <div class="p-5 md:w-1/4 border-b md:border-b-0 md:border-r border-saowari-border bg-saowari-surface-alt/50 flex flex-col justify-center items-center text-center">
-              <div *ngIf="trip.companyLogo" class="mb-2 h-12 w-full flex justify-center items-center">
-                <img [src]="trip.companyLogo" alt="{{ trip.companyName }}" class="max-h-full max-w-[120px] object-contain drop-shadow-sm" />
+          <div class="flex flex-col cursor-pointer select-none relative z-10" (click)="toggleExpandTrip(trip.scheduleId)">
+            
+            <!-- Top section (Company) -->
+            <div class="p-5 flex items-center justify-between border-b border-dashed border-gray-200/70 mx-2">
+              <div class="flex items-center gap-4">
+                <div *ngIf="trip.companyLogo" class="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center p-2 border border-gray-100">
+                  <img [src]="trip.companyLogo" alt="{{ trip.companyName }}" class="max-h-full max-w-full object-contain" />
+                </div>
+                <div>
+                  <h4 class="font-extrabold text-lg text-gray-800">{{ trip.companyName || trip.vehicleName }}</h4>
+                  <p class="text-xs text-gray-500 font-semibold tracking-wide">{{ trip.vehicleNumber }}</p>
+                </div>
               </div>
-              <h4 class="font-bold text-lg text-saowari-text-primary">{{ trip.companyName || trip.vehicleName }}</h4>
-              <div class="flex items-center gap-2 mt-1 text-sm text-saowari-text-secondary">
-                <span class="badge badge-outline text-xs">{{ trip.vehicleType }}</span>
+              <div class="bg-blue-50/80 text-blue-700 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider border border-blue-100/50 backdrop-blur-sm">
+                {{ trip.vehicleType }}
               </div>
-              <div class="mt-2 text-xs text-gray-400 font-mono">{{ trip.vehicleNumber }}</div>
             </div>
 
-            <!-- Timing & Route Info -->
-            <div class="p-5 md:w-1/2 flex items-center justify-between">
-              <div class="text-center">
-                <p class="text-2xl font-bold text-saowari-text-primary">{{ formatTime(trip.departureDateTime) }}</p>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{{ trip.departureDateTime | date:'EEE, MMM d, y' }}</p>
-                <p class="text-xs text-saowari-text-secondary font-medium uppercase mt-1">{{ trip.fromLocation }}</p>
-              </div>
+            <!-- Middle section (Route & Time) -->
+            <div class="p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative">
               
-              <div class="flex-1 px-4 relative flex items-center justify-center">
-                <div class="w-full border-t border-dashed border-saowari-border"></div>
-                <div class="absolute bg-saowari-surface px-2 text-xs text-gray-400 flex flex-col items-center">
-                  <span>{{ formatDuration(trip.departureDateTime, trip.arrivalDateTime) }}</span>
-                  <i class="fas fa-long-arrow-alt-right mt-1 text-saowari-primary"></i>
+              <!-- Departure -->
+              <div class="flex-1 text-center md:text-left w-full">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Leaving From</p>
+                <h3 class="text-2xl font-black text-gray-800">{{ trip.fromLocation }}</h3>
+                <p class="text-sm font-bold text-blue-600 mt-1">{{ formatTime(trip.departureDateTime) }}</p>
+              </div>
+
+              <!-- Center Date/Duration Pill -->
+              <div class="flex-1 flex flex-col items-center justify-center w-full relative z-10">
+                <!-- Connecting Line behind -->
+                <div class="absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gray-300 to-transparent -z-10 hidden md:block"></div>
+                <div class="w-10 h-10 rounded-full bg-blue-50/80 border-4 border-white flex items-center justify-center text-blue-300 mb-3 shadow-sm">
+                   <i class="fas fa-bus-alt text-sm"></i>
+                </div>
+                <div class="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-2xl flex items-center gap-4 text-xs font-bold text-gray-600 border border-gray-100 shadow-sm">
+                  <span class="flex items-center gap-1.5"><i class="far fa-calendar-alt text-gray-400"></i> {{ trip.departureDateTime | date:'EEE, MMM d, y' }}</span>
+                  <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                  <span class="flex items-center gap-1.5"><i class="far fa-clock text-gray-400"></i> {{ formatDuration(trip.departureDateTime, trip.arrivalDateTime) }}</span>
+                </div>
+              </div>
+
+              <!-- Arrival -->
+              <div class="flex-1 text-center md:text-right w-full">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Going To</p>
+                <h3 class="text-2xl font-black text-gray-800">{{ trip.toLocation }}</h3>
+                <p class="text-sm font-bold text-green-600 mt-1">{{ formatTime(trip.arrivalDateTime) }}</p>
+              </div>
+
+            </div>
+
+            <!-- Bottom section (Price & Action) -->
+            <div class="bg-gradient-to-b from-gray-50/40 to-gray-100/60 backdrop-blur-md p-5 flex flex-col md:flex-row items-center justify-between border-t border-white/60">
+              <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Ticket Price</p>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-3xl font-black text-gray-900">৳{{ trip.basePrice }}</span>
                 </div>
               </div>
               
-              <div class="text-center">
-                <p class="text-2xl font-bold text-saowari-text-primary">{{ formatTime(trip.arrivalDateTime) }}</p>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{{ trip.arrivalDateTime | date:'EEE, MMM d, y' }}</p>
-                <p class="text-xs text-saowari-text-secondary font-medium uppercase mt-1">{{ trip.toLocation }}</p>
+              <div class="flex flex-col md:flex-row items-center gap-4 mt-4 md:mt-0">
+                <div class="text-right flex flex-col justify-center md:items-end items-center mr-2">
+                   <span class="text-sm font-bold text-green-600 flex items-center gap-1.5">
+                     <i class="fas fa-couch"></i> {{ trip.availableSeats }} seats left
+                   </span>
+                   <button class="text-xs text-blue-600 font-bold hover:text-blue-800 mt-2 cursor-pointer flex items-center gap-1 transition-colors" (click)="$event.stopPropagation(); trip.showDetails = !trip.showDetails">
+                      <i class="fas" [ngClass]="trip.showDetails ? 'fa-chevron-up' : 'fa-info-circle'"></i> {{ trip.showDetails ? 'Hide Details' : 'View Full Details' }}
+                   </button>
+                </div>
+                <button class="bg-[#00559F] hover:bg-[#00447f] text-white px-8 py-3.5 rounded-2xl font-bold shadow-lg shadow-blue-700/30 transition-all active:scale-95 w-full md:w-auto" (click)="$event.stopPropagation(); toggleExpandTrip(trip.scheduleId)">
+                  {{ expandedTripId === trip.scheduleId ? 'Hide Seats' : 'Book Seats' }}
+                </button>
               </div>
             </div>
+          </div>
 
-            <!-- Price & Action -->
-            <div class="p-5 md:w-1/4 border-t md:border-t-0 md:border-l border-saowari-border flex flex-col justify-center items-center md:items-end text-center md:text-right bg-saowari-primary-light/10">
-              <p class="text-sm text-saowari-text-secondary mb-1">Starting from</p>
-              <p class="text-2xl font-bold text-saowari-primary mb-3">৳{{ trip.basePrice }}</p>
-              <p class="text-xs text-saowari-success mb-3 font-medium"><i class="fas fa-couch"></i> {{ trip.availableSeats }} Seats Available</p>
-              <button class="btn btn-sm btn-outline btn-saowari w-full" (click)="$event.stopPropagation(); toggleExpandTrip(trip.scheduleId)">
-                {{ expandedTripId === trip.scheduleId ? 'Hide Seats' : 'View Seats' }}
-              </button>
-            </div>
+          <!-- Full Details Section -->
+          <div *ngIf="trip.showDetails" class="border-t border-white/60 bg-white/70 backdrop-blur-xl p-6 text-sm text-gray-700 shadow-inner relative z-0" (click)="$event.stopPropagation()">
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                   <p class="font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex items-center"><i class="fas fa-map-marker-alt text-blue-500 mr-2"></i> Boarding & Dropping</p>
+                   <ul class="space-y-3 text-xs">
+                     <li class="flex items-start gap-2">
+                       <span class="w-2 h-2 rounded-full bg-blue-500 mt-1 flex-shrink-0"></span>
+                       <div>
+                         <strong class="block text-gray-800">Boarding Point</strong>
+                         <span class="text-gray-600">{{ trip.fromLocation }} at {{ formatTime(trip.departureDateTime) }}</span>
+                       </div>
+                     </li>
+                     <li class="flex items-start gap-2">
+                       <span class="w-2 h-2 rounded-full bg-green-500 mt-1 flex-shrink-0"></span>
+                       <div>
+                         <strong class="block text-gray-800">Dropping Point</strong>
+                         <span class="text-gray-600">{{ trip.toLocation }} at {{ formatTime(trip.arrivalDateTime) }}</span>
+                       </div>
+                     </li>
+                   </ul>
+                </div>
+                <div>
+                   <p class="font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex items-center"><i class="fas fa-star text-yellow-500 mr-2"></i> Amenities & Policies</p>
+                   <div class="flex flex-wrap gap-2 mb-4">
+                      <span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center"><i class="fas fa-snowflake mr-1"></i> AC</span>
+                      <span class="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center"><i class="fas fa-wifi mr-1"></i> WiFi</span>
+                      <span class="bg-orange-100 text-orange-800 px-2.5 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center"><i class="fas fa-bottle-water mr-1"></i> Water</span>
+                   </div>
+                   <p class="text-[10px] text-gray-500 italic bg-white/60 p-2 rounded-lg border border-gray-200">* Standard cancellation policies apply. Please review terms before booking.</p>
+                </div>
+             </div>
           </div>
 
           <!-- Expandable Seat Layout Section -->
@@ -735,10 +812,9 @@
         <div>
           <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Outbound</p>
           <p class="text-sm font-semibold text-saowari-text-primary">
-            {{ hasSelectedOutbound() ? seatMaps[getSelectedOutboundTrip()?.scheduleId || 0]?.selected?.length + ' Seats Selected' : 'Not Selected' }}
+            {{ hasSelectedOutbound() ? getOutboundSelectedCount() + ' Seats Selected' : 'Not Selected' }}
           </p>
         </div>
-      </div>
       
       <i class="fas fa-plus text-gray-300"></i>
       
@@ -751,10 +827,9 @@
         <div>
           <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Return</p>
           <p class="text-sm font-semibold text-saowari-text-primary">
-            {{ hasSelectedReturn() ? seatMaps[getSelectedReturnTrip()?.scheduleId || 0]?.selected?.length + ' Seats Selected' : 'Not Selected' }}
+            {{ hasSelectedReturn() ? getReturnSelectedCount() + ' Seats Selected' : 'Not Selected' }}
           </p>
         </div>
-      </div>
     </div>
     
     <button class="btn btn-saowari px-8 shadow-lg shadow-saowari-primary/30" 

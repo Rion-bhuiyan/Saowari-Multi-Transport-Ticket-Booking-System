@@ -6,12 +6,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'saowari-primary': 'var(--saowari-primary)',
+        'saowari-primary': 'rgb(var(--saowari-primary-rgb) / <alpha-value>)',
         'saowari-secondary': 'var(--saowari-secondary)',
         'saowari-accent': 'var(--saowari-accent)',
         'saowari-primary-dark': 'var(--saowari-primary-dark)',
         'saowari-primary-light': 'var(--saowari-primary-light)',
-        'saowari-surface': 'var(--saowari-surface)',
+        'saowari-surface': 'rgb(var(--saowari-surface-rgb) / <alpha-value>)',
         'saowari-surface-alt': 'var(--saowari-surface-alt)',
         'saowari-text-primary': 'var(--saowari-text-primary)',
         'saowari-text-secondary': 'var(--saowari-text-secondary)',

@@ -11,6 +11,9 @@ namespace Saowari.Models.DTOs.Banner
         [Required]
         public string Position { get; set; } = null!;
 
+        [Required]
+        public string SizeTemplate { get; set; } = "Horizontal";
+
         public bool IsActive { get; set; }
 
         // Optional new image

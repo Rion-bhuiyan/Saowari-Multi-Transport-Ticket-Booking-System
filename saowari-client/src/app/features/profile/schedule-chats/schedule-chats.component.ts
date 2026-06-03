@@ -20,10 +20,12 @@ export class ScheduleChatsComponent implements OnInit, AfterViewChecked, OnDestr
   schedules: any[] = [];
   selectedSchedule: any = null;
   messages: ScheduleChatMessage[] = [];
+  members: any[] = [];
   newMessage = '';
 
   currentUserId?: number;
   currentUserFullName = 'Passenger';
+  canManageGroup = false;
 
   // Emoji Picker Drawer
   showEmojiDrawer = false;
@@ -52,6 +54,7 @@ export class ScheduleChatsComponent implements OnInit, AfterViewChecked, OnDestr
     if (user) {
       this.currentUserId = user.userId || (user as any).userID;
       this.currentUserFullName = user.fullName;
+      this.canManageGroup = this.authService.isSupervisor() || this.authService.isDriver() || this.authService.isAdmin() || this.authService.isCompanyManager();
     }
 
     // Connect to SignalR
@@ -71,6 +74,18 @@ export class ScheduleChatsComponent implements OnInit, AfterViewChecked, OnDestr
         if (this.selectedSchedule && msg.scheduleId === this.selectedSchedule.scheduleID) {
           this.messages.push(msg);
           this.scrollToBottom();
+        }
+      })
+    );
+
+    // Member removal listener
+    this.subs.push(
+      this.chatService.userRemovedFromGroup$.subscribe(data => {
+        if (this.selectedSchedule && data.scheduleId === this.selectedSchedule.scheduleID) {
+          const m = this.members.find(x => x.userId === data.userId);
+          if (m) {
+            m.isRemoved = true;
+          }
         }
       })
     );
@@ -126,6 +141,25 @@ export class ScheduleChatsComponent implements OnInit, AfterViewChecked, OnDestr
         this.scrollToBottom();
       }
     });
+    this.chatService.getScheduleMembers(scheduleId).subscribe({
+      next: (res) => {
+        this.members = res;
+      }
+    });
+  }
+
+  removeMember(memberId: number): void {
+    if (!this.selectedSchedule || !this.canManageGroup) return;
+    if (confirm('Are you sure you want to remove this user from the chat group?')) {
+      this.chatService.removeUserFromSchedule(this.selectedSchedule.scheduleID, memberId).subscribe({
+        next: (res) => {
+          if (res.success) {
+            const m = this.members.find(x => x.userId === memberId);
+            if (m) m.isRemoved = true;
+          }
+        }
+      });
+    }
   }
 
   sendMessage(): void {
