@@ -21,6 +21,7 @@ export interface AuthResponse {
 export interface LoginDto {
   email: string;
   password?: string;
+  referrer?: string;
 }
 
 export interface RegisterDto {

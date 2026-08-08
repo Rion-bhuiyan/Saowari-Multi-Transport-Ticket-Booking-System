@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -6,6 +6,8 @@ import { DashboardService } from '../../../../core/services/api/dashboard.servic
 import { BookingService } from '../../../../core/services/api/booking.service';
 import { UserService } from '../../../../core/services/api/user.service';
 import { DashboardSummary } from '../../../../core/models/transaction.model';
+import { NotificationService } from '../../../../core/services/api/notification.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -14,7 +16,7 @@ import { DashboardSummary } from '../../../../core/models/transaction.model';
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   get pagedItems() {
     const start = (this.p - 1) * Number(this.pageSize);
     return (this.recentBookings || []).slice(start, start + Number(this.pageSize));
@@ -25,6 +27,7 @@ export class AdminDashboardComponent implements OnInit {
   summary: DashboardSummary | null = null;
   recentBookings: any[] = [];
   isLoading = true;
+  private adminDataSub?: Subscription;
 
   statsCards = [
     { label: "Today's Bookings", key: 'todayBookingsCount', icon: 'fas fa-clipboard-list', color: 'from-blue-500 to-saowari-primary', suffix: '' },
@@ -45,12 +48,26 @@ export class AdminDashboardComponent implements OnInit {
   constructor(
     private dashboardService: DashboardService,
     private bookingService: BookingService,
-    private userService: UserService
+    private userService: UserService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
     this.loadSummary();
     this.loadRecentBookings();
+
+    this.adminDataSub = this.notificationService.adminDataUpdated$.subscribe(dataType => {
+      if (dataType === 'Booking') {
+        this.loadSummary();
+        this.loadRecentBookings();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.adminDataSub) {
+      this.adminDataSub.unsubscribe();
+    }
   }
 
   loadSummary() {

@@ -25,7 +25,7 @@
 
   <!-- Empty State -->
   <div *ngIf="!isLoading && filtered.length === 0" class="text-center p-12 bg-saowari-surface rounded-2xl border border-dashed border-saowari-border">
-    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-2xl">
+    <div class="w-16 h-16 bg-saowari-surface-alt rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-2xl">
       <i class="fas fa-bus"></i>
     </div>
     <h3 class="text-lg font-bold text-saowari-text-primary">No Vehicle Types Found</h3>
@@ -87,7 +87,7 @@
     <!-- Body -->
     <div class="p-6">
       <div class="form-control w-full">
-        <label class="label"><span class="label-text font-semibold text-gray-700">Vehicle Type Name *</span></label>
+        <label class="label"><span class="label-text font-semibold text-saowari-text-primary">Vehicle Type Name *</span></label>
         <input type="text" [(ngModel)]="model.vehicleTypeName" placeholder="e.g. Bus, Microbus" class="input input-bordered w-full focus:border-primary focus:ring-2 focus:ring-primary/20" />
       </div>
     </div>

@@ -130,19 +130,20 @@ namespace Saowari.Data
                 await context.SaveChangesAsync();
             }
 
-            // Seed Payment Methods with fee structures
-            var paymentMethods = new[]
+            // Seed Payment Methods only if the table is completely empty.
+            // This prevents the seeder from recreating payment methods that the admin has deleted or renamed.
+            if (!await context.PaymentMethods.AnyAsync())
             {
-                new { Name = "bKash",  ProcessingFee = 1.5m,  VAT = 15m },
-                new { Name = "Nagad",  ProcessingFee = 1.0m,  VAT = 15m },
-                new { Name = "Rocket", ProcessingFee = 1.2m,  VAT = 15m },
-                new { Name = "Card",   ProcessingFee = 2.0m,  VAT = 15m },
-                new { Name = "Cash",   ProcessingFee = 0.0m,  VAT = 0m  },
-            };
-            bool pmAdded = false;
-            foreach (var pm in paymentMethods)
-            {
-                if (!await context.PaymentMethods.AnyAsync(m => m.PaymentMethodName == pm.Name))
+                var paymentMethods = new[]
+                {
+                    new { Name = "bKash",  ProcessingFee = 1.5m,  VAT = 15m },
+                    new { Name = "Nagad",  ProcessingFee = 1.0m,  VAT = 15m },
+                    new { Name = "Rocket", ProcessingFee = 1.2m,  VAT = 15m },
+                    new { Name = "Card",   ProcessingFee = 2.0m,  VAT = 15m },
+                    new { Name = "Cash",   ProcessingFee = 0.0m,  VAT = 0m  },
+                };
+                
+                foreach (var pm in paymentMethods)
                 {
                     context.PaymentMethods.Add(new Saowari.Models.Entities.PaymentMethod
                     {
@@ -151,10 +152,9 @@ namespace Saowari.Data
                         VATPercent = pm.VAT,
                         IsActive = true
                     });
-                    pmAdded = true;
                 }
+                await context.SaveChangesAsync();
             }
-            if (pmAdded) await context.SaveChangesAsync();
 
             // Seed Admin User
             if (!await context.Users.AnyAsync(u => u.Email == "admin@saowari.com"))

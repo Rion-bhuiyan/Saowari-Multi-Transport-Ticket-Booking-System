@@ -1,0 +1,57 @@
+SAWARI PROJECT - LOCAL SETUP & TESTING GUIDE
+=============================================
+
+PART 1: PROJECT SETUP
+----------------------
+
+1. Database
+   Restore/attach the SQL Server "Sawari" database using one of:
+     - SQL script
+     - .bak file (backup restore)
+     - .mdf file (attach database)
+
+2. Backend (Visual Studio)
+   Open and run "Saowari.slnx" in Visual Studio.
+
+3. Frontend (VS Code)
+   Open the "saowari-client" folder in VS Code and run the Angular
+   project.
+
+
+PART 2: LOGIN & TESTING
+------------------------
+
+Step 1 - Log in as Admin
+   Email:    azman6364@gmail.com
+   Password: @Azman1221@
+   (If the password does not work, use "Forgot Password.")
+
+   Note: This is a new browser, so an OTP is required to log in.
+   Check the inbox of azman6364@gmail.com for the OTP email.
+   If it's not there, check the Spam folder.
+
+Step 2 - Set up OTP forwarding for the Company Manager account
+   While still logged in as Admin:
+     - Open the Company Manager's user account and click Edit.
+     - Find the field "Admin Copy Email (BCC - all emails sent to
+       this user)."
+     - Enter your own valid email address in that field.
+     - Going forward, any email sent to the Company Manager account
+       (including OTPs) will also be copied (BCC) to your email.
+
+Step 3 - Log in as Company Manager
+   Email:    sheikhskabir5@gmail.com
+   Password: @Abir1221@
+
+   Note: This is also a new browser, so an OTP is required.
+   Because of the BCC forwarding set up in Step 2, the OTP will
+   also arrive in your own inbox.
+
+   IMPORTANT: Log in as Admin (Step 1) BEFORE logging in as Company
+   Manager, so the BCC forwarding is already in place.
+
+
+---------------------------------------------------------------
+Note: This file contains live login credentials - store and
+share it carefully.
+---------------------------------------------------------------

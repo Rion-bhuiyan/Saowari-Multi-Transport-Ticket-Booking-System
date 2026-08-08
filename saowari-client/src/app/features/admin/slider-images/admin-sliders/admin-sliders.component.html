@@ -37,7 +37,7 @@
   <div *ngIf="!isLoading" class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden">
     <div class="overflow-x-auto">
       <table class="table w-full">
-        <thead class="bg-saowari-surface-alt text-gray-700 uppercase text-xs font-bold border-b border-saowari-border">
+        <thead class="bg-saowari-surface-alt text-saowari-text-primary uppercase text-xs font-bold border-b border-saowari-border">
           <tr>
             <th class="w-28 text-left py-4 pl-6">Preview</th>
             <th class="text-left">Title</th>
@@ -56,7 +56,7 @@
               No slider images uploaded yet.
             </td>
           </tr>
-          <tr *ngFor="let item of pagedItems" class="hover:bg-slate-50/50 transition-colors duration-150">
+          <tr *ngFor="let item of pagedItems" class="hover:bg-saowari-surface-alt/50 transition-colors duration-150">
             <!-- Image Thumbnail -->
             <td class="py-4 pl-6">
               <div class="avatar">
@@ -126,7 +126,7 @@
       <!-- Image Upload Block -->
       <div class="form-control w-full">
         <label class="label">
-          <span class="label-text font-bold text-gray-700">Slide Image File *</span>
+          <span class="label-text font-bold text-saowari-text-primary">Slide Image File *</span>
         </label>
         <div class="flex flex-col items-center justify-center border-2 border-dashed border-saowari-border rounded-2xl p-4 bg-saowari-surface-alt/50 hover:bg-saowari-surface-alt transition-colors relative cursor-pointer group">
           <input type="file" (change)="onFileSelected($event)" accept="image/*"
@@ -154,7 +154,7 @@
       <!-- Title Input -->
       <div class="form-control w-full">
         <label class="label">
-          <span class="label-text font-bold text-gray-700">Slide Title</span>
+          <span class="label-text font-bold text-saowari-text-primary">Slide Title</span>
         </label>
         <input type="text" [(ngModel)]="model.title" placeholder="e.g. Eid Mega Sale Offer"
                class="input input-bordered w-full focus:border-primary">
@@ -163,7 +163,7 @@
       <!-- Subtitle Input -->
       <div class="form-control w-full">
         <label class="label">
-          <span class="label-text font-bold text-gray-700">Slide Subtitle</span>
+          <span class="label-text font-bold text-saowari-text-primary">Slide Subtitle</span>
         </label>
         <input type="text" [(ngModel)]="model.subtitle" placeholder="e.g. Flat 15% discount on all bus tickets"
                class="input input-bordered w-full focus:border-primary">
@@ -172,7 +172,7 @@
       <!-- Link URL -->
       <div class="form-control w-full">
         <label class="label">
-          <span class="label-text font-bold text-gray-700">Action Link URL</span>
+          <span class="label-text font-bold text-saowari-text-primary">Action Link URL</span>
         </label>
         <input type="text" [(ngModel)]="model.linkUrl" placeholder="e.g. https://saowari.com/offers"
                class="input input-bordered w-full focus:border-primary">
@@ -182,7 +182,7 @@
       <div class="grid grid-cols-2 gap-4 pt-2">
         <div class="form-control w-full">
           <label class="label">
-            <span class="label-text font-bold text-gray-700">Display Order</span>
+            <span class="label-text font-bold text-saowari-text-primary">Display Order</span>
           </label>
           <input type="number" [(ngModel)]="model.displayOrder"
                  class="input input-bordered w-full focus:border-primary">
@@ -190,7 +190,7 @@
         <div class="form-control justify-end pb-3">
           <label class="label cursor-pointer justify-start gap-3">
             <input type="checkbox" [(ngModel)]="model.isActive" class="toggle toggle-primary" />
-            <span class="label-text font-bold text-gray-700">Active Status</span>
+            <span class="label-text font-bold text-saowari-text-primary">Active Status</span>
           </label>
         </div>
       </div>

@@ -7,7 +7,7 @@
     
     <div class="relative z-10 flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <div class="w-16 h-16 rounded-full border-2 border-white/30 bg-white/10 flex items-center justify-center text-white overflow-hidden shadow-lg shrink-0">
+        <div class="w-16 h-16 rounded-full border-2 border-white/30 bg-saowari-surface/10 flex items-center justify-center text-white overflow-hidden shadow-lg shrink-0">
           <img *ngIf="currentUser?.picture" [src]="'http://localhost:5293' + currentUser.picture" class="w-full h-full object-cover">
           <i *ngIf="!currentUser?.picture" class="fas fa-user-circle text-4xl opacity-80"></i>
         </div>

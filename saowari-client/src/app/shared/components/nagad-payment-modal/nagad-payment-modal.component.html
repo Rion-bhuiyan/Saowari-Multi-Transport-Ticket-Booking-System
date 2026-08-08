@@ -44,7 +44,7 @@
             <input type="tel" [id]="'account-' + i" [value]="accountDigits[i]"
                    (input)="onDigitInput($event, i, 'account')"
                    (keydown)="onDigitKeyDown($event, i, 'account')"
-                   class="w-6 h-8 text-center text-[#e31019] font-bold rounded focus:outline-none focus:ring-2 focus:ring-white/50 bg-white px-0" 
+                   class="w-6 h-8 text-center text-[#e31019] font-bold rounded focus:outline-none focus:ring-2 focus:ring-white/50 bg-saowari-surface px-0" 
                    maxlength="1">
             <span *ngIf="i === 2 || i === 6" class="text-white font-bold mx-0.5">-</span>
           </ng-container>
@@ -58,7 +58,7 @@
       <div *ngIf="currentStep === 2" class="w-full text-center animate-fade-in">
         <p class="mb-3 font-bold text-[15px]">{{ lang === 'en' ? 'Enter Verification Code [OTP]' : 'ভেরিফিকেশন কোড লিখুন [OTP]' }}</p>
         <input type="text" [(ngModel)]="verificationCode" 
-               class="w-full text-center text-[#e31019] font-bold py-2 rounded text-xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-white/50 bg-white" 
+               class="w-full text-center text-[#e31019] font-bold py-2 rounded text-xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-white/50 bg-saowari-surface" 
                placeholder="XXX XXX" maxlength="6">
       </div>
 
@@ -72,7 +72,7 @@
                    readonly onfocus="this.removeAttribute('readonly');"
                    (input)="onDigitInput($event, i, 'pin')"
                    (keydown)="onDigitKeyDown($event, i, 'pin')"
-                   class="w-10 h-10 text-center text-[#e31019] font-bold rounded text-2xl focus:outline-none focus:ring-2 focus:ring-white/50 bg-white" 
+                   class="w-10 h-10 text-center text-[#e31019] font-bold rounded text-2xl focus:outline-none focus:ring-2 focus:ring-white/50 bg-saowari-surface" 
                    maxlength="1">
           </ng-container>
         </div>
@@ -80,17 +80,17 @@
 
       <!-- Buttons -->
       <div class="flex gap-4 w-full mt-8 justify-center" [ngClass]="{'px-4': currentStep === 2}">
-        <button (click)="onConfirm()" [disabled]="isLoading" class="bg-white text-[#b9151b] font-bold py-2 px-6 rounded text-sm hover:bg-gray-100 transition-colors w-28 relative">
+        <button (click)="onConfirm()" [disabled]="isLoading" class="bg-saowari-surface text-[#b9151b] font-bold py-2 px-6 rounded text-sm hover:bg-saowari-surface-alt transition-colors w-28 relative">
           <span *ngIf="isLoading" class="loading loading-spinner loading-sm absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></span>
           <span [class.opacity-0]="isLoading">{{ lang === 'en' ? 'Proceed' : 'প্রোসিড' }}</span>
         </button>
         
-        <button *ngIf="currentStep === 2" (click)="resendCode()" [disabled]="resendCountdown > 0" class="bg-white text-[#b9151b] font-bold py-2 px-2 rounded text-sm hover:bg-gray-100 transition-colors flex-1 disabled:opacity-80">
+        <button *ngIf="currentStep === 2" (click)="resendCode()" [disabled]="resendCountdown > 0" class="bg-saowari-surface text-[#b9151b] font-bold py-2 px-2 rounded text-sm hover:bg-saowari-surface-alt transition-colors flex-1 disabled:opacity-80">
           <span *ngIf="resendCountdown > 0" class="text-xs">{{ lang === 'en' ? 'Resend in' : 'পুনরায় পাঠান' }} {{ resendCountdown }}s</span>
           <span *ngIf="resendCountdown <= 0">{{ lang === 'en' ? 'Resend Code' : 'পুনরায় কোড পাঠান' }}</span>
         </button>
 
-        <button (click)="onCancel()" class="bg-white text-[#b9151b] font-bold py-2 px-6 rounded text-sm hover:bg-gray-100 transition-colors w-28">
+        <button (click)="onCancel()" class="bg-saowari-surface text-[#b9151b] font-bold py-2 px-6 rounded text-sm hover:bg-saowari-surface-alt transition-colors w-28">
           {{ lang === 'en' ? 'Close' : 'ক্লোজ' }}
         </button>
       </div>

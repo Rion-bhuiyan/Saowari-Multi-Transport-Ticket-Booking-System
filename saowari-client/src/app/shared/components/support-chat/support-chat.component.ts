@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild, AfterViewChecked, OnDestroy, 
 import { ChatService, SupportMessage } from '../../../core/services/api/chat.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -62,7 +63,8 @@ export class SupportChatComponent implements OnInit, AfterViewChecked, OnDestroy
   constructor(
     private chatService: ChatService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -91,8 +93,8 @@ export class SupportChatComponent implements OnInit, AfterViewChecked, OnDestroy
     this.subs.push(
       this.chatService.getConnectionStatus().subscribe(connected => {
         if (connected) {
-          // Join support room as passenger/guest
-          this.chatService.joinSupportRoom(this.userIdentity);
+          // Join support room as passenger/guest with extra metadata
+          this.fetchVisitorDataAndJoin();
         }
       })
     );
@@ -137,6 +139,68 @@ export class SupportChatComponent implements OnInit, AfterViewChecked, OnDestroy
       })
     );
 
+  }
+
+  private fetchVisitorDataAndJoin(): void {
+    const defaultPayload = {
+      userEmailOrIP: this.userIdentity,
+      browserInfo: this.getFriendlyBrowserInfo()
+    };
+
+    // Try fetching IP info using ipwho.is (free, no rate limits, reliable HTTPS)
+    fetch('https://ipwho.is/')
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+      })
+      .then(res => {
+        if (res.success === false) throw new Error('IP API returned false success');
+        const payload = {
+          ...defaultPayload,
+          ipAddress: res.ip,
+          geolocation: `${res.city || 'Unknown City'}, ${res.region || 'Unknown Region'}, ${res.country || 'Unknown Country'}`,
+          ispName: res.connection?.isp || res.connection?.org || 'Unknown ISP'
+        };
+        this.chatService.joinSupportRoom(payload);
+      })
+      .catch(err => {
+        // Fallback to another provider if ipwho.is fails
+        fetch('https://ipinfo.io/json')
+          .then(res => res.json())
+          .then(res => {
+            const payload = {
+              ...defaultPayload,
+              ipAddress: res.ip,
+              geolocation: `${res.city || 'Unknown City'}, ${res.region || 'Unknown Region'}, ${res.country || 'Unknown Country'}`,
+              ispName: res.org || 'Unknown ISP'
+            };
+            this.chatService.joinSupportRoom(payload);
+          })
+          .catch(() => {
+            // Ultimate fallback if both fail
+            this.chatService.joinSupportRoom(defaultPayload);
+          });
+      });
+  }
+
+  private getFriendlyBrowserInfo(): string {
+    const ua = navigator.userAgent;
+    let browser = "Unknown Browser";
+    let os = "Unknown OS";
+
+    if (ua.includes("Firefox")) browser = "Firefox";
+    else if (ua.includes("Edg")) browser = "Edge";
+    else if (ua.includes("Chrome")) browser = "Chrome";
+    else if (ua.includes("Safari")) browser = "Safari";
+    else if (ua.includes("Opera") || ua.includes("OPR")) browser = "Opera";
+
+    if (ua.includes("Win")) os = "Windows";
+    else if (ua.includes("Android")) os = "Android";
+    else if (ua.includes("like Mac")) os = "iOS";
+    else if (ua.includes("Mac")) os = "MacOS";
+    else if (ua.includes("Linux")) os = "Linux";
+
+    return `${browser} on ${os}`;
   }
 
   ngAfterViewChecked(): void {

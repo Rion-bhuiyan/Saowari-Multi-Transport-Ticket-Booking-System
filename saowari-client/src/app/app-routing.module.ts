@@ -231,6 +231,10 @@ const routes: Routes = [
       {
         path: 'broadcast',
         loadComponent: () => import('./features/admin/broadcast/broadcast.component').then(m => m.BroadcastComponent)
+      },
+      {
+        path: 'analytics',
+        loadComponent: () => import('./features/admin/analytics/admin-traffic-analytics/admin-traffic-analytics.component').then(m => m.AdminTrafficAnalyticsComponent)
       }
     ]
   },

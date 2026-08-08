@@ -3,7 +3,7 @@
   <!-- Header Section with Glassmorphism -->
   <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-teal-600 to-emerald-700 p-8 shadow-2xl">
     <!-- Decorative background elements -->
-    <div class="absolute -top-24 -right-24 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
+    <div class="absolute -top-24 -right-24 w-64 h-64 bg-saowari-surface opacity-10 rounded-full blur-3xl"></div>
     <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-yellow-400 opacity-20 rounded-full blur-3xl"></div>
     
     <div class="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -13,7 +13,7 @@
         </h1>
         <p class="text-white/80 font-medium mt-1">Manage your active trip, passengers, and communications.</p>
       </div>
-      <div class="text-sm text-white/90 font-bold bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-5 py-2 shadow-lg flex items-center gap-2">
+      <div class="text-sm text-white/90 font-bold bg-saowari-surface/10 backdrop-blur-md border border-white/20 rounded-full px-5 py-2 shadow-lg flex items-center gap-2">
         <i class="far fa-calendar text-yellow-300"></i> {{ today | date:'EEEE, MMMM d' }}
       </div>
     </div>
@@ -57,7 +57,7 @@
                 <div class="w-32 h-32 rounded-full border-4 border-saowari-surface shadow-2xl overflow-hidden relative z-10 bg-saowari-surface-alt flex items-center justify-center">
                   <i class="fas fa-bus-alt text-5xl text-teal-500 group-hover:scale-110 transition-transform duration-500"></i>
                 </div>
-                <div class="absolute -bottom-2 right-0 bg-white dark:bg-gray-800 rounded-full px-3 py-1 text-xs font-bold shadow-lg border border-saowari-border text-saowari-text-primary z-20">
+                <div class="absolute -bottom-2 right-0 bg-saowari-surface dark:bg-gray-800 rounded-full px-3 py-1 text-xs font-bold shadow-lg border border-saowari-border text-saowari-text-primary z-20">
                   {{ activeAssignment.vehicleNumber || 'Vehicle' }}
                 </div>
               </div>

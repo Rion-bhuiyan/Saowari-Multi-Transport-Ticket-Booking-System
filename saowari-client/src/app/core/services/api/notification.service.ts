@@ -43,6 +43,9 @@ export class NotificationService {
   private _newNotification$ = new Subject<NotificationItem>();
   newNotification$ = this._newNotification$.asObservable();
 
+  private _adminDataUpdated$ = new Subject<string>();
+  adminDataUpdated$ = this._adminDataUpdated$.asObservable();
+
   private hubConnection: signalR.HubConnection | null = null;
 
   constructor(private http: HttpClient, private authService: AuthService, private tokenService: TokenService) {
@@ -78,6 +81,10 @@ export class NotificationService {
       this._unreadCount$.next(this._unreadCount$.value + 1);
       // Emit the notification so navbar can show it
       this._newNotification$.next(notification);
+    });
+
+    this.hubConnection.on('AdminDataUpdated', (dataType: string) => {
+      this._adminDataUpdated$.next(dataType);
     });
   }
 

@@ -13,6 +13,19 @@ namespace Saowari.Models.DTOs.Chat
         public DateTime LastMessageAt { get; set; }
         public int UnreadCount { get; set; }
         public string? LastMessageContent { get; set; }
+        public string? IpAddress { get; set; }
+        public string? BrowserInfo { get; set; }
+        public string? Geolocation { get; set; }
+        public string? IspName { get; set; }
+    }
+
+    public class JoinRoomRequestDto
+    {
+        public string UserEmailOrIP { get; set; } = null!;
+        public string? IpAddress { get; set; }
+        public string? BrowserInfo { get; set; }
+        public string? Geolocation { get; set; }
+        public string? IspName { get; set; }
     }
 
     public class SupportMessageDto

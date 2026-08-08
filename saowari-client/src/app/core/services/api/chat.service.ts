@@ -15,6 +15,10 @@ export interface SupportRoom {
   lastMessageAt: string;
   unreadCount: number;
   lastMessageContent?: string;
+  ipAddress?: string;
+  browserInfo?: string;
+  geolocation?: string;
+  ispName?: string;
 }
 
 export interface SupportMessage {
@@ -120,8 +124,8 @@ export class ChatService {
 
   // ── HUB CALL TRIGGERS ───────────────────────────────────────────────────────
 
-  public joinSupportRoom(userEmailOrIP: string): Promise<void> {
-    return this.hubConnection.invoke('JoinSupportRoom', userEmailOrIP);
+  public joinSupportRoom(payload: any): Promise<void> {
+    return this.hubConnection.invoke('JoinSupportRoom', payload);
   }
 
   public adminJoinRoom(roomId: number, adminId: number, adminName: string): Promise<void> {

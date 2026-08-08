@@ -1,11 +1,11 @@
-<div class="bg-saowari-surface-alt min-h-screen pt-24 pb-12 font-sans text-slate-800">
+<div class="bg-saowari-surface-alt min-h-screen pt-24 pb-12 font-sans text-saowari-text-primary">
   <div class="container mx-auto px-4 max-w-6xl">
     
     <!-- Title Section -->
     <div class="mb-8 flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Ride Group Chats</h1>
-        <p class="text-sm text-slate-500">Coordinate and chat in real-time with other passengers on your booked schedules.</p>
+        <h1 class="text-2xl font-bold tracking-tight text-saowari-text-primary">Ride Group Chats</h1>
+        <p class="text-sm text-saowari-text-secondary">Coordinate and chat in real-time with other passengers on your booked schedules.</p>
       </div>
       <a routerLink="/profile" class="text-sm font-semibold text-indigo-650 hover:underline flex items-center space-x-1">
         <span>&larr; Back to Dashboard</span>
@@ -13,11 +13,11 @@
     </div>
 
     <!-- Main Workspace Container -->
-    <div class="bg-saowari-surface rounded-2xl border border-slate-100 shadow-xl overflow-hidden flex h-[600px]">
+    <div class="bg-saowari-surface rounded-2xl border border-saowari-border shadow-xl overflow-hidden flex h-[600px]">
       
       <!-- Left side: Booked Schedules list -->
-      <div class="w-80 border-r border-slate-100 flex flex-col bg-slate-50/50">
-        <div class="p-4 border-b border-slate-100 bg-slate-50">
+      <div class="w-80 border-r border-saowari-border flex flex-col bg-saowari-surface-alt/50">
+        <div class="p-4 border-b border-saowari-border bg-saowari-surface-alt">
           <h4 class="font-bold text-xs tracking-wider uppercase text-slate-400">Your Active Trips</h4>
         </div>
 
@@ -31,7 +31,7 @@
             (click)="selectSchedule(item)"
             [ngClass]="{
               'bg-indigo-50/40 border-l-4 border-indigo-600': selectedSchedule?.scheduleID === item.scheduleID,
-              'hover:bg-slate-100/50': selectedSchedule?.scheduleID !== item.scheduleID
+              'hover:bg-saowari-surface-alt/50': selectedSchedule?.scheduleID !== item.scheduleID
             }"
             class="p-4 cursor-pointer transition-all border-l-4 border-transparent flex flex-col space-y-2">
             
@@ -44,9 +44,9 @@
               </span>
             </div>
 
-            <h5 class="font-bold text-sm text-slate-800 truncate">{{ item.routeName }}</h5>
+            <h5 class="font-bold text-sm text-saowari-text-primary truncate">{{ item.routeName }}</h5>
             
-            <div class="flex items-center justify-between text-[11px] text-slate-500">
+            <div class="flex items-center justify-between text-[11px] text-saowari-text-secondary">
               <span class="truncate max-w-[150px] font-medium">{{ item.vehicleName }}</span>
               <span>{{ item.departureDateTime | date:'MMM d' }}</span>
             </div>
@@ -59,19 +59,19 @@
         <ng-container *ngIf="selectedSchedule; else noSelectedView">
           
           <!-- Chat Header -->
-          <div class="p-4 border-b border-slate-100 bg-slate-50/20 flex items-center justify-between">
+          <div class="p-4 border-b border-saowari-border bg-saowari-surface-alt/20 flex items-center justify-between">
             <div>
-              <h4 class="font-bold text-md text-slate-900">{{ selectedSchedule.routeName }}</h4>
-              <p class="text-xs text-slate-500">{{ selectedSchedule.vehicleName }} &bull; Departure: {{ selectedSchedule.departureDateTime | date:'short' }}</p>
+              <h4 class="font-bold text-md text-saowari-text-primary">{{ selectedSchedule.routeName }}</h4>
+              <p class="text-xs text-saowari-text-secondary">{{ selectedSchedule.vehicleName }} &bull; Departure: {{ selectedSchedule.departureDateTime | date:'short' }}</p>
             </div>
             <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full">Active Group</span>
           </div>
 
           <div class="flex flex-1 overflow-hidden">
             <!-- Messages Column -->
-            <div class="flex-1 flex flex-col border-r border-slate-100 bg-saowari-surface">
+            <div class="flex-1 flex flex-col border-r border-saowari-border bg-saowari-surface">
               <!-- Message Streams -->
-              <div #messageContainer class="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-50/30 scroll-smooth">
+              <div #messageContainer class="flex-1 p-6 overflow-y-auto space-y-4 bg-saowari-surface-alt/30 scroll-smooth">
                 <div *ngIf="messages.length === 0" class="text-center py-16 text-slate-400 text-xs">
                   <p class="mb-2">🎉 Group chat established!</p>
                   <p>Welcome! Coordinate boarding points or say hello to fellow passengers.</p>
@@ -85,7 +85,7 @@
                   <div 
                     [ngClass]="{
                       'bg-indigo-600 text-white rounded-br-none': isCurrentUser(msg.senderId),
-                      'bg-saowari-surface text-slate-800 border border-slate-100 rounded-bl-none shadow-sm': !isCurrentUser(msg.senderId)
+                      'bg-saowari-surface text-saowari-text-primary border border-saowari-border rounded-bl-none shadow-sm': !isCurrentUser(msg.senderId)
                     }"
                     class="max-w-[70%] p-3.5 rounded-2xl shadow-sm text-sm">
                     
@@ -124,8 +124,8 @@
               </div>
 
               <!-- Canvas compression panel inside group chat -->
-              <div *ngIf="pendingImage" class="p-3.5 bg-slate-50 border-t border-slate-100 flex flex-col space-y-2">
-                <div class="flex items-center justify-between text-xs text-slate-600">
+              <div *ngIf="pendingImage" class="p-3.5 bg-saowari-surface-alt border-t border-saowari-border flex flex-col space-y-2">
+                <div class="flex items-center justify-between text-xs text-saowari-text-secondary">
                   <span class="font-semibold">Resize Image Before Sending</span>
                   <span class="text-indigo-600 font-bold">New Size: {{ getKBSize(resizedSize) }}</span>
                 </div>
@@ -138,21 +138,21 @@
                     [(ngModel)]="resizeScale" 
                     (change)="onResizeScaleChange()" 
                     class="flex-1 accent-indigo-600 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
-                  <span class="text-xs text-slate-500 w-8 text-right">{{ Math.round(resizeScale * 100) }}%</span>
+                  <span class="text-xs text-saowari-text-secondary w-8 text-right">{{ Math.round(resizeScale * 100) }}%</span>
                 </div>
                 <div class="flex space-x-2 justify-end">
-                  <button (click)="cancelImagePending()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-xl">Cancel</button>
+                  <button (click)="cancelImagePending()" class="text-xs bg-saowari-surface-alt hover:bg-slate-200 text-saowari-text-primary px-3 py-1 rounded-xl">Cancel</button>
                   <button (click)="uploadResizedImage()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-xl font-bold">Upload & Send</button>
                 </div>
               </div>
 
               <!-- Input Panel -->
-              <div class="p-4 border-t border-slate-100 flex items-center space-x-2">
+              <div class="p-4 border-t border-saowari-border flex items-center space-x-2">
                 
                 <!-- File loader -->
                 <button 
                   (click)="fileInput.click()" 
-                  class="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-xl"
+                  class="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-saowari-surface-alt rounded-xl"
                   title="Attach File">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -168,7 +168,7 @@
                 <!-- Emoji launcher -->
                 <button 
                   (click)="toggleEmojiDrawer()" 
-                  class="p-2.5 text-slate-400 hover:text-amber-500 hover:bg-slate-50 rounded-xl"
+                  class="p-2.5 text-slate-400 hover:text-amber-500 hover:bg-saowari-surface-alt rounded-xl"
                   title="Add Emoji">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -180,7 +180,7 @@
                   [(ngModel)]="newMessage" 
                   (keyup.enter)="sendMessage()" 
                   placeholder="Post a message to passenger group..." 
-                  class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors">
+                  class="flex-1 bg-saowari-surface-alt border border-saowari-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors">
 
                 <button 
                   (click)="sendMessage()" 
@@ -192,7 +192,7 @@
               </div>
 
               <!-- Emoji picker drawer -->
-              <div *ngIf="showEmojiDrawer" class="p-3 bg-slate-50 border-t border-slate-100 grid grid-cols-12 gap-2 max-h-24 overflow-y-auto">
+              <div *ngIf="showEmojiDrawer" class="p-3 bg-saowari-surface-alt border-t border-saowari-border grid grid-cols-12 gap-2 max-h-24 overflow-y-auto">
                 <span 
                   *ngFor="let emoji of popularEmojis" 
                   (click)="insertEmoji(emoji)" 
@@ -203,21 +203,21 @@
             </div>
 
             <!-- Members Sidebar -->
-            <div class="w-64 bg-slate-50 flex flex-col">
-              <div class="p-3 border-b border-slate-100">
-                <h4 class="font-bold text-xs uppercase text-slate-500 tracking-wider">Group Members ({{ members.length }})</h4>
+            <div class="w-64 bg-saowari-surface-alt flex flex-col">
+              <div class="p-3 border-b border-saowari-border">
+                <h4 class="font-bold text-xs uppercase text-saowari-text-secondary tracking-wider">Group Members ({{ members.length }})</h4>
               </div>
               <div class="flex-1 overflow-y-auto divide-y divide-slate-100/60 p-2 space-y-1">
                 <div *ngIf="members.length === 0" class="text-xs text-center text-slate-400 py-4">Loading members...</div>
                 
-                <div *ngFor="let m of members" class="flex items-center justify-between p-2 hover:bg-slate-100 rounded-lg group" [class.opacity-50]="m.isRemoved">
+                <div *ngFor="let m of members" class="flex items-center justify-between p-2 hover:bg-saowari-surface-alt rounded-lg group" [class.opacity-50]="m.isRemoved">
                   <div class="flex items-center gap-2 truncate flex-1">
                     <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0">
                       {{ m.fullName?.substring(0, 2)?.toUpperCase() }}
                     </div>
                     <div class="flex flex-col overflow-hidden">
-                      <span class="text-xs font-bold text-slate-800 truncate">{{ m.fullName }}</span>
-                      <span class="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">{{ m.role || 'Passenger' }}</span>
+                      <span class="text-xs font-bold text-saowari-text-primary truncate">{{ m.fullName }}</span>
+                      <span class="text-[9px] font-semibold text-saowari-text-secondary uppercase tracking-widest">{{ m.role || 'Passenger' }}</span>
                       <span *ngIf="m.isRemoved" class="text-[9px] text-red-500 font-bold">REMOVED</span>
                     </div>
                   </div>
@@ -236,13 +236,13 @@
         
         <ng-template #noSelectedView>
           <div class="flex-1 flex flex-col items-center justify-center text-slate-400 space-y-4">
-            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+            <div class="w-16 h-16 bg-saowari-surface-alt rounded-full flex items-center justify-center text-slate-300">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
               </svg>
             </div>
             <div class="text-center space-y-1">
-              <h4 class="font-bold text-slate-800 text-md">No schedule group selected</h4>
+              <h4 class="font-bold text-saowari-text-primary text-md">No schedule group selected</h4>
               <p class="text-xs text-slate-400">Select an active booked ride on the left list to start coordinating.</p>
             </div>
           </div>

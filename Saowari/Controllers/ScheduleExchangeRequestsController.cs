@@ -40,7 +40,7 @@ namespace Saowari.Controllers
                 .Include(e => e.TargetSchedule).ThenInclude(s => s.Route).ThenInclude(r => r.ToLocation)
                 .AsQueryable();
 
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (!int.TryParse(companyIdClaim, out int companyId))
@@ -178,7 +178,7 @@ namespace Saowari.Controllers
             if (request.Status != "AcceptedByPeer")
                 return BadRequest(ApiResponse<object>.Fail("Can only finalize requests accepted by the peer."));
 
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (!int.TryParse(companyIdClaim, out int companyId) ||

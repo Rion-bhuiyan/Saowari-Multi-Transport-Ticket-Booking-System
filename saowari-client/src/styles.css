@@ -24,18 +24,18 @@
 }
 
 [data-theme="dark"] {
-  --saowari-primary-rgb: 59 130 246;
-  --saowari-primary: rgb(var(--saowari-primary-rgb));
-  --saowari-secondary: #60a5fa;
-  --saowari-accent: #93c5fd;
-  --saowari-primary-dark: #2563eb;
-  --saowari-primary-light: #1e3a8a;
-  --saowari-surface-rgb: 15 23 42;
-  --saowari-surface: rgb(var(--saowari-surface-rgb));
-  --saowari-surface-alt: #020617;
-  --saowari-text-primary: #f8fafc;
-  --saowari-text-secondary: #94a3b8;
-  --saowari-border: #1e293b;
+  --saowari-primary-rgb: 99 102 241;
+  --saowari-primary: rgb(var(--saowari-primary-rgb)); /* Indigo 500 */
+  --saowari-secondary: #818cf8; /* Indigo 400 */
+  --saowari-accent: #a5b4fc; /* Indigo 300 */
+  --saowari-primary-dark: #4f46e5; /* Indigo 600 */
+  --saowari-primary-light: #e0e7ff; /* Indigo 100 */
+  --saowari-surface-rgb: 15 15 15;
+  --saowari-surface: rgb(var(--saowari-surface-rgb)); /* Very dark gray - Cards/Modals */
+  --saowari-surface-alt: #000000; /* Pure Black - Backgrounds */
+  --saowari-text-primary: #ffffff; /* Pure White - Fonts */
+  --saowari-text-secondary: #94a3b8; /* Slate 400 */
+  --saowari-border: #334155; /* Slate 700 */
   --primary: var(--saowari-primary);
   --accent: var(--saowari-accent);
   --gradient-hero: linear-gradient(135deg, var(--saowari-primary) 0%, var(--saowari-accent) 60%, var(--saowari-secondary) 100%);
@@ -117,8 +117,8 @@ html, body {
   height: 100%;
   margin: 0;
   font-family: 'Inter', sans-serif;
-  color: var(--saowari-text-primary);
-  background-color: var(--saowari-surface-alt);
+  color: var(--saowari-text-primary) !important;
+  background-color: var(--saowari-surface-alt) !important;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -170,31 +170,78 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 10px 25px -5px rgba(0, 79, 152, 0.1), 0 8px 10px -6px rgba(0, 79, 152, 0.1);
 }
 
-.btn-saowari {
-  background-color: var(--primary);
-  color: white;
-  border: none;
+/* =========================================
+   GLOBAL BUTTON FIXES
+   Ensures all buttons use dynamic theme colors
+   and text remains readable on hover.
+   ========================================= */
+.btn-saowari, .btn-primary {
+  background-color: var(--primary) !important;
+  color: white !important;
+  border: 1px solid var(--primary) !important;
   border-radius: 8px;
-  padding: 0.75rem 1.5rem;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.btn-saowari:hover {
-  background-color: var(--primary-dark);
-  color: white;
+.btn-saowari:hover, .btn-primary:hover {
+  background-color: white !important;
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.btn-saowari-outline {
-  background-color: transparent;
-  color: var(--primary);
-  border: 1px solid var(--primary);
+.btn-saowari-outline, .btn-outline.btn-primary {
+  background-color: transparent !important;
+  color: var(--primary) !important;
+  border: 1px solid var(--primary) !important;
   border-radius: 8px;
-  padding: 0.75rem 1.5rem;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.btn-saowari-outline:hover {
-  background-color: var(--primary-light);
+.btn-saowari-outline:hover, .btn-outline.btn-primary:hover {
+  background-color: var(--primary) !important;
+  color: white !important;
+  border-color: var(--primary) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+  background-color: var(--saowari-secondary) !important;
+  color: white !important;
+  border: 1px solid var(--saowari-secondary) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-secondary:hover {
+  background-color: white !important;
+  color: var(--saowari-secondary) !important;
+  border-color: var(--saowari-secondary) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-accent {
+  background-color: var(--accent) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--accent) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-accent:hover {
+  background-color: white !important;
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure default buttons do not turn unreadable on hover */
+.btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .badge-status {
@@ -456,3 +503,89 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 .animate-zoom-in { animation: zoomIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
 
+
+/* =========================================
+   GLOBAL FORM & TABLE FIXES FOR THEMES
+   Ensures inputs, textareas, and DaisyUI 
+   components respect the dynamic theme colors.
+   ========================================= */
+
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="number"], 
+input[type="tel"], 
+input[type="url"],
+textarea, 
+select {
+  background-color: var(--saowari-surface);
+  color: var(--saowari-text-primary);
+  border-color: var(--saowari-border);
+}
+
+input[type="text"]:focus, 
+input[type="email"]:focus, 
+input[type="password"]:focus, 
+input[type="number"]:focus, 
+input[type="tel"]:focus, 
+input[type="url"]:focus,
+textarea:focus, 
+select:focus {
+  background-color: var(--saowari-surface);
+  border-color: var(--saowari-primary);
+}
+
+/* DaisyUI Components */
+.input, .textarea, .select {
+  background-color: var(--saowari-surface);
+  color: var(--saowari-text-primary);
+  border-color: var(--saowari-border);
+}
+
+.input:focus, .textarea:focus, .select:focus {
+  background-color: var(--saowari-surface);
+  color: var(--saowari-text-primary);
+}
+
+/* DaisyUI Tables */
+.table {
+  background-color: var(--saowari-surface);
+  color: var(--saowari-text-primary);
+}
+
+.table th {
+  background-color: var(--saowari-surface-alt);
+  color: var(--saowari-text-secondary);
+  border-bottom-color: var(--saowari-border);
+}
+
+.table td {
+  border-bottom-color: var(--saowari-border);
+}
+
+.table tr.hover:hover, 
+.table tbody tr:hover {
+  background-color: var(--saowari-surface-alt) !important;
+}
+
+.table :where(thead, tfoot) {
+  color: var(--saowari-text-secondary);
+}
+
+/* Fix specific alternate row striping seen in locations */
+.table-striped tbody tr:nth-child(even),
+.table tbody tr:nth-child(even) {
+  background-color: var(--saowari-surface-alt);
+}
+.table-striped tbody tr:nth-child(odd),
+.table tbody tr:nth-child(odd) {
+  background-color: var(--saowari-surface);
+}
+
+/* Custom Footer Backgrounds */
+.bg-saowari-footer { background-color: #0d1b2a; transition: background-color 0.3s ease; }
+[data-theme="dark"] .bg-saowari-footer { background-color: #050505; border-top: 1px solid #1f2937; }
+[data-theme="gray"] .bg-saowari-footer { background-color: #0f172a; }
+[data-theme="blue"] .bg-saowari-footer { background-color: #082f49; }
+[data-theme="emerald"] .bg-saowari-footer { background-color: #064e3b; }
+[data-theme="sunset"] .bg-saowari-footer { background-color: #431407; }

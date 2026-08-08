@@ -1,6 +1,6 @@
 <div class="space-y-6">
   <div class="flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-slate-800">Home Page Banners</h1>
+    <h1 class="text-2xl font-bold text-saowari-text-primary">Home Page Banners</h1>
     <button class="btn btn-primary bg-saowari-primary text-white border-none hover:bg-saowari-primary-dark" (click)="openAddModal()">
       <i class="fas fa-plus mr-2"></i> Add New Banner
     </button>
@@ -11,8 +11,8 @@
   </div>
 
   <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div *ngFor="let banner of banners" class="card bg-white shadow-xl overflow-hidden border border-slate-100 transition-all hover:shadow-2xl">
-      <figure class="relative h-48 w-full bg-slate-100">
+    <div *ngFor="let banner of banners" class="card bg-saowari-surface shadow-xl overflow-hidden border border-saowari-border transition-all hover:shadow-2xl">
+      <figure class="relative h-48 w-full bg-saowari-surface-alt">
         <img [src]="banner.imageUrl" alt="Banner Image" class="w-full h-full object-cover" />
         <div class="absolute top-2 right-2">
           <div class="badge" [ngClass]="banner.isActive ? 'badge-success text-white' : 'badge-error text-white'">
@@ -24,8 +24,8 @@
         </div>
       </figure>
       <div class="card-body p-4">
-        <h2 class="card-title text-lg mb-1 text-slate-800">{{ banner.title || 'Untitled Banner' }}</h2>
-        <p class="text-xs text-slate-500 mb-4 truncate">{{ banner.linkUrl || 'No link specified' }}</p>
+        <h2 class="card-title text-lg mb-1 text-saowari-text-primary">{{ banner.title || 'Untitled Banner' }}</h2>
+        <p class="text-xs text-saowari-text-secondary mb-4 truncate">{{ banner.linkUrl || 'No link specified' }}</p>
         <div class="card-actions justify-end">
           <button class="btn btn-sm btn-outline btn-info" (click)="openEditModal(banner)">
             <i class="fas fa-edit"></i> Edit
@@ -37,7 +37,7 @@
       </div>
     </div>
     
-    <div *ngIf="banners.length === 0" class="col-span-full text-center py-12 text-slate-500 bg-slate-50 rounded-xl">
+    <div *ngIf="banners.length === 0" class="col-span-full text-center py-12 text-saowari-text-secondary bg-saowari-surface-alt rounded-xl">
       <i class="fas fa-images text-4xl mb-3 opacity-50"></i>
       <p>No banners found. Click "Add New Banner" to create one.</p>
     </div>
@@ -46,14 +46,14 @@
 
 <!-- Modal -->
 <div class="modal" [class.modal-open]="isModalOpen">
-  <div class="modal-box max-w-2xl bg-white">
-    <h3 class="font-bold text-lg mb-6 text-slate-800">{{ isEditing ? 'Edit Banner' : 'Add New Banner' }}</h3>
+  <div class="modal-box max-w-2xl bg-saowari-surface">
+    <h3 class="font-bold text-lg mb-6 text-saowari-text-primary">{{ isEditing ? 'Edit Banner' : 'Add New Banner' }}</h3>
     
     <form (ngSubmit)="saveBanner()">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div class="form-control">
-          <label class="label"><span class="label-text font-semibold text-slate-700">Position *</span></label>
-          <select class="select select-bordered w-full text-slate-800 bg-white" [(ngModel)]="bannerForm.position" name="position" required>
+          <label class="label"><span class="label-text font-semibold text-saowari-text-primary">Position *</span></label>
+          <select class="select select-bordered w-full text-saowari-text-primary bg-saowari-surface" [(ngModel)]="bannerForm.position" name="position" required>
             <option value="TopHero">Top Hero Section (Above Search)</option>
             <option value="UpcomingTrips">Upcoming Trips Section (Flanks & Bottom)</option>
             <option value="PopularRoutes">Popular Routes Section (Flanks & Bottom)</option>
@@ -62,8 +62,8 @@
           </select>
         </div>
         <div class="form-control">
-          <label class="label"><span class="label-text font-semibold text-slate-700">Size Template *</span></label>
-          <select class="select select-bordered w-full text-slate-800 bg-white" [(ngModel)]="bannerForm.sizeTemplate" name="sizeTemplate" required>
+          <label class="label"><span class="label-text font-semibold text-saowari-text-primary">Size Template *</span></label>
+          <select class="select select-bordered w-full text-saowari-text-primary bg-saowari-surface" [(ngModel)]="bannerForm.sizeTemplate" name="sizeTemplate" required>
             <option value="Horizontal">Horizontal Wide (900x220px)</option>
             <option value="Standard">Standard (480x270px)</option>
             <option value="Square">Square Side-Banner (220x220px)</option>
@@ -73,27 +73,27 @@
       </div>
 
       <div class="form-control mb-4">
-        <label class="label"><span class="label-text font-semibold text-slate-700">Title (Optional)</span></label>
-        <input type="text" class="input input-bordered w-full text-slate-800 bg-white" [(ngModel)]="bannerForm.title" name="title" placeholder="Banner Title" />
+        <label class="label"><span class="label-text font-semibold text-saowari-text-primary">Title (Optional)</span></label>
+        <input type="text" class="input input-bordered w-full text-saowari-text-primary bg-saowari-surface" [(ngModel)]="bannerForm.title" name="title" placeholder="Banner Title" />
       </div>
 
       <div class="form-control mb-4">
-        <label class="label"><span class="label-text font-semibold text-slate-700">Link URL (Optional)</span></label>
-        <input type="url" class="input input-bordered w-full text-slate-800 bg-white" [(ngModel)]="bannerForm.linkUrl" name="linkUrl" placeholder="https://..." />
+        <label class="label"><span class="label-text font-semibold text-saowari-text-primary">Link URL (Optional)</span></label>
+        <input type="url" class="input input-bordered w-full text-saowari-text-primary bg-saowari-surface" [(ngModel)]="bannerForm.linkUrl" name="linkUrl" placeholder="https://..." />
       </div>
 
       <div class="form-control mb-6">
         <label class="label">
-          <span class="label-text font-semibold text-slate-700">Banner Image {{ !isEditing ? '*' : '' }}</span>
+          <span class="label-text font-semibold text-saowari-text-primary">Banner Image {{ !isEditing ? '*' : '' }}</span>
         </label>
         
         <div class="flex items-center justify-center w-full mt-2">
-          <label class="flex flex-col items-center justify-center w-full h-40 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 relative overflow-hidden">
+          <label class="flex flex-col items-center justify-center w-full h-40 border-2 border-saowari-border border-dashed rounded-lg cursor-pointer bg-saowari-surface-alt hover:bg-saowari-surface-alt relative overflow-hidden">
             
             <div class="flex flex-col items-center justify-center pt-5 pb-6" *ngIf="!imagePreview">
               <i class="fas fa-cloud-upload-alt text-3xl text-slate-400 mb-3"></i>
-              <p class="mb-2 text-sm text-slate-500"><span class="font-semibold">Click to upload</span></p>
-              <p class="text-xs text-slate-500 font-bold text-saowari-primary mt-1">
+              <p class="mb-2 text-sm text-saowari-text-secondary"><span class="font-semibold">Click to upload</span></p>
+              <p class="text-xs text-saowari-text-secondary font-bold text-saowari-primary mt-1">
                 <ng-container *ngIf="bannerForm.sizeTemplate === 'Horizontal'">Best: 900x220px</ng-container>
                 <ng-container *ngIf="bannerForm.sizeTemplate === 'Standard'">Best: 480x270px</ng-container>
                 <ng-container *ngIf="bannerForm.sizeTemplate === 'Square'">Best: 220x220px</ng-container>
@@ -112,12 +112,12 @@
       <div class="form-control mb-6">
         <label class="label cursor-pointer justify-start gap-4">
           <input type="checkbox" class="toggle toggle-success" [(ngModel)]="bannerForm.isActive" name="isActive" />
-          <span class="label-text font-semibold text-slate-700">Active (Visible on Home Page)</span>
+          <span class="label-text font-semibold text-saowari-text-primary">Active (Visible on Home Page)</span>
         </label>
       </div>
 
       <div class="modal-action">
-        <button type="button" class="btn btn-ghost text-slate-700" (click)="closeModal()">Cancel</button>
+        <button type="button" class="btn btn-ghost text-saowari-text-primary" (click)="closeModal()">Cancel</button>
         <button type="submit" class="btn btn-primary bg-saowari-primary text-white border-none">Save Banner</button>
       </div>
     </form>

@@ -1,46 +1,35 @@
-import { Component, OnInit } from '@angular/core';
-import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DashboardService } from '../../../../core/services/api/dashboard.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CompanyService } from '../../../../core/services/api/company.service';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-admin-reports',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './admin-reports.component.html',
   styleUrls: ['./admin-reports.component.css']
 })
-export class AdminReportsComponent implements OnInit {
-  pRevenue: number = 1;
-  pageSizeRevenue: number = 15;
-  get pagedRevenueData() {
-    const start = (this.pRevenue - 1) * Number(this.pageSizeRevenue);
-    return (this.revenueData || []).slice(start, start + Number(this.pageSizeRevenue));
-  }
-
-  pOccupancy: number = 1;
-  pageSizeOccupancy: number = 15;
-  get pagedOccupancyData() {
-    const start = (this.pOccupancy - 1) * Number(this.pageSizeOccupancy);
-    return (this.occupancyData || []).slice(start, start + Number(this.pageSizeOccupancy));
-  }
-
-  revenueData: any[] = [];
-  occupancyData: any[] = [];
+export class AdminReportsComponent implements OnInit, AfterViewInit {
   companies: any[] = [];
   selectedCompanyId = '';
-  isLoadingRevenue = true;
-  isLoadingOccupancy = true;
+  startDate: string = '';
+  endDate: string = '';
+  isLoading = true;
 
-  revenueParams: any = {
-    startDate: this.getDateOffset(-30),
-    endDate: this.getDateOffset(0),
-    groupBy: 'day'
-  };
+  analyticsData: any = null;
+
+  @ViewChild('trendChart') trendChartRef!: ElementRef;
+  @ViewChild('companyChart') companyChartRef!: ElementRef;
+
+  trendChartInstance: Chart | null = null;
+  companyChartInstance: Chart | null = null;
 
   constructor(
     private dashboardService: DashboardService,
@@ -56,52 +45,187 @@ export class AdminReportsComponent implements OnInit {
         }
       });
     }
-    this.loadRevenue();
-    this.loadOccupancy();
+    this.loadAnalytics();
   }
 
-  getDateOffset(days: number): string {
-    const d = new Date();
-    d.setDate(d.getDate() + days);
-    return d.toISOString().split('T')[0];
+  ngAfterViewInit() {
+    // Charts will be initialized after data loads
   }
 
   onCompanyChange() {
-    this.loadRevenue();
-    this.loadOccupancy();
+    this.loadAnalytics();
   }
 
-  loadRevenue() {
-    this.isLoadingRevenue = true;
-    const params = { ...this.revenueParams };
+  loadAnalytics() {
+    this.isLoading = true;
+    const params: any = {};
     if (this.selectedCompanyId) {
       params.companyId = this.selectedCompanyId;
     }
-    this.dashboardService.getRevenueReport(params).subscribe({
-      next: (res: any) => {
-        if (res.success) this.revenueData = res.data || [];
-        this.isLoadingRevenue = false;
-      },
-      error: () => { this.isLoadingRevenue = false; }
-    });
-  }
-
-  loadOccupancy() {
-    this.isLoadingOccupancy = true;
-    const params = { ...this.revenueParams };
-    if (this.selectedCompanyId) {
-      params.companyId = this.selectedCompanyId;
+    if (this.startDate) {
+      params.startDate = this.startDate;
     }
-    this.dashboardService.getOccupancyReport(params).subscribe({
+    if (this.endDate) {
+      params.endDate = this.endDate;
+    }
+
+    this.dashboardService.getAdvancedAnalytics(params).subscribe({
       next: (res: any) => {
-        if (res.success) this.occupancyData = res.data || [];
-        this.isLoadingOccupancy = false;
+        if (res.success) {
+          this.analyticsData = res.data;
+          this.updateCharts();
+        }
+        this.isLoading = false;
       },
-      error: () => { this.isLoadingOccupancy = false; }
+      error: () => { this.isLoading = false; }
     });
   }
 
-  getTotalRevenue(): number {
-    return this.revenueData.reduce((s: number, i: any) => s + (i.revenue || i.amount || 0), 0);
+  updateCharts() {
+    if (!this.analyticsData) return;
+
+    // Wait a tick for canvas to render if it was hidden
+    setTimeout(() => {
+      this.renderTrendChart();
+      this.renderCompanyChart();
+    }, 100);
+  }
+
+  renderTrendChart() {
+    if (!this.trendChartRef) return;
+    const ctx = this.trendChartRef.nativeElement.getContext('2d');
+    
+    if (this.trendChartInstance) {
+      this.trendChartInstance.destroy();
+    }
+
+    const labels = this.analyticsData.trend30Days.map((d: any) => {
+      const date = new Date(d.date);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    const data = this.analyticsData.trend30Days.map((d: any) => d.revenue);
+
+    // Gradient fill
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)'); // Indigo
+    gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+    this.trendChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Revenue (৳)',
+          data: data,
+          borderColor: '#6366f1',
+          backgroundColor: gradient,
+          borderWidth: 3,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#6366f1',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            titleFont: { size: 13, family: 'Inter' },
+            bodyFont: { size: 14, weight: 'bold', family: 'Inter' },
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: false
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { family: 'Inter' }, color: '#94a3b8', maxTicksLimit: 10 }
+          },
+          y: {
+            border: { display: false },
+            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+            ticks: {
+              font: { family: 'Inter' },
+              color: '#94a3b8',
+              callback: (value) => '৳' + value
+            },
+            beginAtZero: true
+          }
+        },
+        interaction: { mode: 'nearest', axis: 'x', intersect: false }
+      }
+    });
+  }
+
+  renderCompanyChart() {
+    if (!this.companyChartRef) return;
+    const ctx = this.companyChartRef.nativeElement.getContext('2d');
+    
+    if (this.companyChartInstance) {
+      this.companyChartInstance.destroy();
+    }
+
+    const labels = this.analyticsData.companyComparisons.map((c: any) => c.companyName);
+    const data = this.analyticsData.companyComparisons.map((c: any) => c.revenue);
+
+    this.companyChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Revenue (৳)',
+          data: data,
+          backgroundColor: [
+            'rgba(99, 102, 241, 0.9)',
+            'rgba(168, 85, 247, 0.9)',
+            'rgba(236, 72, 153, 0.9)',
+            'rgba(245, 158, 11, 0.9)',
+            'rgba(16, 185, 129, 0.9)'
+          ],
+          borderRadius: 8,
+          borderSkipped: false,
+          barPercentage: 0.6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            titleFont: { size: 13, family: 'Inter' },
+            bodyFont: { size: 14, weight: 'bold', family: 'Inter' },
+            padding: 12,
+            cornerRadius: 8
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { family: 'Inter' }, color: '#94a3b8' }
+          },
+          y: {
+            border: { display: false },
+            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+            ticks: {
+              font: { family: 'Inter' },
+              color: '#94a3b8',
+              callback: (value) => '৳' + value
+            },
+            beginAtZero: true
+          }
+        }
+      }
+    });
   }
 }

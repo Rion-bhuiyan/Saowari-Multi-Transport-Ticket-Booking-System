@@ -1,13 +1,65 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\Final_project\\Saowari\\Saowari\\",
+  "WorkspaceRootPath": "E:\\idb\\Project_Final\\Saowari\\Saowari\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|d:\\final_project\\saowari\\saowari\\saowari\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\controllers\\trafficanalyticscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\controllers\\trafficanalyticscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\services\\automapperprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\services\\automapperprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\controllers\\activitycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\controllers\\activitycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|d:\\final_project\\saowari\\saowari\\saowari\\services\\notificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\services\\vehicletypeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\services\\vehicletypeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\services\\bookingseatservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\services\\bookingseatservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\controllers\\bookingstatusscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\controllers\\bookingstatusscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\hubs\\chathub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\hubs\\chathub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\extensions\\serviceextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\extensions\\serviceextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\data\\dataseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\data\\dataseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|e:\\idb\\project_final\\saowari\\saowari\\saowari\\services\\notificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CB6AC908-5A48-92F9-84DD-4209729639EF}|Saowari\\Saowari.csproj|solutionrelative:saowari\\services\\notificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -18,47 +70,177 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{e5c86464-96be-4d7c-9a8b-abcb3bbf5f92}"
+              "Name": "ST:0:0:{c6f34f0d-7ae5-4f3a-be61-fe0c21ae9eb8}"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "Saowari\\appsettings.Development.json",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\appsettings.Development.json",
+              "RelativeToolTip": "Saowari\\appsettings.Development.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-08T15:47:47.795Z"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ActivityController.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Controllers\\ActivityController.cs",
+              "RelativeDocumentMoniker": "Saowari\\Controllers\\ActivityController.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Controllers\\ActivityController.cs",
+              "RelativeToolTip": "Saowari\\Controllers\\ActivityController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-03T05:27:52.508Z"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:129:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "TrafficAnalyticsController.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Controllers\\TrafficAnalyticsController.cs",
+              "RelativeDocumentMoniker": "Saowari\\Controllers\\TrafficAnalyticsController.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Controllers\\TrafficAnalyticsController.cs",
+              "RelativeToolTip": "Saowari\\Controllers\\TrafficAnalyticsController.cs",
+              "ViewState": "AgIAAMYAAAAAAAAAAAAuwM0AAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-02T21:49:49.882Z",
+              "EditorCaption": ""
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\UserService.cs",
+              "RelativeDocumentMoniker": "Saowari\\Services\\UserService.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\UserService.cs",
+              "RelativeToolTip": "Saowari\\Services\\UserService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-02T21:39:30.394Z"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "VehicleTypeService.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\VehicleTypeService.cs",
+              "RelativeDocumentMoniker": "Saowari\\Services\\VehicleTypeService.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\VehicleTypeService.cs",
+              "RelativeToolTip": "Saowari\\Services\\VehicleTypeService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-02T21:39:25.039Z"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{74946827-37a0-11d2-a273-00c04f8ef4ff}"
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "EmailService.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\EmailService.cs",
+              "RelativeDocumentMoniker": "Saowari\\Services\\EmailService.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\EmailService.cs",
+              "RelativeToolTip": "Saowari\\Services\\EmailService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-02T21:39:21.01Z"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "BookingSeatService.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\BookingSeatService.cs",
+              "RelativeDocumentMoniker": "Saowari\\Services\\BookingSeatService.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\BookingSeatService.cs",
+              "RelativeToolTip": "Saowari\\Services\\BookingSeatService.cs",
+              "ViewState": "AgIAADIAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-02T20:49:03.294Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "AutoMapperProfile.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\AutoMapperProfile.cs",
+              "RelativeDocumentMoniker": "Saowari\\Services\\AutoMapperProfile.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\AutoMapperProfile.cs",
+              "RelativeToolTip": "Saowari\\Services\\AutoMapperProfile.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-02T20:49:01.735Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "BookingStatussController.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Controllers\\BookingStatussController.cs",
+              "RelativeDocumentMoniker": "Saowari\\Controllers\\BookingStatussController.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Controllers\\BookingStatussController.cs",
+              "RelativeToolTip": "Saowari\\Controllers\\BookingStatussController.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAwAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-02T20:47:52.747Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\appsettings.json",
+              "RelativeDocumentMoniker": "Saowari\\appsettings.json",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\appsettings.json",
+              "RelativeToolTip": "Saowari\\appsettings.json",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAA8AAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-02T15:18:40.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ChatHub.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Hubs\\ChatHub.cs",
+              "RelativeDocumentMoniker": "Saowari\\Hubs\\ChatHub.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Hubs\\ChatHub.cs",
+              "RelativeToolTip": "Saowari\\Hubs\\ChatHub.cs",
+              "ViewState": "AgIAAC8BAAAAbGZmZuYfwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-04T07:58:20.029Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "ServiceExtensions.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Extensions\\ServiceExtensions.cs",
+              "RelativeDocumentMoniker": "Saowari\\Extensions\\ServiceExtensions.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Extensions\\ServiceExtensions.cs",
+              "RelativeToolTip": "Saowari\\Extensions\\ServiceExtensions.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-04T07:58:09.568Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "DataSeeder.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Data\\DataSeeder.cs",
+              "RelativeDocumentMoniker": "Saowari\\Data\\DataSeeder.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Data\\DataSeeder.cs",
+              "RelativeToolTip": "Saowari\\Data\\DataSeeder.cs",
+              "ViewState": "AgIAAKUAAAAAZGZmZmYkwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-04T07:57:58.083Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
               "Title": "NotificationService.cs",
-              "DocumentMoniker": "D:\\Final_project\\Saowari\\Saowari\\Saowari\\Services\\NotificationService.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\NotificationService.cs",
               "RelativeDocumentMoniker": "Saowari\\Services\\NotificationService.cs",
-              "ToolTip": "D:\\Final_project\\Saowari\\Saowari\\Saowari\\Services\\NotificationService.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Services\\NotificationService.cs",
               "RelativeToolTip": "Saowari\\Services\\NotificationService.cs",
               "ViewState": "AgIAANoAAAAAAAAAAIAwwNQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -66,38 +248,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 5,
               "Title": "Program.cs",
-              "DocumentMoniker": "D:\\Final_project\\Saowari\\Saowari\\Saowari\\Program.cs",
+              "DocumentMoniker": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Program.cs",
               "RelativeDocumentMoniker": "Saowari\\Program.cs",
-              "ToolTip": "D:\\Final_project\\Saowari\\Saowari\\Saowari\\Program.cs",
+              "ToolTip": "E:\\idb\\Project_Final\\Saowari\\Saowari\\Saowari\\Program.cs",
               "RelativeToolTip": "Saowari\\Program.cs",
-              "ViewState": "AgIAAJQAAAAAAAAAAAAYwJ4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAJYAAAAAAAAAAAAQwJ0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T06:43:37.013Z",
-              "EditorCaption": ""
-            }
-          ]
-        },
-        {
-          "DockedWidth": 200,
-          "SelectedChildIndex": -1,
-          "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:2:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:3:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+              "WhenOpened": "2026-05-26T06:43:37.013Z"
             }
           ]
         }

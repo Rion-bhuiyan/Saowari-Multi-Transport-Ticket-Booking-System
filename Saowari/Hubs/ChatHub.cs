@@ -23,23 +23,41 @@ namespace Saowari.Hubs
 
         // ── SUPPORT CHAT FUNCTIONS ───────────────────────────────────────────────────
 
-        public async Task JoinSupportRoom(string userEmailOrIP)
+        public async Task JoinSupportRoom(JoinRoomRequestDto request)
         {
             // Find or create SupportRoom in database
             var room = await _context.SupportRooms
-                .FirstOrDefaultAsync(r => r.UserEmailOrIP == userEmailOrIP && r.IsActive);
+                .FirstOrDefaultAsync(r => r.UserEmailOrIP == request.UserEmailOrIP && r.IsActive);
 
             if (room == null)
             {
                 room = new SupportRoom
                 {
-                    UserEmailOrIP = userEmailOrIP,
+                    UserEmailOrIP = request.UserEmailOrIP,
+                    IpAddress = request.IpAddress,
+                    BrowserInfo = request.BrowserInfo,
+                    Geolocation = request.Geolocation,
+                    IspName = request.IspName,
                     CreatedAt = DateTime.UtcNow,
                     LastMessageAt = DateTime.UtcNow,
                     IsActive = true
                 };
                 _context.SupportRooms.Add(room);
                 await _context.SaveChangesAsync();
+            }
+            else
+            {
+                // Update metadata if it was a guest but now they have info, or if their IP/location changed
+                bool updated = false;
+                if (!string.IsNullOrEmpty(request.IpAddress) && room.IpAddress != request.IpAddress) { room.IpAddress = request.IpAddress; updated = true; }
+                if (!string.IsNullOrEmpty(request.BrowserInfo) && room.BrowserInfo != request.BrowserInfo) { room.BrowserInfo = request.BrowserInfo; updated = true; }
+                if (!string.IsNullOrEmpty(request.Geolocation) && room.Geolocation != request.Geolocation) { room.Geolocation = request.Geolocation; updated = true; }
+                if (!string.IsNullOrEmpty(request.IspName) && room.IspName != request.IspName) { room.IspName = request.IspName; updated = true; }
+                
+                if (updated)
+                {
+                    await _context.SaveChangesAsync();
+                }
             }
 
             // Add client connection to the SignalR room group
@@ -54,6 +72,10 @@ namespace Saowari.Hubs
             {
                 Id = room.Id,
                 UserEmailOrIP = room.UserEmailOrIP,
+                IpAddress = room.IpAddress,
+                BrowserInfo = room.BrowserInfo,
+                Geolocation = room.Geolocation,
+                IspName = room.IspName,
                 AssignedAdminId = room.AssignedAdminId,
                 IsActive = room.IsActive,
                 CreatedAt = room.CreatedAt,

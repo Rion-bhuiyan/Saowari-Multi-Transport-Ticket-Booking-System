@@ -65,7 +65,7 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<CompanyResponseDto>>> Update(int id, [FromForm] CompanyUpdateDto dto)
         {
             var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdStr = User.FindFirst("CompanyId")?.Value;
                 if (!int.TryParse(companyIdStr, out int userCompanyId) || userCompanyId != id)

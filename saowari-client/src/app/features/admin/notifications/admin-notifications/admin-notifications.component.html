@@ -48,7 +48,7 @@
   <!-- Real-time Stats Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
     <!-- Stat 1: Unread Alerts -->
-    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl p-6 shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
+    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl p-6 shadow-md border border-saowari-border dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
       <div class="absolute -right-4 -bottom-4 text-rose-500/10 text-8xl group-hover:scale-110 transition-transform duration-300">
         <i class="fas fa-envelope-open-text"></i>
       </div>
@@ -58,13 +58,13 @@
         </div>
         <div>
           <span class="text-sm font-semibold text-slate-400 block tracking-wide uppercase">Unread Actionables</span>
-          <span class="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{{ unreadCount }}</span>
+          <span class="text-3xl font-extrabold text-saowari-text-primary dark:text-slate-100">{{ unreadCount }}</span>
         </div>
       </div>
     </div>
 
     <!-- Stat 2: Total Logs -->
-    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl p-6 shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
+    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl p-6 shadow-md border border-saowari-border dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
       <div class="absolute -right-4 -bottom-4 text-indigo-500/10 text-8xl group-hover:scale-110 transition-transform duration-300">
         <i class="fas fa-database"></i>
       </div>
@@ -74,13 +74,13 @@
         </div>
         <div>
           <span class="text-sm font-semibold text-slate-400 block tracking-wide uppercase">Total History</span>
-          <span class="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{{ totalCount }}</span>
+          <span class="text-3xl font-extrabold text-saowari-text-primary dark:text-slate-100">{{ totalCount }}</span>
         </div>
       </div>
     </div>
 
     <!-- Stat 3: Company Filter Scope -->
-    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl p-6 shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
+    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl p-6 shadow-md border border-saowari-border dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
       <div class="absolute -right-4 -bottom-4 text-emerald-500/10 text-8xl group-hover:scale-110 transition-transform duration-300">
         <i class="fas fa-bus-alt"></i>
       </div>
@@ -90,20 +90,20 @@
         </div>
         <div>
           <span class="text-sm font-semibold text-slate-400 block tracking-wide uppercase">Active Companies</span>
-          <span class="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{{ companyList.length }}</span>
+          <span class="text-3xl font-extrabold text-saowari-text-primary dark:text-slate-100">{{ companyList.length }}</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Core Content Row -->
-  <div class="bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+  <div class="bg-saowari-surface dark:bg-saowari-surface-alt rounded-3xl shadow-sm border border-saowari-border dark:border-slate-800 overflow-hidden">
     
     <!-- Premium Filters Toolbar -->
-    <div class="p-5 border-b border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-saowari-surface-alt/50 backdrop-blur-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="p-5 border-b border-saowari-border dark:border-slate-850 bg-saowari-surface-alt/50 dark:bg-saowari-surface-alt/50 backdrop-blur-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
       
       <!-- Status Tabs Switcher -->
-      <div class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl max-w-xs">
+      <div class="flex p-1 bg-saowari-surface-alt dark:bg-slate-800 rounded-2xl max-w-xs">
         <button 
           class="flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all duration-300"
           [class.bg-saowari-surface]="activeTab === 'all'"
@@ -111,7 +111,7 @@
           [class.shadow-md]="activeTab === 'all'"
           [class.text-indigo-600]="activeTab === 'all'"
           [class.dark:text-indigo-400]="activeTab === 'all'"
-          [class.text-slate-500]="activeTab !== 'all'"
+          [class.text-saowari-text-secondary]="activeTab !== 'all'"
           (click)="activeTab = 'all'">
           All ({{ totalCount }})
         </button>
@@ -122,7 +122,7 @@
           [class.shadow-md]="activeTab === 'unread'"
           [class.text-indigo-600]="activeTab === 'unread'"
           [class.dark:text-indigo-400]="activeTab === 'unread'"
-          [class.text-slate-500]="activeTab !== 'unread'"
+          [class.text-saowari-text-secondary]="activeTab !== 'unread'"
           (click)="activeTab = 'unread'">
           Unread
           <span *ngIf="unreadCount > 0" class="px-2 py-0.5 text-xs font-extrabold rounded-full bg-rose-500 text-white animate-pulse">
@@ -134,11 +134,11 @@
       <!-- Advanced Selectors -->
       <div class="flex flex-wrap items-center gap-3">
         <!-- Event Type Dropdown -->
-        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 rounded-2xl px-3 py-1.5 border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center gap-1.5 bg-saowari-surface-alt dark:bg-slate-800 rounded-2xl px-3 py-1.5 border border-saowari-border dark:border-slate-700">
           <i class="fas fa-filter text-xs text-slate-400"></i>
           <select 
             [(ngModel)]="selectedType" 
-            class="bg-transparent border-none text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer">
+            class="bg-transparent border-none text-xs font-bold text-saowari-text-primary dark:text-slate-200 focus:outline-none cursor-pointer">
             <option value="all">All Events</option>
             <option value="booking">Bookings</option>
             <option value="cancellation">Cancellations</option>
@@ -150,11 +150,11 @@
         </div>
 
         <!-- Company Scoping dropdown -->
-        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 rounded-2xl px-3 py-1.5 border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center gap-1.5 bg-saowari-surface-alt dark:bg-slate-800 rounded-2xl px-3 py-1.5 border border-saowari-border dark:border-slate-700">
           <i class="fas fa-bus text-xs text-slate-400"></i>
           <select 
             [(ngModel)]="selectedCompany" 
-            class="bg-transparent border-none text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer">
+            class="bg-transparent border-none text-xs font-bold text-saowari-text-primary dark:text-slate-200 focus:outline-none cursor-pointer">
             <option value="all">All Companies</option>
             <option *ngFor="let comp of companyList" [value]="comp">{{ comp }}</option>
           </select>
@@ -170,10 +170,10 @@
 
     <!-- Empty State -->
     <div *ngIf="!isLoading && filteredNotifications.length === 0" class="p-16 text-center">
-      <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100 dark:border-slate-750">
-        <i class="far fa-bell-slash text-3xl text-slate-300 dark:text-slate-500"></i>
+      <div class="w-20 h-20 bg-saowari-surface-alt dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-saowari-border dark:border-slate-750">
+        <i class="far fa-bell-slash text-3xl text-slate-300 dark:text-saowari-text-secondary"></i>
       </div>
-      <h3 class="text-lg font-bold text-slate-700 dark:text-slate-300">All Captured & Logged</h3>
+      <h3 class="text-lg font-bold text-saowari-text-primary dark:text-slate-300">All Captured & Logged</h3>
       <p class="text-sm text-slate-400 mt-1 max-w-sm mx-auto">
         There are no new notifications matching the selected filters. Check back for real-time log arrivals!
       </p>
@@ -185,7 +185,7 @@
       <div 
         *ngFor="let notif of filteredNotifications" 
         (click)="markAsRead(notif)"
-        class="p-5 flex gap-4 transition-all duration-300 cursor-pointer group relative hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
+        class="p-5 flex gap-4 transition-all duration-300 cursor-pointer group relative hover:bg-saowari-surface-alt/80 dark:hover:bg-slate-800/40"
         [ngClass]="{
           'bg-indigo-50': !notif.isRead,
           'border-l-4': !notif.isRead,
@@ -200,8 +200,8 @@
         <!-- Notification Details Panel -->
         <div class="flex-1 pr-12">
           <div class="flex flex-wrap items-center gap-2">
-            <h3 class="font-extrabold text-[15px] text-slate-800 dark:text-slate-200" 
-                [class.text-slate-500]="notif.isRead" 
+            <h3 class="font-extrabold text-[15px] text-saowari-text-primary dark:text-slate-200" 
+                [class.text-saowari-text-secondary]="notif.isRead" 
                 [class.dark:text-slate-400]="notif.isRead" 
                 [class.font-semibold]="notif.isRead">
               {{ notif.title }}
@@ -213,8 +213,8 @@
             </span>
           </div>
 
-          <p class="text-sm mt-1.5 leading-relaxed text-slate-500 dark:text-slate-400"
-             [class.text-slate-600]="!notif.isRead"
+          <p class="text-sm mt-1.5 leading-relaxed text-saowari-text-secondary dark:text-slate-400"
+             [class.text-saowari-text-secondary]="!notif.isRead"
              [class.dark:text-slate-300]="!notif.isRead"
              [class.font-medium]="!notif.isRead">
             {{ notif.message }}
@@ -253,7 +253,7 @@
     <div class="fixed inset-0 bg-saowari-surface-alt/60 backdrop-blur-sm" (click)="showPrefsModal = false"></div>
     
     <!-- Modal Wrapper -->
-    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 animate-scale-in">
+    <div class="relative bg-saowari-surface dark:bg-saowari-surface-alt w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl border border-saowari-border dark:border-slate-800 animate-scale-in">
       
       <!-- Modal Header -->
       <div class="p-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white relative">
@@ -282,7 +282,7 @@
         <div *ngIf="preferences.length > 0" class="space-y-3">
           <div 
             *ngFor="let pref of preferences" 
-            class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-all hover:bg-slate-100/55 dark:hover:bg-slate-800">
+            class="flex items-center justify-between p-4 bg-saowari-surface-alt dark:bg-slate-800/50 rounded-2xl border border-saowari-border dark:border-slate-800 transition-all hover:bg-saowari-surface-alt/55 dark:hover:bg-slate-800">
             
             <!-- Company metadata -->
             <div class="flex items-center gap-3">
@@ -290,7 +290,7 @@
                 <i class="fas fa-building text-base"></i>
               </div>
               <div>
-                <span class="font-extrabold text-sm text-slate-800 dark:text-slate-200">{{ pref.companyName }}</span>
+                <span class="font-extrabold text-sm text-saowari-text-primary dark:text-slate-200">{{ pref.companyName }}</span>
                 <span class="text-xs text-slate-400 block mt-0.5">Ticket Sale Alerts</span>
               </div>
             </div>
@@ -313,7 +313,7 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="p-6 bg-slate-50 dark:bg-slate-905 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+      <div class="p-6 bg-saowari-surface-alt dark:bg-slate-905 border-t border-saowari-border dark:border-slate-800 flex justify-end">
         <button 
           (click)="showPrefsModal = false"
           class="btn bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-5 py-2 text-sm font-bold border-0 transition-colors">

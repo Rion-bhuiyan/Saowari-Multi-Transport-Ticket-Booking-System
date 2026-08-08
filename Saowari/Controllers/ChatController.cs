@@ -131,6 +131,10 @@ namespace Saowari.Controllers
                 {
                     Id = r.Id,
                     UserEmailOrIP = r.UserEmailOrIP,
+                    IpAddress = r.IpAddress,
+                    BrowserInfo = r.BrowserInfo,
+                    Geolocation = r.Geolocation,
+                    IspName = r.IspName,
                     AssignedAdminId = r.AssignedAdminId,
                     AssignedAdminName = r.AssignedAdmin != null ? r.AssignedAdmin.FullName : null,
                     IsActive = r.IsActive,

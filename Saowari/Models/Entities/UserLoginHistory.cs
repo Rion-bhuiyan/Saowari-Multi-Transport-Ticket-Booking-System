@@ -23,6 +23,27 @@ namespace Saowari.Models.Entities
 
         public DateTime LoginTime { get; set; } = DateTime.UtcNow;
 
+        [MaxLength(100)]
+        public string? Country { get; set; }
+
+        [MaxLength(10)]
+        public string? CountryCode { get; set; }
+
+        [MaxLength(100)]
+        public string? City { get; set; }
+
+        [MaxLength(100)]
+        public string? IspName { get; set; }
+
+        [MaxLength(500)]
+        public string? Referrer { get; set; }
+
+        [MaxLength(50)]
+        public string? TrafficChannel { get; set; }
+
+        [MaxLength(100)]
+        public string? Browser { get; set; }
+
         public DateTime? LastActiveTime { get; set; }
 
         [NotMapped]

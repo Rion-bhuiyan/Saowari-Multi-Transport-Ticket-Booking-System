@@ -386,6 +386,24 @@ namespace Saowari.Services
                 "fas fa-cog", "bg-gray-100 text-gray-600");
         }
 
+        public async Task BroadcastAdminDataUpdateAsync(string dataType)
+        {
+            var adminRole = await _context.UserRoles.FirstOrDefaultAsync(r => r.UserRoleName == "Admin");
+            var managerRole = await _context.UserRoles.FirstOrDefaultAsync(r => r.UserRoleName == "CompanyManager");
+
+            var targetUsers = await _context.Users
+                .Where(u => u.IsActive && 
+                            ((adminRole != null && u.RoleID == adminRole.UserRoleId) || 
+                             (managerRole != null && u.RoleID == managerRole.UserRoleId)))
+                .Select(u => u.UserID.ToString())
+                .ToListAsync();
+
+            if (targetUsers.Any())
+            {
+                await _hubContext.Clients.Users(targetUsers).SendAsync("AdminDataUpdated", dataType);
+            }
+        }
+
         public async Task NotifyBookingCancellationOtpAsync(Booking booking, string otp)
         {
             if (booking.UserID > 0)

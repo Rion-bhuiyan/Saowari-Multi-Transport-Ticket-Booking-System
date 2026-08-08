@@ -1,41 +1,39 @@
-<div [ngClass]="isDarkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-800'" class="h-[calc(100vh-80px)] flex font-sans overflow-hidden transition-colors duration-200 relative">
+<div class="bg-saowari-surface-alt text-saowari-text-primary h-[calc(100vh-80px)] flex font-sans overflow-hidden transition-colors duration-200 relative">
   
   <!-- Aurora Decorative Backdrop Background -->
   <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-    <div class="absolute top-0 -left-1/4 w-1/2 h-1/2 rounded-full bg-indigo-500/5 blur-[120px]"></div>
-    <div class="absolute bottom-0 -right-1/4 w-1/2 h-1/2 rounded-full bg-purple-500/5 blur-[120px]"></div>
+    <div class="absolute top-0 -left-1/4 w-1/2 h-1/2 rounded-full bg-saowari-primary/5 blur-[120px]"></div>
+    <div class="absolute bottom-0 -right-1/4 w-1/2 h-1/2 rounded-full bg-saowari-secondary/5 blur-[120px]"></div>
   </div>
 
   <!-- Left Side: Inquiries Lobby -->
-  <aside [ngClass]="isDarkMode ? 'bg-slate-900/90 border-slate-800/80' : 'bg-white border-slate-200'" class="w-80 md:w-96 flex-shrink-0 flex flex-col border-r h-full relative z-10 shadow-xl backdrop-blur-md">
+  <aside class="bg-saowari-surface border-saowari-border w-80 md:w-96 flex-shrink-0 flex flex-col border-r h-full relative z-10 shadow-xl backdrop-blur-md">
     
     <!-- Lobby Header -->
-    <div [ngClass]="isDarkMode ? 'border-slate-800' : 'border-slate-100'" class="p-4 border-b flex items-center justify-between">
+    <div class="border-saowari-border p-4 border-b flex items-center justify-between">
       <h3 class="font-heading font-extrabold text-sm tracking-wider uppercase flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-saowari-primary animate-pulse"></span>
         Active Support Lobby
       </h3>
-      <span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 font-extrabold uppercase border border-indigo-500/20">Live</span>
+      <span class="text-[9px] px-2 py-0.5 rounded-full bg-saowari-primary-light text-saowari-primary font-extrabold uppercase border border-saowari-primary/20">Live</span>
     </div>
 
     <!-- Lobby Search/Filter -->
-    <div [ngClass]="isDarkMode ? 'border-slate-800' : 'border-slate-100'" class="p-3 border-b flex-shrink-0">
-      <div class="relative flex items-center rounded-xl px-3 py-1.5 focus-within:border-indigo-500 transition-colors"
-           [ngClass]="isDarkMode ? 'bg-slate-800/40 border border-slate-700/50' : 'bg-slate-100 border border-slate-200 focus-within:border-indigo-650'">
-        <i class="fas fa-search text-xs mr-2" [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-400'"></i>
+    <div class="border-saowari-border p-3 border-b flex-shrink-0">
+      <div class="bg-saowari-surface-alt border border-saowari-border focus-within:border-saowari-primary relative flex items-center rounded-xl px-3 py-1.5 transition-colors">
+        <i class="fas fa-search text-xs mr-2 text-saowari-text-secondary"></i>
         <input 
           type="text" 
           [(ngModel)]="searchQuery" 
           (input)="applyFilter()"
           placeholder="Search conversation..." 
-          class="w-full bg-transparent border-0 outline-none text-xs font-semibold focus:ring-0"
-          [ngClass]="isDarkMode ? 'text-white placeholder-slate-500' : 'text-slate-800 placeholder-slate-400'">
+          class="text-saowari-text-primary placeholder-saowari-text-secondary w-full bg-transparent border-0 outline-none text-xs font-semibold focus:ring-0">
       </div>
     </div>
 
     <!-- Room items list -->
     <div class="flex-1 overflow-y-auto filtered-rooms-container p-2 space-y-1.5 custom-scrollbar">
-      <div *ngIf="filteredRooms.length === 0" class="p-8 text-center text-slate-500 text-xs font-semibold">
+      <div *ngIf="filteredRooms.length === 0" class="p-8 text-center text-saowari-text-secondary text-xs font-semibold">
         No active support sessions found.
       </div>
       
@@ -43,35 +41,33 @@
         *ngFor="let room of filteredRooms" 
         (click)="selectRoom(room)"
         [ngClass]="{
-          'bg-indigo-600/10 border border-indigo-500/30 shadow-md': selectedRoom?.id === room.id,
-          'hover:bg-slate-800/30 border border-transparent text-white': selectedRoom?.id !== room.id && isDarkMode,
-          'hover:bg-slate-100 border border-transparent text-slate-800': selectedRoom?.id !== room.id && !isDarkMode
+          'bg-saowari-primary-light border-saowari-primary/30 shadow-md': selectedRoom?.id === room.id,
+          'hover:bg-saowari-surface-alt border-transparent text-saowari-text-primary': selectedRoom?.id !== room.id
         }"
-        class="p-3.5 cursor-pointer rounded-2xl transition-all flex items-start gap-3 w-full overflow-hidden">
+        class="p-3.5 cursor-pointer rounded-2xl transition-all flex items-start gap-3 w-full overflow-hidden border">
         
         <!-- Initials Avatar -->
         <div class="relative flex-shrink-0">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-sm shadow-sm">
+          <div class="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center font-bold text-white text-sm shadow-sm">
             {{ (room.userEmailOrIP.includes('@') ? room.userEmailOrIP : 'Guest').substring(0, 1).toUpperCase() }}
           </div>
           <!-- Status active indicator -->
-          <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 rounded-full"
-                [ngClass]="isDarkMode ? 'border-slate-900' : 'border-white'"></span>
+          <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 rounded-full border-saowari-surface"></span>
         </div>
 
         <!-- Chat Details Info -->
         <div class="flex-1 min-w-0 flex flex-col space-y-1 overflow-hidden">
           <div class="flex items-center justify-between gap-2">
-            <span [ngClass]="isDarkMode ? 'text-white' : 'text-slate-800'" class="font-extrabold text-xs truncate max-w-[130px]" [title]="room.userEmailOrIP">
+            <span class="text-saowari-text-primary font-extrabold text-xs truncate max-w-[130px]" [title]="room.userEmailOrIP">
               {{ room.userEmailOrIP }}
             </span>
-            <span [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="text-[9px] font-bold tracking-wide flex-shrink-0">
+            <span class="text-saowari-text-secondary text-[9px] font-bold tracking-wide flex-shrink-0">
               {{ room.lastMessageAt | date:'shortTime' }}
             </span>
           </div>
 
           <!-- Message Snip -->
-          <p [ngClass]="isDarkMode ? 'text-slate-300' : 'text-slate-600'" class="text-[11px] truncate font-semibold leading-relaxed w-full">
+          <p class="text-saowari-text-secondary text-[11px] truncate font-semibold leading-relaxed w-full">
             {{ room.lastMessageContent || 'New Support Room Opened' }}
           </p>
 
@@ -81,14 +77,14 @@
             <span 
               *ngIf="room.assignedAdminId" 
               [ngClass]="{
-                'bg-emerald-950/70 text-emerald-400 border border-emerald-500/20': room.assignedAdminId == currentAdminId,
-                'bg-amber-950/70 text-amber-400 border border-amber-500/20': room.assignedAdminId != currentAdminId
+                'bg-emerald-500/20 text-emerald-600 border border-emerald-500/20': room.assignedAdminId == currentAdminId,
+                'bg-amber-500/20 text-amber-600 border border-amber-500/20': room.assignedAdminId != currentAdminId
               }"
               class="px-2 py-0.5 rounded text-[8px] font-extrabold tracking-wider uppercase whitespace-nowrap">
               {{ room.assignedAdminId == currentAdminId ? 'Your Chat' : 'Locked by Agent' }}
             </span>
             
-            <span *ngIf="!room.assignedAdminId" [ngClass]="isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-600 font-bold border border-slate-200'" class="px-2 py-0.5 rounded text-[8px] uppercase tracking-wide whitespace-nowrap">
+            <span *ngIf="!room.assignedAdminId" class="bg-saowari-surface-alt text-saowari-text-secondary font-bold border border-saowari-border px-2 py-0.5 rounded text-[8px] uppercase tracking-wide whitespace-nowrap">
               Open Chat
             </span>
 
@@ -105,12 +101,12 @@
     
     <!-- No Active Room Panel -->
     <div *ngIf="!selectedRoom" class="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-4">
-      <div class="w-20 h-20 rounded-3xl bg-indigo-600/10 flex items-center justify-center text-indigo-500 text-3xl shadow-lg border border-indigo-500/15">
+      <div class="w-20 h-20 rounded-3xl bg-saowari-primary-light flex items-center justify-center text-saowari-primary text-3xl shadow-lg border border-saowari-primary/15">
         <i class="far fa-comments animate-bounce"></i>
       </div>
       <div>
-        <h3 [ngClass]="isDarkMode ? 'text-white' : 'text-slate-800'" class="font-heading font-extrabold text-base tracking-wide">Support Agent Console</h3>
-        <p [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="text-xs max-w-sm mt-1 leading-relaxed">Select an active support session from the lobby sidebar to claim the room and start assisting the customer.</p>
+        <h3 class="text-saowari-text-primary font-heading font-extrabold text-base tracking-wide">Support Agent Console</h3>
+        <p class="text-saowari-text-secondary text-xs max-w-sm mt-1 leading-relaxed">Select an active support session from the lobby sidebar to claim the room and start assisting the customer.</p>
       </div>
     </div>
 
@@ -118,28 +114,28 @@
     <ng-container *ngIf="selectedRoom">
       
       <!-- Workspace Header -->
-      <div [ngClass]="isDarkMode ? 'bg-slate-900/90 border-slate-800/80 shadow-md' : 'bg-white border-slate-200 shadow-sm'" class="h-16 px-6 border-b flex items-center justify-between z-10 backdrop-blur-md">
+      <div class="bg-saowari-surface border-saowari-border shadow-sm h-16 px-6 border-b flex items-center justify-between z-10 backdrop-blur-md">
         
         <div class="flex items-center space-x-3 cursor-pointer group" (click)="openUserInfo()">
           <!-- Profile Picture -->
           <div class="avatar" [ngClass]="{'placeholder': !selectedRoomUser?.picture}">
-            <div *ngIf="selectedRoomUser?.picture" class="w-10 h-10 rounded-xl overflow-hidden border border-slate-200/80 shadow-sm group-hover:scale-105 transition-transform">
+            <div *ngIf="selectedRoomUser?.picture" class="w-10 h-10 rounded-xl overflow-hidden border border-saowari-border/80 shadow-sm group-hover:scale-105 transition-transform">
               <img [src]="getProfilePictureUrl(selectedRoomUser.picture)" alt="Avatar" class="w-full h-full object-cover" />
             </div>
-            <div *ngIf="!selectedRoomUser?.picture" class="w-10 h-10 bg-indigo-650 rounded-xl flex items-center justify-center font-black text-white text-md shadow-inner border border-white/10">
+            <div *ngIf="!selectedRoomUser?.picture" class="w-10 h-10 bg-saowari-primary rounded-xl flex items-center justify-center font-black text-white text-md shadow-inner border border-white/10">
               {{ (selectedRoomUser?.fullName || selectedRoom.userEmailOrIP).substring(0, 2).toUpperCase() }}
             </div>
           </div>
           <div>
-            <h4 [ngClass]="isDarkMode ? 'text-white' : 'text-slate-800'" class="font-heading font-extrabold text-sm group-hover:text-indigo-500 transition-colors flex items-center gap-1.5">
+            <h4 class="text-saowari-text-primary font-heading font-extrabold text-sm group-hover:text-saowari-primary transition-colors flex items-center gap-1.5">
               {{ selectedRoomUser?.fullName || selectedRoom.userEmailOrIP }}
-              <span *ngIf="selectedRoomUser" class="text-[9px] bg-indigo-600/10 text-indigo-500 border border-indigo-500/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Member</span>
+              <span *ngIf="selectedRoomUser" class="text-[9px] bg-saowari-primary-light text-saowari-primary border border-saowari-primary/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Member</span>
               <span *ngIf="!selectedRoomUser" class="text-[9px] bg-slate-500/10 text-slate-400 border border-slate-700/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Guest</span>
             </h4>
-            <p [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="text-[10px] flex items-center gap-1.5 font-medium">
+            <p class="text-saowari-text-secondary text-[10px] flex items-center gap-1.5 font-medium">
               <span>Opened: {{ selectedRoom.createdAt | date:'medium' }}</span>
               <span class="w-1.5 h-1.5 rounded-full bg-slate-500/30"></span>
-              <span class="text-indigo-500 font-bold hover:underline">View Profile details</span>
+              <span class="text-saowari-primary font-bold hover:underline">View Profile details</span>
             </p>
           </div>
         </div>
@@ -149,14 +145,14 @@
           <button 
             *ngIf="!selectedRoom.assignedAdminId" 
             (click)="claimRoom()" 
-            class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black transition-all shadow-md shadow-indigo-600/10 hover:shadow-lg">
+            class="px-5 py-2 bg-saowari-primary hover:bg-saowari-primary-dark text-white rounded-xl text-xs font-black transition-all shadow-md shadow-saowari-primary/20 hover:shadow-lg">
             Claim Conversation
           </button>
 
           <button 
             *ngIf="selectedRoom.assignedAdminId == currentAdminId" 
             (click)="releaseRoom()" 
-            class="px-5 py-2 bg-rose-600/15 hover:bg-rose-600/25 text-rose-500 border border-rose-500/20 rounded-xl text-xs font-black transition-all">
+            class="px-5 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 rounded-xl text-xs font-black transition-all">
             Unassign Chat Room
           </button>
         </div>
@@ -172,9 +168,9 @@
             (click)="openUserInfo()"
             class="avatar mr-3 flex-shrink-0 self-end cursor-pointer group"
             title="Click to view user details">
-            <div class="w-8 h-8 rounded-lg overflow-hidden border border-slate-200/80 shadow-sm group-hover:scale-105 transition-transform">
+            <div class="w-8 h-8 rounded-lg overflow-hidden border border-saowari-border/80 shadow-sm group-hover:scale-105 transition-transform">
               <img *ngIf="selectedRoomUser?.picture" [src]="getProfilePictureUrl(selectedRoomUser.picture)" class="w-full h-full object-cover" />
-              <div *ngIf="!selectedRoomUser?.picture" class="w-full h-full bg-indigo-600 text-white flex items-center justify-center font-black text-[10px]">
+              <div *ngIf="!selectedRoomUser?.picture" class="w-full h-full bg-saowari-primary text-white flex items-center justify-center font-black text-[10px]">
                 {{ msg.senderName.substring(0, 1).toUpperCase() }}
               </div>
             </div>
@@ -183,14 +179,13 @@
           <!-- Message Card -->
           <div 
             [ngClass]="{
-              'bg-gradient-to-tr from-indigo-600 to-purple-650 text-white rounded-br-none shadow-md shadow-indigo-600/10': isCurrentUser(msg.senderId),
-              'bg-slate-900/80 border border-slate-800 text-slate-100 rounded-bl-none': !isCurrentUser(msg.senderId) && isDarkMode,
-              'bg-white border border-slate-200/90 text-slate-900 rounded-bl-none shadow-sm': !isCurrentUser(msg.senderId) && !isDarkMode
+              'bg-gradient-hero text-white rounded-br-none shadow-md shadow-saowari-primary/10': isCurrentUser(msg.senderId),
+              'bg-saowari-surface border border-saowari-border/90 text-saowari-text-primary rounded-bl-none shadow-sm': !isCurrentUser(msg.senderId)
             }"
             class="max-w-[70%] p-4 rounded-2xl relative group/msg">
             
             <p 
-              [ngClass]="isCurrentUser(msg.senderId) ? 'text-indigo-200' : (isDarkMode ? 'text-indigo-400' : 'text-indigo-600')"
+              [ngClass]="isCurrentUser(msg.senderId) ? 'text-white/80' : 'text-saowari-primary'"
               class="text-[9px] font-black mb-1.5 uppercase tracking-wider flex items-center justify-between gap-6 select-none">
               <span>{{ msg.senderName }}</span>
               <!-- Delete trigger -->
@@ -231,13 +226,13 @@
 
             <!-- Docs File Download link -->
             <div *ngIf="msg.messageType === 'pdf' || msg.messageType === 'word' || msg.messageType === 'document'" class="flex items-center space-x-2 py-2 bg-black/10 rounded-xl px-3 hover:bg-black/20 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-saowari-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <a 
                 [href]="getFullUrl(msg.fileUrl)" 
                 target="_blank" 
-                [ngClass]="isCurrentUser(msg.senderId) ? 'text-indigo-200 hover:text-white' : (isDarkMode ? 'text-indigo-300 hover:text-indigo-200' : 'text-indigo-800 hover:text-indigo-950')"
+                [ngClass]="isCurrentUser(msg.senderId) ? 'text-white/80 hover:text-white' : 'text-saowari-primary hover:text-saowari-primary-dark'"
                 class="text-xs font-bold underline truncate max-w-[200px]">
                 {{ msg.content }}
               </a>
@@ -245,7 +240,7 @@
 
             <!-- Message Date -->
             <span 
-              [ngClass]="isCurrentUser(msg.senderId) ? 'text-white/60' : (isDarkMode ? 'text-slate-400' : 'text-slate-500')"
+              [ngClass]="isCurrentUser(msg.senderId) ? 'text-white/60' : 'text-saowari-text-secondary'"
               class="block text-[8px] text-right mt-1.5 font-mono font-bold tracking-wider uppercase select-none">
               {{ msg.createdAt | date:'shortTime' }}
             </span>
@@ -262,10 +257,10 @@
       </div>
 
       <!-- Canvas Resizing slider inside Admin Console -->
-      <div *ngIf="pendingImage" [ngClass]="isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'" class="p-4 border-t flex flex-col space-y-2">
+      <div *ngIf="pendingImage" class="bg-saowari-surface-alt border-saowari-border p-4 border-t flex flex-col space-y-2">
         <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider">
-          <span [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-600'">Resize image before sending</span>
-          <span class="text-indigo-500">New Size: {{ getKBSize(resizedSize) }}</span>
+          <span class="text-saowari-text-secondary">Resize image before sending</span>
+          <span class="text-saowari-primary">New Size: {{ getKBSize(resizedSize) }}</span>
         </div>
         <div class="flex items-center space-x-3">
           <input 
@@ -275,26 +270,24 @@
             step="0.1" 
             [(ngModel)]="resizeScale" 
             (input)="onResizeScaleChange()" 
-            class="flex-1 accent-indigo-500 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
-          <span [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-600'" class="text-xs w-8 text-right font-black">{{ Math.round(resizeScale * 100) }}%</span>
+            class="flex-1 accent-saowari-primary h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+          <span class="text-saowari-text-secondary text-xs w-8 text-right font-black">{{ Math.round(resizeScale * 100) }}%</span>
         </div>
         <div class="flex space-x-2 justify-end">
           <button (click)="cancelImagePending()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3.5 py-1.5 rounded-lg text-white font-bold transition-all">Cancel</button>
-          <button (click)="uploadResizedImage()" class="text-xs bg-indigo-650 hover:bg-indigo-700 px-3.5 py-1.5 rounded-lg font-black text-white transition-all shadow-md shadow-indigo-600/10">Upload & Send</button>
+          <button (click)="uploadResizedImage()" class="text-xs bg-saowari-primary hover:bg-saowari-primary-dark px-3.5 py-1.5 rounded-lg font-black text-white transition-all shadow-md shadow-saowari-primary/20">Upload & Send</button>
         </div>
       </div>
 
       <!-- Input box tray panel -->
       <div 
         *ngIf="!selectedRoom.assignedAdminId || selectedRoom.assignedAdminId == currentAdminId" 
-        [ngClass]="isDarkMode ? 'bg-slate-900/90 border-slate-800/80 shadow-lg' : 'bg-white border-slate-200'"
-        class="p-4 border-t relative flex flex-col relative z-25">
+        class="bg-saowari-surface border-saowari-border p-4 border-t relative flex flex-col relative z-25">
         
         <!-- Emoji Drawer Popover -->
         <div 
           *ngIf="showEmojiDrawer" 
-          [ngClass]="isDarkMode ? 'bg-slate-850 border-slate-750 text-white' : 'bg-white border-slate-200 text-slate-800 shadow-2xl'"
-          class="absolute bottom-18 left-4 p-3 border rounded-2xl shadow-2xl w-64 z-50 grid grid-cols-6 gap-2 animate-scale-up">
+          class="bg-saowari-surface border-saowari-border text-saowari-text-primary shadow-2xl absolute bottom-18 left-4 p-3 border rounded-2xl shadow-2xl w-64 z-50 grid grid-cols-6 gap-2 animate-scale-up">
           <button 
             *ngFor="let emoji of popularEmojis" 
             (click)="insertEmoji(emoji)" 
@@ -305,12 +298,12 @@
 
         <div class="flex items-center space-x-3">
           <!-- Emoji Button -->
-          <button (click)="toggleEmojiDrawer()" [ngClass]="isDarkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'" class="transition-all p-1.5 rounded-xl hover:bg-slate-800/20 focus:outline-none">
+          <button (click)="toggleEmojiDrawer()" class="text-saowari-text-secondary hover:text-saowari-primary transition-all p-1.5 rounded-xl hover:bg-slate-800/20 focus:outline-none">
             <i class="far fa-smile text-xl"></i>
           </button>
 
           <!-- File Upload Button -->
-          <button (click)="fileInput.click()" [ngClass]="isDarkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'" class="transition-all p-1.5 rounded-xl hover:bg-slate-800/20 focus:outline-none">
+          <button (click)="fileInput.click()" class="text-saowari-text-secondary hover:text-saowari-primary transition-all p-1.5 rounded-xl hover:bg-slate-800/20 focus:outline-none">
             <i class="fas fa-paperclip text-lg"></i>
           </button>
           <input 
@@ -327,14 +320,13 @@
             (keydown.enter)="sendMessage()"
             [placeholder]="selectedRoom.assignedAdminId ? 'Type your support message...' : 'You must claim the conversation first'"
             [disabled]="!selectedRoom.assignedAdminId"
-            [ngClass]="isDarkMode ? 'bg-slate-800/60 border-slate-700/60 text-white focus:border-indigo-500' : 'bg-slate-100 border-slate-200 text-slate-900 focus:bg-white focus:border-indigo-650'"
-            class="flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold border focus:outline-none transition-all">
+            class="bg-saowari-surface-alt border-saowari-border text-saowari-text-primary focus:bg-saowari-surface focus:border-saowari-primary flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold border focus:outline-none transition-all">
 
           <!-- Send Button -->
           <button 
             (click)="sendMessage()" 
             [disabled]="!newMessage.trim() || !selectedRoom.assignedAdminId"
-            class="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white rounded-xl px-5 py-2.5 text-xs font-black flex items-center justify-center transition-all shadow-md shadow-indigo-600/10 hover:shadow-lg">
+            class="bg-saowari-primary hover:bg-saowari-primary-dark disabled:opacity-40 disabled:hover:bg-saowari-primary text-white rounded-xl px-5 py-2.5 text-xs font-black flex items-center justify-center transition-all shadow-md shadow-saowari-primary/20 hover:shadow-lg">
             <i class="far fa-paper-plane mr-1.5"></i> Send
           </button>
         </div>
@@ -349,25 +341,24 @@
     (click)="closeUserInfo()">
     
     <div 
-      [ngClass]="isDarkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-800'"
-      class="w-full max-w-md rounded-3xl border shadow-2xl overflow-hidden animate-scale-up" 
+      class="bg-saowari-surface border-saowari-border text-saowari-text-primary w-full max-w-md rounded-3xl border shadow-2xl overflow-hidden animate-scale-up" 
       (click)="$event.stopPropagation()">
       
       <!-- Modal Header -->
-      <div [ngClass]="isDarkMode ? 'bg-slate-950/80 border-slate-800/60' : 'bg-slate-50 border-slate-100'" class="p-4 border-b flex items-center justify-between">
+      <div class="bg-saowari-surface-alt border-saowari-border p-4 border-b flex items-center justify-between">
         <h3 class="font-heading font-extrabold text-xs tracking-wider uppercase flex items-center gap-2">
-          <i class="fas fa-id-card text-indigo-500 text-sm"></i>
+          <i class="fas fa-id-card text-saowari-primary text-sm"></i>
           Customer Profile Details
         </h3>
-        <button (click)="closeUserInfo()" class="text-slate-400 hover:text-slate-650 transition-colors focus:outline-none">
+        <button (click)="closeUserInfo()" class="text-saowari-text-secondary hover:text-saowari-primary transition-colors focus:outline-none">
           <i class="fas fa-times text-lg"></i>
         </button>
       </div>
 
       <!-- Modal Body (Loading State) -->
       <div *ngIf="loadingUserInfo" class="p-12 flex flex-col items-center justify-center space-y-3">
-        <span class="loading loading-spinner loading-lg text-indigo-600"></span>
-        <span [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="text-xs font-semibold uppercase tracking-wider">Fetching server details...</span>
+        <span class="loading loading-spinner loading-lg text-saowari-primary"></span>
+        <span class="text-saowari-text-secondary text-xs font-semibold uppercase tracking-wider">Fetching server details...</span>
       </div>
 
       <!-- Modal Body (Data State) -->
@@ -375,57 +366,56 @@
         <!-- Profile Picture & Primary Details -->
         <div class="flex flex-col items-center text-center space-y-3">
           <div class="avatar cursor-pointer" [ngClass]="{'placeholder': !activeUserInfo.picture}" (click)="expandPicture(activeUserInfo.picture)">
-            <div *ngIf="activeUserInfo.picture" class="w-24 h-24 rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-xl hover:scale-105 transition-transform">
+            <div *ngIf="activeUserInfo.picture" class="w-24 h-24 rounded-2xl overflow-hidden border-2 border-saowari-primary shadow-xl hover:scale-105 transition-transform">
               <img [src]="getProfilePictureUrl(activeUserInfo.picture)" alt="Avatar" class="w-full h-full object-cover" />
             </div>
-            <div *ngIf="!activeUserInfo.picture" class="w-24 h-24 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-650 text-white flex items-center justify-center text-3xl font-black shadow-lg">
+            <div *ngIf="!activeUserInfo.picture" class="w-24 h-24 rounded-2xl bg-gradient-hero text-white flex items-center justify-center text-3xl font-black shadow-lg">
               {{ activeUserInfo.fullName.charAt(0).toUpperCase() }}
             </div>
           </div>
           <div>
             <h4 class="font-heading font-black text-lg tracking-wide leading-tight">{{ activeUserInfo.fullName }}</h4>
             <span 
-              [ngClass]="activeUserInfo.isGuest ? 'bg-slate-200 text-slate-700' : 'bg-indigo-50 text-indigo-600 border border-indigo-200/50'" 
-              class="px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest mt-1.5 inline-block">
+              class="bg-saowari-primary-light text-saowari-primary border border-saowari-primary/30 px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest mt-1.5 inline-block">
               {{ activeUserInfo.roleName }}
             </span>
           </div>
         </div>
 
         <!-- Info Fields Grid -->
-        <div [ngClass]="isDarkMode ? 'bg-slate-950/60 divide-slate-800' : 'bg-slate-50 divide-slate-200'" class="rounded-2xl border border-transparent overflow-hidden divide-y">
+        <div class="bg-saowari-surface-alt divide-saowari-border rounded-2xl border border-transparent overflow-hidden divide-y">
           
           <!-- Email -->
           <div class="p-4 flex items-center justify-between text-xs font-semibold">
-            <div [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="flex items-center gap-2.5">
-              <i class="fas fa-envelope w-4 text-center text-indigo-500"></i>
+            <div class="text-saowari-text-secondary flex items-center gap-2.5">
+              <i class="fas fa-envelope w-4 text-center text-saowari-primary"></i>
               <span>Email</span>
             </div>
-            <span class="font-bold text-right select-all pl-4 max-w-[240px] truncate" [ngClass]="isDarkMode ? 'text-white' : 'text-slate-800'">{{ activeUserInfo.email }}</span>
+            <span class="text-saowari-text-primary font-bold text-right select-all pl-4 max-w-[240px] truncate">{{ activeUserInfo.email }}</span>
           </div>
 
           <!-- Phone -->
           <div class="p-4 flex items-center justify-between text-xs font-semibold">
-            <div [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="flex items-center gap-2.5">
-              <i class="fas fa-phone w-4 text-center text-indigo-500"></i>
+            <div class="text-saowari-text-secondary flex items-center gap-2.5">
+              <i class="fas fa-phone w-4 text-center text-saowari-primary"></i>
               <span>Phone</span>
             </div>
-            <span class="font-bold text-right" [ngClass]="isDarkMode ? 'text-white' : 'text-slate-800'">{{ activeUserInfo.phone }}</span>
+            <span class="text-saowari-text-primary font-bold text-right">{{ activeUserInfo.phone }}</span>
           </div>
 
           <!-- Company -->
           <div *ngIf="activeUserInfo.companyName && activeUserInfo.companyName !== 'N/A'" class="p-4 flex items-center justify-between text-xs font-semibold">
-            <div [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="flex items-center gap-2.5">
-              <i class="fas fa-building w-4 text-center text-indigo-500"></i>
+            <div class="text-saowari-text-secondary flex items-center gap-2.5">
+              <i class="fas fa-building w-4 text-center text-saowari-primary"></i>
               <span>Company</span>
             </div>
-            <span class="font-bold text-right" [ngClass]="isDarkMode ? 'text-white' : 'text-slate-800'">{{ activeUserInfo.companyName }}</span>
+            <span class="text-saowari-text-primary font-bold text-right">{{ activeUserInfo.companyName }}</span>
           </div>
 
           <!-- Account Status -->
           <div class="p-4 flex items-center justify-between text-xs font-semibold">
-            <div [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="flex items-center gap-2.5">
-              <i class="fas fa-toggle-on w-4 text-center text-indigo-500"></i>
+            <div class="text-saowari-text-secondary flex items-center gap-2.5">
+              <i class="fas fa-toggle-on w-4 text-center text-saowari-primary"></i>
               <span>Status</span>
             </div>
             <span 
@@ -438,17 +428,53 @@
 
           <!-- Registered Date -->
           <div class="p-4 flex items-center justify-between text-xs font-semibold">
-            <div [ngClass]="isDarkMode ? 'text-slate-400' : 'text-slate-500'" class="flex items-center gap-2.5">
-              <i class="fas fa-calendar-alt w-4 text-center text-indigo-500"></i>
+            <div class="text-saowari-text-secondary flex items-center gap-2.5">
+              <i class="fas fa-calendar-alt w-4 text-center text-saowari-primary"></i>
               <span>Created At</span>
             </div>
-            <span class="font-bold text-right" [ngClass]="isDarkMode ? 'text-white' : 'text-slate-800'">{{ activeUserInfo.createdAt | date:'mediumDate' }}</span>
+            <span class="text-saowari-text-primary font-bold text-right">{{ activeUserInfo.createdAt | date:'mediumDate' }}</span>
+          </div>
+
+          <!-- IP Address -->
+          <div *ngIf="activeUserInfo.ipAddress" class="p-4 flex items-center justify-between text-xs font-semibold">
+            <div class="text-saowari-text-secondary flex items-center gap-2.5">
+              <i class="fas fa-network-wired w-4 text-center text-saowari-primary"></i>
+              <span>IP Address</span>
+            </div>
+            <span class="text-saowari-text-primary font-bold text-right font-mono">{{ activeUserInfo.ipAddress }}</span>
+          </div>
+
+          <!-- Geolocation Address -->
+          <div *ngIf="activeUserInfo.geolocation" class="p-4 flex items-center justify-between text-xs font-semibold">
+            <div class="text-saowari-text-secondary flex items-center gap-2.5 flex-shrink-0">
+              <i class="fas fa-map-marker-alt w-4 text-center text-saowari-primary"></i>
+              <span>Location</span>
+            </div>
+            <span class="text-saowari-text-primary font-bold text-right truncate max-w-[220px]" [title]="activeUserInfo.geolocation">{{ activeUserInfo.geolocation }}</span>
+          </div>
+
+          <!-- ISP Name -->
+          <div *ngIf="activeUserInfo.ispName" class="p-4 flex items-center justify-between text-xs font-semibold">
+            <div class="text-saowari-text-secondary flex items-center gap-2.5 flex-shrink-0">
+              <i class="fas fa-server w-4 text-center text-saowari-primary"></i>
+              <span>ISP Name</span>
+            </div>
+            <span class="text-saowari-text-primary font-bold text-right truncate max-w-[220px]" [title]="activeUserInfo.ispName">{{ activeUserInfo.ispName }}</span>
+          </div>
+
+          <!-- Browser Details -->
+          <div *ngIf="activeUserInfo.browserInfo" class="p-4 flex items-center justify-between text-xs font-semibold">
+            <div class="text-saowari-text-secondary flex items-center gap-2.5 flex-shrink-0">
+              <i class="fab fa-chrome w-4 text-center text-saowari-primary"></i>
+              <span>Browser</span>
+            </div>
+            <span class="text-saowari-text-primary font-bold text-right truncate max-w-[220px]" [title]="activeUserInfo.browserInfo">{{ activeUserInfo.browserInfo }}</span>
           </div>
         </div>
 
         <!-- Actions -->
         <div class="flex justify-end gap-2 pt-2 select-none">
-          <button (click)="closeUserInfo()" class="px-5 py-2.5 rounded-xl text-xs font-black transition-all hover:scale-[1.01]" [ngClass]="isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'">
+          <button (click)="closeUserInfo()" class="bg-saowari-surface hover:bg-saowari-surface-alt text-saowari-text-primary border border-saowari-border px-5 py-2.5 rounded-xl text-xs font-black transition-all hover:scale-[1.01]">
             Close Details
           </button>
         </div>

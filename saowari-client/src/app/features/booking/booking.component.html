@@ -6,21 +6,21 @@
       <!-- Step 1 -->
       <div class="flex items-center">
         <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-all"
-             [ngClass]="currentStep >= 1 ? 'bg-white text-saowari-primary border-white' : 'bg-transparent border-white/50 text-white/50'">1</div>
+             [ngClass]="currentStep >= 1 ? 'bg-saowari-surface text-saowari-primary border-white' : 'bg-transparent border-white/50 text-white/50'">1</div>
         <div class="hidden sm:block ml-2 mr-4">
           <p class="text-xs font-semibold" [ngClass]="currentStep >= 1 ? 'text-white' : 'text-white/50'">Passengers</p>
         </div>
       </div>
-      <div class="flex-1 h-0.5 mx-2" [ngClass]="currentStep >= 2 ? 'bg-white' : 'bg-white/30'"></div>
+      <div class="flex-1 h-0.5 mx-2" [ngClass]="currentStep >= 2 ? 'bg-saowari-surface' : 'bg-saowari-surface/30'"></div>
       <!-- Step 2 -->
       <div class="flex items-center">
         <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-all"
-             [ngClass]="currentStep >= 2 ? 'bg-white text-saowari-primary border-white' : 'bg-transparent border-white/50 text-white/50'">2</div>
+             [ngClass]="currentStep >= 2 ? 'bg-saowari-surface text-saowari-primary border-white' : 'bg-transparent border-white/50 text-white/50'">2</div>
         <div class="hidden sm:block ml-2 mr-4">
           <p class="text-xs font-semibold" [ngClass]="currentStep >= 2 ? 'text-white' : 'text-white/50'">Payment</p>
         </div>
       </div>
-      <div class="flex-1 h-0.5 mx-2" [ngClass]="currentStep >= 3 ? 'bg-white' : 'bg-white/30'"></div>
+      <div class="flex-1 h-0.5 mx-2" [ngClass]="currentStep >= 3 ? 'bg-saowari-surface' : 'bg-saowari-surface/30'"></div>
       <!-- Step 3 -->
       <div class="flex items-center">
         <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-all"
@@ -49,7 +49,7 @@
             <div class="space-y-6">
 
               <!-- Selected Seats Summary -->
-              <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border p-6">
                 <h3 class="font-heading font-bold text-lg text-saowari-primary mb-4 flex items-center gap-2">
                   <i class="fas fa-chair text-saowari-primary"></i>
                   Your Selected Seats
@@ -69,8 +69,8 @@
               </div>
 
               <!-- Single Customer Form -->
-              <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 class="font-heading font-bold text-lg text-gray-800 mb-5 flex items-center gap-2">
+              <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border p-6">
+                <h3 class="font-heading font-bold text-lg text-saowari-text-primary mb-5 flex items-center gap-2">
                   <i class="fas fa-user-circle text-saowari-primary"></i>
                   Passenger Details
                 </h3>
@@ -105,15 +105,15 @@
                   </div>
                   <!-- Boarding Point (Outbound) -->
                   <div class="form-control md:col-span-2" *ngIf="boardingOptions.length > 0">
-                    <label class="label"><span class="label-text font-semibold text-gray-700">Choose Boarding Point & Time (Outbound) <span class="text-red-400">*</span></span></label>
-                    <select name="boardingPoint" [(ngModel)]="selectedBoardingPoint" required class="select select-bordered w-full focus:border-saowari-accent text-gray-700">
+                    <label class="label"><span class="label-text font-semibold text-saowari-text-primary">Choose Boarding Point & Time (Outbound) <span class="text-red-400">*</span></span></label>
+                    <select name="boardingPoint" [(ngModel)]="selectedBoardingPoint" required class="select select-bordered w-full focus:border-saowari-accent text-saowari-text-primary">
                       <option *ngFor="let opt of boardingOptions" [value]="opt">{{ opt }}</option>
                     </select>
                   </div>
                   <!-- Boarding Point (Return) -->
                   <div class="form-control md:col-span-2" *ngIf="isRoundTrip && returnBoardingOptions.length > 0">
-                    <label class="label"><span class="label-text font-semibold text-gray-700">Choose Boarding Point & Time (Return) <span class="text-red-400">*</span></span></label>
-                    <select name="returnBoardingPoint" [(ngModel)]="selectedReturnBoardingPoint" required class="select select-bordered w-full focus:border-saowari-accent text-gray-700">
+                    <label class="label"><span class="label-text font-semibold text-saowari-text-primary">Choose Boarding Point & Time (Return) <span class="text-red-400">*</span></span></label>
+                    <select name="returnBoardingPoint" [(ngModel)]="selectedReturnBoardingPoint" required class="select select-bordered w-full focus:border-saowari-accent text-saowari-text-primary">
                       <option *ngFor="let opt of returnBoardingOptions" [value]="opt">{{ opt }}</option>
                     </select>
                   </div>
@@ -131,7 +131,7 @@
 
         <!-- ===================== STEP 2: Payment ===================== -->
         <div *ngIf="currentStep === 2">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border p-6 mb-6">
             <h3 class="font-heading font-bold text-xl text-saowari-text-primary mb-6 flex items-center gap-2">
               <span>💳</span> Choose Payment Method
             </h3>
@@ -142,8 +142,8 @@
                      [ngClass]="paymentMethod === pm.paymentMethodName ? 'ring-2 ring-saowari-primary rounded-xl' : ''">
                 <input type="radio" name="paymentMethod" [value]="pm.paymentMethodName" 
                        [ngModel]="paymentMethod" (ngModelChange)="selectMethod(pm)" class="sr-only">
-                <div class="border border-gray-200 rounded-xl p-4 flex flex-col items-center gap-2 hover:border-saowari-primary transition-all duration-200 text-center h-full justify-between"
-                     [ngClass]="paymentMethod === pm.paymentMethodName ? 'border-saowari-primary bg-saowari-primary-light/30 shadow-md' : 'bg-white'">
+                <div class="border border-saowari-border rounded-xl p-4 flex flex-col items-center gap-2 hover:border-saowari-primary transition-all duration-200 text-center h-full justify-between"
+                     [ngClass]="paymentMethod === pm.paymentMethodName ? 'border-saowari-primary bg-saowari-primary-light/30 shadow-md' : 'bg-saowari-surface'">
                   
                   <!-- Logo / Placeholder -->
                   <div class="w-16 h-16 flex items-center justify-center">
@@ -155,8 +155,8 @@
                   
                   <!-- Details -->
                   <div class="mt-2">
-                    <span class="font-bold text-sm block text-gray-800">{{ pm.paymentMethodName }}</span>
-                    <span class="text-[10px] text-gray-500 font-semibold mt-1 block">
+                    <span class="font-bold text-sm block text-saowari-text-primary">{{ pm.paymentMethodName }}</span>
+                    <span class="text-[10px] text-saowari-text-secondary font-semibold mt-1 block">
                       Fee: {{ pm.processingFeePercent }}% 
                       <span *ngIf="pm.vatPercent > 0">+ {{ pm.vatPercent }}% VAT</span>
                     </span>
@@ -166,7 +166,7 @@
             </div>
 
             <!-- Conditional Input fields based on payment method -->
-            <div *ngIf="paymentMethod.toLowerCase() !== 'bkash' && paymentMethod.toLowerCase() !== 'nagad' && paymentMethod.toLowerCase() !== 'rocket'" class="payment-inputs-area mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
+            <div *ngIf="paymentMethod.toLowerCase() !== 'bkash' && paymentMethod.toLowerCase() !== 'nagad' && paymentMethod.toLowerCase() !== 'rocket'" class="payment-inputs-area mt-6 p-4 bg-saowari-surface-alt rounded-xl border border-saowari-border">
               
               <!-- Cash / Counter Method -->
               <div *ngIf="paymentMethod.toLowerCase() === 'cash' || paymentMethod.toLowerCase() === 'counter'" class="space-y-2">
@@ -174,7 +174,7 @@
                   <span class="text-2xl">⏳</span>
                   <div>
                     <h4 class="font-bold text-sm">Pay at the Station Counter</h4>
-                    <p class="text-xs text-gray-600">Please pay <strong>৳{{ getFinalFare() | number:'1.0-2' }}</strong> directly at the booking counter to collect your printed tickets.</p>
+                    <p class="text-xs text-saowari-text-secondary">Please pay <strong>৳{{ getFinalFare() | number:'1.0-2' }}</strong> directly at the booking counter to collect your printed tickets.</p>
                   </div>
                 </div>
               </div>
@@ -186,20 +186,20 @@
                   <span>Enter mock card info below. Dynamic bank charge & VAT are computed automatically.</span>
                 </div>
                 <div class="form-control">
-                  <label class="label"><span class="label-text font-semibold text-xs text-gray-700">Cardholder Name</span></label>
+                  <label class="label"><span class="label-text font-semibold text-xs text-saowari-text-primary">Cardholder Name</span></label>
                   <input type="text" class="input input-sm input-bordered focus:border-saowari-accent" placeholder="John Doe">
                 </div>
                 <div class="form-control">
-                  <label class="label"><span class="label-text font-semibold text-xs text-gray-700">Card Number</span></label>
+                  <label class="label"><span class="label-text font-semibold text-xs text-saowari-text-primary">Card Number</span></label>
                   <input type="text" class="input input-sm input-bordered focus:border-saowari-accent" placeholder="**** **** **** ****" maxlength="19">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                   <div class="form-control">
-                    <label class="label"><span class="label-text font-semibold text-xs text-gray-700">Expiry</span></label>
+                    <label class="label"><span class="label-text font-semibold text-xs text-saowari-text-primary">Expiry</span></label>
                     <input type="text" class="input input-sm input-bordered focus:border-saowari-accent" placeholder="MM/YY" maxlength="5">
                   </div>
                   <div class="form-control">
-                    <label class="label"><span class="label-text font-semibold text-xs text-gray-700">CVV</span></label>
+                    <label class="label"><span class="label-text font-semibold text-xs text-saowari-text-primary">CVV</span></label>
                     <input type="text" class="input input-sm input-bordered focus:border-saowari-accent" placeholder="***" maxlength="3">
                   </div>
                 </div>
@@ -213,11 +213,11 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div class="form-control">
-                    <label class="label"><span class="label-text font-semibold text-xs text-gray-700">Your Wallet Mobile Number <span class="text-red-500">*</span></span></label>
+                    <label class="label"><span class="label-text font-semibold text-xs text-saowari-text-primary">Your Wallet Mobile Number <span class="text-red-500">*</span></span></label>
                     <input type="tel" [(ngModel)]="mobileForPayment" required class="input input-sm input-bordered focus:border-saowari-accent" placeholder="e.g. 017XXXXXXXX">
                   </div>
                   <div class="form-control">
-                    <label class="label"><span class="label-text font-semibold text-xs text-gray-700">Transaction ID (TxnID) <span class="text-red-500">*</span></span></label>
+                    <label class="label"><span class="label-text font-semibold text-xs text-saowari-text-primary">Transaction ID (TxnID) <span class="text-red-500">*</span></span></label>
                     <input type="text" [(ngModel)]="transactionId" required class="input input-sm input-bordered focus:border-saowari-accent uppercase" placeholder="e.g. TRN8972HJK">
                   </div>
                 </div>
@@ -240,16 +240,16 @@
 
         <!-- ===================== STEP 3: Confirmation ===================== -->
         <div *ngIf="currentStep === 3">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+          <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border p-8 text-center">
             <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl text-saowari-success animate__animated animate__bounceIn">
               <i class="fas fa-check-circle"></i>
             </div>
-            <h2 class="text-3xl font-heading font-bold text-gray-800 mb-2">Booking Confirmed!</h2>
-            <p class="text-gray-500 mb-6">Your tickets have been successfully booked. Enjoy your journey!</p>
+            <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mb-2">Booking Confirmed!</h2>
+            <p class="text-saowari-text-secondary mb-6">Your tickets have been successfully booked. Enjoy your journey!</p>
 
             <div class="bg-saowari-primary-light rounded-xl p-6 mb-8 text-left">
               <div class="flex items-center justify-between mb-4">
-                <span class="text-sm text-gray-500 font-medium uppercase tracking-wider">Confirmation Code</span>
+                <span class="text-sm text-saowari-text-secondary font-medium uppercase tracking-wider">Confirmation Code</span>
                 <span class="font-mono text-xl font-bold text-saowari-primary tracking-widest">{{ bookingConfirmationCode }}</span>
               </div>
               <div class="divider my-2"></div>
@@ -300,53 +300,53 @@
 
       <!-- Sidebar: Order Summary -->
       <div class="lg:col-span-1" *ngIf="currentStep < 3">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 sticky top-24 overflow-hidden">
+        <div class="bg-saowari-surface rounded-xl shadow-sm border border-saowari-border sticky top-24 overflow-hidden">
           <div class="bg-saowari-primary text-white p-5">
             <h3 class="font-heading font-bold text-lg">Order Summary</h3>
           </div>
           <div class="p-5">
-            <div *ngIf="schedule" class="mb-4 pb-4 border-b border-gray-100">
+            <div *ngIf="schedule" class="mb-4 pb-4 border-b border-saowari-border">
               <h4 *ngIf="isRoundTrip" class="font-bold text-xs uppercase tracking-widest text-saowari-primary mb-2">Outbound</h4>
               <div class="flex justify-between items-center mb-1">
-                <p class="text-sm text-gray-500">Departure</p>
-                <p class="font-bold text-gray-800">{{ formatTime(schedule.departureDateTime) }}</p>
+                <p class="text-sm text-saowari-text-secondary">Departure</p>
+                <p class="font-bold text-saowari-text-primary">{{ formatTime(schedule.departureDateTime) }}</p>
               </div>
               <div class="flex justify-between items-center mb-1">
-                <p class="text-sm text-gray-500">Arrival</p>
-                <p class="font-bold text-gray-800">{{ formatTime(schedule.arrivalDateTime) }}</p>
+                <p class="text-sm text-saowari-text-secondary">Arrival</p>
+                <p class="font-bold text-saowari-text-primary">{{ formatTime(schedule.arrivalDateTime) }}</p>
               </div>
               <div class="flex justify-between items-center">
-                <p class="text-sm text-gray-500">Date</p>
-                <p class="font-semibold text-sm text-gray-700">{{ formatDate(schedule.departureDateTime) }}</p>
+                <p class="text-sm text-saowari-text-secondary">Date</p>
+                <p class="font-semibold text-sm text-saowari-text-primary">{{ formatDate(schedule.departureDateTime) }}</p>
               </div>
             </div>
 
-            <div *ngIf="isRoundTrip && returnSchedule" class="mb-4 pb-4 border-b border-gray-100">
+            <div *ngIf="isRoundTrip && returnSchedule" class="mb-4 pb-4 border-b border-saowari-border">
               <h4 class="font-bold text-xs uppercase tracking-widest text-saowari-primary mb-2">Return</h4>
               <div class="flex justify-between items-center mb-1">
-                <p class="text-sm text-gray-500">Departure</p>
-                <p class="font-bold text-gray-800">{{ formatTime(returnSchedule.departureDateTime) }}</p>
+                <p class="text-sm text-saowari-text-secondary">Departure</p>
+                <p class="font-bold text-saowari-text-primary">{{ formatTime(returnSchedule.departureDateTime) }}</p>
               </div>
               <div class="flex justify-between items-center mb-1">
-                <p class="text-sm text-gray-500">Arrival</p>
-                <p class="font-bold text-gray-800">{{ formatTime(returnSchedule.arrivalDateTime) }}</p>
+                <p class="text-sm text-saowari-text-secondary">Arrival</p>
+                <p class="font-bold text-saowari-text-primary">{{ formatTime(returnSchedule.arrivalDateTime) }}</p>
               </div>
               <div class="flex justify-between items-center">
-                <p class="text-sm text-gray-500">Date</p>
-                <p class="font-semibold text-sm text-gray-700">{{ formatDate(returnSchedule.departureDateTime) }}</p>
+                <p class="text-sm text-saowari-text-secondary">Date</p>
+                <p class="font-semibold text-sm text-saowari-text-primary">{{ formatDate(returnSchedule.departureDateTime) }}</p>
               </div>
             </div>
 
-            <h4 class="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wider">Seats</h4>
-            <div class="space-y-2 mb-4 pb-4 border-b border-gray-100">
-              <div *ngFor="let id of seatIds; let i = index" class="flex justify-between text-gray-700 text-sm mb-2">
+            <h4 class="font-semibold text-saowari-text-primary mb-3 text-sm uppercase tracking-wider">Seats</h4>
+            <div class="space-y-2 mb-4 pb-4 border-b border-saowari-border">
+              <div *ngFor="let id of seatIds; let i = index" class="flex justify-between text-saowari-text-primary text-sm mb-2">
                 <span>Seat {{ seatNumbers[i] }}</span>
                 <span>৳{{ seatPrices[id] || schedule.basePrice }}</span>
               </div>
               <!-- Return Seats -->
               <div *ngIf="isRoundTrip && returnSchedule" class="mt-4 border-t pt-2">
-                <p class="text-xs text-gray-500 font-medium mb-2 uppercase">Return Trip Seats</p>
-                <div *ngFor="let id of returnSeatIds; let i = index" class="flex justify-between text-gray-700 text-sm mb-2">
+                <p class="text-xs text-saowari-text-secondary font-medium mb-2 uppercase">Return Trip Seats</p>
+                <div *ngFor="let id of returnSeatIds; let i = index" class="flex justify-between text-saowari-text-primary text-sm mb-2">
                   <span>Seat {{ returnSeatNumbers[i] }}</span>
                   <span>৳{{ returnSeatPrices[id] || returnSchedule.basePrice }}</span>
                 </div>
@@ -354,9 +354,9 @@
             </div>
 
             <!-- Coupon Section -->
-            <div class="mb-4 pb-4 border-b border-gray-100">
+            <div class="mb-4 pb-4 border-b border-saowari-border">
               <div class="flex flex-col gap-2">
-                <label class="text-sm font-semibold text-gray-700 uppercase tracking-wider">Have a coupon?</label>
+                <label class="text-sm font-semibold text-saowari-text-primary uppercase tracking-wider">Have a coupon?</label>
                 <div class="flex gap-2">
                   <input type="text" [(ngModel)]="couponCodeInput" [disabled]="isCouponApplied" class="input input-bordered input-sm flex-1 focus:border-saowari-primary uppercase font-mono" placeholder="Enter Code">
                   <button *ngIf="!isCouponApplied" (click)="applyCoupon()" [disabled]="!couponCodeInput || isApplyingCoupon" class="btn btn-sm btn-saowari">
@@ -380,12 +380,12 @@
             </div>
 
             <!-- Fees & VAT breakdown -->
-            <div *ngIf="getProcessingFee() > 0" class="flex justify-between items-center mb-2 text-gray-600 text-sm">
+            <div *ngIf="getProcessingFee() > 0" class="flex justify-between items-center mb-2 text-saowari-text-secondary text-sm">
               <span>Processing Fee ({{ selectedMethod?.processingFeePercent }}%)</span>
               <span class="font-semibold">৳{{ getProcessingFee() | number:'1.0-2' }}</span>
             </div>
 
-            <div *ngIf="getVAT() > 0" class="flex justify-between items-center mb-4 text-gray-600 text-sm">
+            <div *ngIf="getVAT() > 0" class="flex justify-between items-center mb-4 text-saowari-text-secondary text-sm">
               <span>VAT ({{ selectedMethod?.vatPercent }}%)</span>
               <span class="font-semibold">৳{{ getVAT() | number:'1.0-2' }}</span>
             </div>
@@ -393,7 +393,7 @@
             <div class="divider my-3"></div>
 
             <div class="flex justify-between items-center mb-4">
-              <span class="font-bold text-gray-800">Grand Total</span>
+              <span class="font-bold text-saowari-text-primary">Grand Total</span>
               <span class="text-2xl font-bold text-saowari-primary">৳{{ getFinalFare() | number:'1.0-2' }}</span>
             </div>
 

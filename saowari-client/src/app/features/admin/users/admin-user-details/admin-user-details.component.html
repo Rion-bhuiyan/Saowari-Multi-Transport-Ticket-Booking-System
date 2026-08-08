@@ -188,7 +188,7 @@
 
         <!-- Tab: Bookings -->
         <div *ngIf="activeTab === 'bookings'">
-          <h3 class="mb-4 text-lg font-bold text-slate-800">Booking History</h3>
+          <h3 class="mb-4 text-lg font-bold text-saowari-text-primary">Booking History</h3>
           
           <div *ngIf="!profile.bookings || profile.bookings.length === 0" class="empty-state">
             <i class="fi fi-rr-ticket"></i>
@@ -209,24 +209,24 @@
               </thead>
               <tbody>
                 <tr *ngFor="let b of profile.bookings">
-                  <td class="font-medium text-slate-800">{{ b.bookingCode }}</td>
+                  <td class="font-medium text-saowari-text-primary">{{ b.bookingCode }}</td>
                   <td>{{ b.bookingDate | date:'MMM d, y' }}</td>
                   <td>
                     <div class="text-sm font-medium">
                       <a (click)="navigateToSchedule(b.scheduleId || b.scheduleID)" class="bus-link">{{ b.routeName }}</a>
                     </div>
-                    <div class="text-xs text-slate-500">Boarding: {{ b.boardingPoint || 'N/A' }}</div>
+                    <div class="text-xs text-saowari-text-secondary">Boarding: {{ b.boardingPoint || 'N/A' }}</div>
                   </td>
                   <td>
                     <a (click)="navigateToBus(b.vehicleId)" class="bus-link mb-1">
                       {{ b.vehicleName }} <span *ngIf="b.vehiclePlateNumber">({{ b.vehiclePlateNumber }})</span>
                     </a>
-                    <div class="text-xs text-slate-500">{{ b.companyName }}</div>
+                    <div class="text-xs text-saowari-text-secondary">{{ b.companyName }}</div>
                   </td>
                   <td>
                     <span class="badge-status" [ngClass]="b.bookingStatus">{{ b.bookingStatus || 'Unknown' }}</span>
                   </td>
-                  <td class="font-semibold text-slate-800">${{ b.finalAmount | number:'1.2-2' }}</td>
+                  <td class="font-semibold text-saowari-text-primary">${{ b.finalAmount | number:'1.2-2' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -235,8 +235,8 @@
 
         <!-- Tab: Security & Devices -->
         <div *ngIf="activeTab === 'security'">
-          <h3 class="mb-4 text-lg font-bold text-slate-800">Device Login History</h3>
-          <p class="text-sm text-slate-500 mb-6">A record of devices and IP addresses used to access this account.</p>
+          <h3 class="mb-4 text-lg font-bold text-saowari-text-primary">Device Login History</h3>
+          <p class="text-sm text-saowari-text-secondary mb-6">A record of devices and IP addresses used to access this account.</p>
 
           <div *ngIf="!profile.loginHistory || profile.loginHistory.length === 0" class="empty-state">
             <i class="fi fi-rr-shield-check"></i>

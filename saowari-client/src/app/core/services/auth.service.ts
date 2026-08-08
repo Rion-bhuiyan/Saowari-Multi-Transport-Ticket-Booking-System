@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError, interval, Subscription } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -42,8 +42,25 @@ export class AuthService implements OnDestroy {
     this.currentUser$.next(user);
   }
 
+  private getDeviceId(): string {
+    let deviceId = localStorage.getItem('saowari_device_id');
+    if (!deviceId) {
+      // Create a random device ID
+      deviceId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('saowari_device_id', deviceId);
+    }
+    return deviceId;
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'X-Device-Id': this.getDeviceId()
+    });
+  }
+
   login(dto: LoginDto): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login`, dto).pipe(
+    const enrichedDto = { ...dto, referrer: document.referrer || '' };
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login`, enrichedDto, { headers: this.getAuthHeaders() }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.handleLoginResponse(response.data);
@@ -53,7 +70,7 @@ export class AuthService implements OnDestroy {
   }
 
   verifyLoginOtp(email: string, otpCode: string): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/verify-login-otp`, { email, otpCode }).pipe(
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/verify-login-otp`, { email, otpCode }, { headers: this.getAuthHeaders() }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.handleLoginResponse(response.data);
@@ -95,7 +112,10 @@ export class AuthService implements OnDestroy {
   logout(): void {
     this.tokenService.clearAll();
     this.currentUser$.next(null);
-    this.router.navigate(['/auth/login']);
+    const currentUrl = this.router.url || '';
+    if (!currentUrl.includes('/auth/')) {
+      this.router.navigate(['/auth/login']);
+    }
   }
 
   refreshToken(): Observable<ApiResponse<AuthResponse>> {
@@ -114,6 +134,14 @@ export class AuthService implements OnDestroy {
     );
   }
 
+  unlockAccount(email: string, otpCode: string): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/unlock-account`, { email, otpCode });
+  }
+
+  resendOtp(email: string, type: string): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/resend-otp`, { email, type });
+  }
+
   changePassword(dto: any): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/change-password`, dto);
   }
@@ -126,8 +154,16 @@ export class AuthService implements OnDestroy {
     return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/reset-password`, data);
   }
 
+  getSessions(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/sessions`, { headers: this.getAuthHeaders() });
+  }
+
+  revokeSession(id: number): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/revoke-session/${id}`, {}, { headers: this.getAuthHeaders() });
+  }
+
   isLoggedIn(): boolean {
-    return !!this.tokenService.getAccessToken();
+    return !!this.tokenService.getAccessToken() && !this.tokenService.isTokenExpired();
   }
 
   getCurrentUser(): UserModel | null {

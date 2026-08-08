@@ -29,7 +29,7 @@ namespace Saowari.Controllers
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
             // If Company Manager, force filter to their company only
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int managerCompanyId))

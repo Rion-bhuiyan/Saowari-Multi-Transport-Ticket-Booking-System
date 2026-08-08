@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/api/user.service';
@@ -26,7 +26,8 @@ export class EditProfileComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private userService: UserService,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -71,6 +72,7 @@ export class EditProfileComponent implements OnInit {
             this.authService.updateCurrentUser({ ...current, ...res.data });
           }
           this.notification.success('Profile updated successfully.', 'Success');
+          this.router.navigate(['/profile/dashboard']);
         } else {
           this.notification.error(res.message || 'Update failed.', 'Error');
         }

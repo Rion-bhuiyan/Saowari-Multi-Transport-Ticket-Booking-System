@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BookingService } from '../../../../core/services/api/booking.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { NotificationService as RealTimeNotifService } from '../../../../core/services/api/notification.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-bookings',
@@ -13,7 +15,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
   templateUrl: './admin-bookings.component.html',
   styleUrls: ['./admin-bookings.component.css']
 })
-export class AdminBookingsComponent implements OnInit {
+export class AdminBookingsComponent implements OnInit, OnDestroy {
   get pagedItems() {
     const start = (this.p - 1) * Number(this.pageSize);
     return (this.filtered || this.items || []).slice(start, start + Number(this.pageSize));
@@ -26,6 +28,7 @@ export class AdminBookingsComponent implements OnInit {
   isLoading = true;
   searchQuery = '';
   selectedStatus = '';
+  private adminDataSub?: Subscription;
 
   // OTP Modal State
   showOtpModal = false;
@@ -36,10 +39,32 @@ export class AdminBookingsComponent implements OnInit {
 
   constructor(
     private bookingService: BookingService,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private realTimeNotif: RealTimeNotifService
   ) {}
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void { 
+    this.load(); 
+    this.adminDataSub = this.realTimeNotif.adminDataUpdated$.subscribe(dataType => {
+      if (dataType === 'Booking') {
+        this.loadSilent();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.adminDataSub) {
+      this.adminDataSub.unsubscribe();
+    }
+  }
+
+  loadSilent() {
+    this.bookingService.getAll().subscribe({
+      next: (res: any) => {
+        if (res.success) { this.items = res.data || []; this.applyFilter(); }
+      }
+    });
+  }
 
   load() {
     this.isLoading = true;

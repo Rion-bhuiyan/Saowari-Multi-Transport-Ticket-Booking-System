@@ -25,6 +25,7 @@ namespace Saowari.Interfaces
         Task NotifyScheduleChangedAsync(Schedule schedule, string action);
         // System events
         Task NotifySystemEventAsync(string title, string message);
+        Task BroadcastAdminDataUpdateAsync(string dataType);
 
         // Individual user notifications
         Task CreateForUserAsync(int userId, string title, string message, string type, string icon, string colorClass, string? entityType = null, int? entityId = null);

@@ -84,15 +84,20 @@ namespace Saowari.Services
                                  .Select(MapToDto).ToList(),
 
                 Ongoing     = all.Where(s => s.ScheduleStatus != null &&
-                                             (s.ScheduleStatus.ScheduleStatusName == "Active"))
+                                             (s.ScheduleStatus.ScheduleStatusName == "Active" || s.ScheduleStatus.ScheduleStatusName == "Delayed") &&
+                                             s.ArrivalDateTime > now)
                                  .Select(MapToDto).ToList(),
 
                 PendingExpiry = all.Where(s => s.ScheduleStatus != null &&
-                                               s.ScheduleStatus.ScheduleStatusName == "Pending Expiry")
+                                               (s.ScheduleStatus.ScheduleStatusName == "Pending Expiry" ||
+                                                ((s.ScheduleStatus.ScheduleStatusName == "Active" || s.ScheduleStatus.ScheduleStatusName == "Delayed") && s.ArrivalDateTime <= now)))
                                    .Select(MapToDto).ToList(),
 
                 Expired     = all.Where(s => s.ScheduleStatus != null &&
-                                             s.ScheduleStatus.ScheduleStatusName == "Expired")
+                                             (s.ScheduleStatus.ScheduleStatusName == "Expired" || 
+                                              s.ScheduleStatus.ScheduleStatusName == "Completed" || 
+                                              s.ScheduleStatus.ScheduleStatusName == "Cancelled" ||
+                                              (s.ScheduleStatus.ScheduleStatusName == "Scheduled" && s.DepartureDateTime <= now)))
                                  .Select(MapToDto).ToList()
             };
 

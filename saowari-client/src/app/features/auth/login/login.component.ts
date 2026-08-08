@@ -21,7 +21,7 @@ export class LoginComponent {
 
   isOtpRequired = false;
   otpCode = '';
-  otpType: 'login' | 'registration' = 'login';
+  otpType: 'login' | 'registration' | 'unlock' = 'login';
 
   returnUrl: string = '';
 
@@ -61,9 +61,18 @@ export class LoginComponent {
           }
         }
       },
-      error: () => {
+      error: (err: any) => {
         this.isLoading = false;
-        this.notification.error('An error occurred. Please try again.', 'Error');
+        const errMsg = err?.error?.message || err?.message || 'An error occurred. Please try again.';
+        if (errMsg.includes('check your email for the unlock code')) {
+          this.isOtpRequired = true;
+          this.otpType = 'unlock';
+          this.notification.warning('Account locked. Please enter the unlock code sent to your email.', 'Account Locked');
+        } else if (errMsg.includes('locked')) {
+          this.notification.error(errMsg, 'Account Locked');
+        } else {
+          this.notification.error(errMsg, 'Login Failed');
+        }
       }
     });
   }
@@ -75,6 +84,27 @@ export class LoginComponent {
     }
     
     this.isLoading = true;
+
+    if (this.otpType === 'unlock') {
+      this.authService.unlockAccount(this.credentials.email, this.otpCode).subscribe({
+        next: (res: any) => {
+          this.isLoading = false;
+          if (res.success) {
+            this.notification.success('Account unlocked successfully! Logging you in...', 'Success');
+            this.isOtpRequired = false;
+            this.otpCode = '';
+            this.onLogin();
+          } else {
+            this.notification.error(res.message || 'Invalid or expired OTP.', 'Verification Failed');
+          }
+        },
+        error: (err: any) => {
+          this.isLoading = false;
+          this.notification.error(err?.error?.message || 'An error occurred during verification.', 'Error');
+        }
+      });
+      return;
+    }
 
     const request$ = this.otpType === 'login' 
       ? this.authService.verifyLoginOtp(this.credentials.email, this.otpCode)
@@ -89,9 +119,9 @@ export class LoginComponent {
           this.notification.error(res.message || 'Invalid or expired OTP.', 'Verification Failed');
         }
       },
-      error: () => {
+      error: (err: any) => {
         this.isLoading = false;
-        this.notification.error('An error occurred during verification.', 'Error');
+        this.notification.error(err?.error?.message || 'An error occurred during verification.', 'Error');
       }
     });
   }
@@ -114,5 +144,26 @@ export class LoginComponent {
         this.router.navigate(['/home']);
       }
     }
+  }
+
+  isResendingOtp = false;
+
+  resendOtp() {
+    this.isResendingOtp = true;
+    this.authService.resendOtp(this.credentials.email, this.otpType).subscribe({
+      next: (res: any) => {
+        this.isResendingOtp = false;
+        if (res.success) {
+          this.notification.success('OTP has been resent to your email.', 'Success');
+        } else {
+          this.notification.error(res.message || 'Failed to resend OTP.', 'Error');
+        }
+      },
+      error: (err: any) => {
+        this.isResendingOtp = false;
+        const errMsg = err?.error?.message || err?.message || 'Failed to resend OTP. Please try again.';
+        this.notification.error(errMsg, 'Error');
+      }
+    });
   }
 }

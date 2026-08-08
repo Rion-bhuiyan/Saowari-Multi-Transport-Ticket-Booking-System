@@ -420,6 +420,7 @@ export class AdminLayoutComponent implements OnInit {
         {
           title: 'Analytics',
           items: [
+            { label: 'Traffic & Engagement', path: '/admin/analytics', icon: 'fas fa-globe' },
             { label: 'Reports', path: '/admin/reports', icon: 'fas fa-chart-line' },
             { label: 'Leaderboard', path: '/admin/leaderboard', icon: 'fas fa-trophy' }
           ]
@@ -457,6 +458,7 @@ export class AdminLayoutComponent implements OnInit {
         {
           title: 'Analytics',
           items: [
+            { label: 'Traffic & Engagement', path: '/admin/analytics', icon: 'fas fa-globe' },
             { label: 'Reports', path: '/admin/reports', icon: 'fas fa-chart-line' },
             { label: 'Leaderboard', path: '/admin/leaderboard', icon: 'fas fa-trophy' }
           ]

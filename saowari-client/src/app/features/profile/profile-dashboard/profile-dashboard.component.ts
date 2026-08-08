@@ -21,6 +21,9 @@ export class ProfileDashboardComponent implements OnInit {
   totalSpent = 0;
   isLoading = true;
   expandedPictureUrl: string | null = null;
+  
+  activeSessions: any[] = [];
+  isSessionsLoading = false;
 
   quickLinks = [
     { label: 'My Bookings', icon: 'fas fa-clipboard-list', route: '/profile/my-bookings', color: 'bg-blue-50 text-blue-600' },
@@ -42,6 +45,34 @@ export class ProfileDashboardComponent implements OnInit {
       this.currentUser = user;
     });
     this.loadStats();
+    this.loadSessions();
+  }
+
+  loadSessions() {
+    this.isSessionsLoading = true;
+    this.authService.getSessions().subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.activeSessions = res.data;
+        }
+        this.isSessionsLoading = false;
+      },
+      error: () => {
+        this.isSessionsLoading = false;
+      }
+    });
+  }
+
+  revokeSession(id: number) {
+    if (confirm('Are you sure you want to log out of this device?')) {
+      this.authService.revokeSession(id).subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            this.loadSessions(); // Reload the list
+          }
+        }
+      });
+    }
   }
 
   loadStats() {

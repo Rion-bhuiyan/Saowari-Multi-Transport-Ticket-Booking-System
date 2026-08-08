@@ -86,7 +86,7 @@
         <form (ngSubmit)="save()" #form="ngForm">
           <div class="form-control w-full mb-5">
             <label class="label">
-              <span class="label-text font-semibold text-gray-700">Route Cover Image</span>
+              <span class="label-text font-semibold text-saowari-text-primary">Route Cover Image</span>
             </label>
             <div class="mt-1 flex justify-center px-6 pt-6 pb-6 border-2 border-saowari-border border-dashed rounded-xl hover:border-saowari-primary transition-colors bg-saowari-surface-alt relative group cursor-pointer"
                  (click)="fileInput.click()">
@@ -117,13 +117,13 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-control w-full md:col-span-2">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">Route Name</span>
+                <span class="label-text font-semibold text-saowari-text-primary">Route Name</span>
               </label>
               <input type="text" [value]="getFormRouteName()" readonly class="input input-bordered w-full bg-saowari-surface-alt text-saowari-text-secondary focus:outline-none" placeholder="Auto-generated from locations..." />
             </div>
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">From Location <span class="text-red-500">*</span></span>
+                <span class="label-text font-semibold text-saowari-text-primary">From Location <span class="text-red-500">*</span></span>
               </label>
               <details class="dropdown w-full" #fromDropdown>
                 <summary class="input input-bordered w-full flex items-center justify-between cursor-pointer focus:border-saowari-primary list-none appearance-none [&::-webkit-details-marker]:hidden">
@@ -150,7 +150,7 @@
             </div>
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">To Location <span class="text-red-500">*</span></span>
+                <span class="label-text font-semibold text-saowari-text-primary">To Location <span class="text-red-500">*</span></span>
               </label>
               <details class="dropdown w-full" #toDropdown>
                 <summary class="input input-bordered w-full flex items-center justify-between cursor-pointer focus:border-saowari-primary list-none appearance-none [&::-webkit-details-marker]:hidden">
@@ -177,20 +177,20 @@
             </div>
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">Distance (km)</span>
+                <span class="label-text font-semibold text-saowari-text-primary">Distance (km)</span>
               </label>
               <input type="number" name="distance" [(ngModel)]="model.distance" min="0" step="0.1" class="input input-bordered w-full focus:border-saowari-primary" />
             </div>
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">Est. Duration (HH:MM:SS)</span>
+                <span class="label-text font-semibold text-saowari-text-primary">Est. Duration (HH:MM:SS)</span>
               </label>
               <input type="text" name="estimatedDuration" [(ngModel)]="model.estimatedDuration" placeholder="00:00:00" class="input input-bordered w-full focus:border-saowari-primary" />
             </div>
             <div class="form-control w-full">
               <label class="cursor-pointer label justify-start gap-4">
                 <input type="checkbox" name="isActive" [(ngModel)]="model.isActive" class="toggle toggle-primary" />
-                <span class="label-text font-semibold text-gray-700">Is Active</span>
+                <span class="label-text font-semibold text-saowari-text-primary">Is Active</span>
               </label>
             </div>
           </div>

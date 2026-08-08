@@ -31,7 +31,6 @@
   <ItemGroup>
     <Folder Include="Interfaces\" />
     <Folder Include="Models\DTOs\" />
-    <Folder Include="wwwroot\" />
     <Folder Include="Services\" />
   </ItemGroup>
 

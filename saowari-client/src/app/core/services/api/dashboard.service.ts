@@ -30,4 +30,12 @@ export class DashboardService {
     });
     return this.http.get<ApiResponse<any>>(`${environment.apiUrl}/DashboardReports/occupancy`, { params: httpParams });
   }
+
+  getAdvancedAnalytics(params: any): Observable<ApiResponse<any>> {
+    let httpParams = new HttpParams();
+    Object.keys(params).forEach(key => {
+      if (params[key]) httpParams = httpParams.append(key, params[key]);
+    });
+    return this.http.get<ApiResponse<any>>(`${environment.apiUrl}/DashboardReports/advanced-analytics`, { params: httpParams });
+  }
 }

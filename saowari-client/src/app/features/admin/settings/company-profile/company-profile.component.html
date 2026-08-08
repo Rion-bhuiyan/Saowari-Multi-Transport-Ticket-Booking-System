@@ -87,7 +87,7 @@
                   <i class="fas fa-cloud-upload-alt text-2xl text-saowari-text-secondary mb-1 group-hover:text-saowari-primary"></i>
                   <p class="text-xs font-medium text-saowari-text-secondary">Upload Logo</p>
                 </div>
-                <img *ngIf="logoPreview" [src]="logoPreview" alt="Company Logo" class="absolute inset-0 w-full h-full object-contain bg-white" />
+                <img *ngIf="logoPreview" [src]="logoPreview" alt="Company Logo" class="absolute inset-0 w-full h-full object-contain bg-saowari-surface" />
                 <div *ngIf="logoPreview" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <span class="btn btn-sm btn-circle btn-primary"><i class="fas fa-pen"></i></span>
                 </div>
@@ -131,7 +131,7 @@
           <div class="p-6 bg-saowari-surface-alt min-h-[300px] flex items-center justify-center">
             
             <!-- Mock Ticket -->
-            <div class="w-full max-w-sm bg-white rounded-xl shadow-md overflow-hidden relative border border-gray-200">
+            <div class="w-full max-w-sm bg-saowari-surface rounded-xl shadow-md overflow-hidden relative border border-saowari-border">
               <!-- Background Image overlay -->
               <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                 <img *ngIf="ticketBgPreview" [src]="ticketBgPreview" class="w-full h-full object-cover" [style.opacity]="model.ticketBackgroundOpacity != null ? model.ticketBackgroundOpacity : 0.1" />
@@ -140,44 +140,44 @@
               <div class="relative z-10 p-5">
                 <div class="flex justify-between items-start mb-4">
                   <div class="flex items-center gap-2">
-                    <img *ngIf="logoPreview" [src]="logoPreview" class="w-10 h-10 object-contain rounded bg-gray-50 p-1 border border-gray-100" />
+                    <img *ngIf="logoPreview" [src]="logoPreview" class="w-10 h-10 object-contain rounded bg-saowari-surface-alt p-1 border border-saowari-border" />
                     <div *ngIf="!logoPreview" class="w-10 h-10 rounded bg-saowari-primary-light flex items-center justify-center text-saowari-primary font-bold"><i class="fas fa-bus"></i></div>
                     <div>
-                      <p class="font-bold text-gray-800 leading-tight">{{ model.companyName || 'Your Company' }}</p>
-                      <p class="text-[10px] text-gray-500 uppercase tracking-wide">E-Ticket</p>
+                      <p class="font-bold text-saowari-text-primary leading-tight">{{ model.companyName || 'Your Company' }}</p>
+                      <p class="text-[10px] text-saowari-text-secondary uppercase tracking-wide">E-Ticket</p>
                     </div>
                   </div>
                   <div class="text-right">
                     <p class="text-xs font-bold text-saowari-primary">SW-84920</p>
-                    <p class="text-[10px] text-gray-500">PNR</p>
+                    <p class="text-[10px] text-saowari-text-secondary">PNR</p>
                   </div>
                 </div>
 
-                <div class="border-t border-dashed border-gray-300 my-3"></div>
+                <div class="border-t border-dashed border-saowari-border my-3"></div>
 
                 <div class="grid grid-cols-2 gap-4 mb-3">
                   <div>
-                    <p class="text-[10px] text-gray-500 uppercase font-medium">Passenger</p>
-                    <p class="text-sm font-bold text-gray-800">John Doe</p>
+                    <p class="text-[10px] text-saowari-text-secondary uppercase font-medium">Passenger</p>
+                    <p class="text-sm font-bold text-saowari-text-primary">John Doe</p>
                   </div>
                   <div class="text-right">
-                    <p class="text-[10px] text-gray-500 uppercase font-medium">Seat</p>
+                    <p class="text-[10px] text-saowari-text-secondary uppercase font-medium">Seat</p>
                     <p class="text-sm font-bold text-saowari-primary">A1</p>
                   </div>
                 </div>
 
-                <div class="flex items-center justify-between mt-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <div class="flex items-center justify-between mt-4 bg-saowari-surface-alt p-3 rounded-lg border border-saowari-border">
                   <div class="text-center">
-                    <p class="text-lg font-bold text-gray-800">DHK</p>
-                    <p class="text-[9px] text-gray-500 uppercase">Dhaka</p>
+                    <p class="text-lg font-bold text-saowari-text-primary">DHK</p>
+                    <p class="text-[9px] text-saowari-text-secondary uppercase">Dhaka</p>
                   </div>
                   <div class="flex-1 px-4 flex flex-col items-center">
                     <i class="fas fa-long-arrow-alt-right text-saowari-accent text-xl"></i>
-                    <p class="text-[10px] font-medium text-gray-500 mt-1">Bus</p>
+                    <p class="text-[10px] font-medium text-saowari-text-secondary mt-1">Bus</p>
                   </div>
                   <div class="text-center">
-                    <p class="text-lg font-bold text-gray-800">CTG</p>
-                    <p class="text-[9px] text-gray-500 uppercase">Chittagong</p>
+                    <p class="text-lg font-bold text-saowari-text-primary">CTG</p>
+                    <p class="text-[9px] text-saowari-text-secondary uppercase">Chittagong</p>
                   </div>
                 </div>
               </div>

@@ -99,6 +99,7 @@ namespace Saowari.Controllers
                 .Include(u => u.Company)
                 .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
+
             if (user == null)
             {
                 return Unauthorized(ApiResponse<AuthResponseDto>.Fail("Invalid credentials."));
@@ -112,7 +113,30 @@ namespace Saowari.Controllers
             // Check if account is locked out
             if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTime.UtcNow)
             {
-                return Unauthorized(ApiResponse<AuthResponseDto>.Fail("Account is locked due to multiple failed login attempts. Please use the unlock endpoint or wait."));
+                if (user.OtpExpireTime == null || user.OtpExpireTime < DateTime.UtcNow)
+                {
+                    user.OtpCode = new Random().Next(100000, 999999).ToString();
+                    user.OtpExpireTime = DateTime.UtcNow.AddMinutes(15);
+                    await _context.SaveChangesAsync();
+
+                    var alertBody = $@"
+                        <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                            <h2>Account Locked</h2>
+                            <p>Hello {user.FullName},</p>
+                            <p>Your account remains locked due to multiple failed login attempts.</p>
+                            <p>To unlock your account, please use the following 6-digit OTP code:</p>
+                            <h3 style='background-color: #f3f4f6; padding: 10px; display: inline-block; letter-spacing: 2px;'>{user.OtpCode}</h3>
+                        </div>";
+
+                    var plainAlert = $"Your account is locked. Your unlock OTP is {user.OtpCode}.";
+
+                    try
+                    {
+                        await _emailService.SendEmailAsync(user.Email, "Security Alert: Account Locked", alertBody, plainAlert);
+                    }
+                    catch { /* Fail-safe */ }
+                }
+                return Unauthorized(ApiResponse<AuthResponseDto>.Fail("Account locked. Please check your email for the unlock code."));
             }
 
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
@@ -195,6 +219,12 @@ namespace Saowari.Controllers
             // Track New Device Login
             var currentIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
             var currentDevice = HttpContext.Request.Headers["User-Agent"].ToString();
+            var deviceId = HttpContext.Request.Headers["X-Device-Id"].ToString();
+            
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                currentDevice = $"{currentDevice} [ID:{deviceId}]";
+            }
 
             var previousLogin = await _context.UserLoginHistories
                 .Where(h => h.UserId == user.UserID && h.IpAddress == currentIp && h.DeviceName == currentDevice)
@@ -247,13 +277,22 @@ namespace Saowari.Controllers
                 return Ok(ApiResponse<AuthResponseDto>.Fail("NEW_DEVICE_OTP_REQUIRED"));
             }
 
-            // Record this login
+            // Record this login with full tracking info
+            var geoInfo = await GetGeoInfoAsync(currentIp);
+            var referrer = dto.Referrer ?? HttpContext.Request.Headers["Referer"].ToString();
             _context.UserLoginHistories.Add(new UserLoginHistory
             {
                 UserId = user.UserID,
                 IpAddress = currentIp,
                 DeviceName = currentDevice,
-                LoginTime = DateTime.UtcNow
+                LoginTime = DateTime.UtcNow,
+                Country = geoInfo.Country,
+                CountryCode = geoInfo.CountryCode,
+                City = geoInfo.City,
+                IspName = geoInfo.Isp,
+                Referrer = referrer,
+                TrafficChannel = ParseTrafficChannel(referrer),
+                Browser = ParseBrowserName(HttpContext.Request.Headers["User-Agent"].ToString())
             });
 
             return Ok(ApiResponse<AuthResponseDto>.Ok(BuildAuthResponse(user), "Login successful"));
@@ -279,12 +318,29 @@ namespace Saowari.Controllers
             user.LoginOtpExpireTime = null;
 
             // Record as trusted device
+            var currentDevice = HttpContext.Request.Headers["User-Agent"].ToString();
+            var deviceId = HttpContext.Request.Headers["X-Device-Id"].ToString();
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                currentDevice = $"{currentDevice} [ID:{deviceId}]";
+            }
+
+            var verifyIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+            var verifyGeoInfo = await GetGeoInfoAsync(verifyIp);
+            var verifyReferrer = HttpContext.Request.Headers["Referer"].ToString();
             _context.UserLoginHistories.Add(new UserLoginHistory
             {
                 UserId = user.UserID,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
-                DeviceName = HttpContext.Request.Headers["User-Agent"].ToString(),
-                LoginTime = DateTime.UtcNow
+                IpAddress = verifyIp,
+                DeviceName = currentDevice,
+                LoginTime = DateTime.UtcNow,
+                Country = verifyGeoInfo.Country,
+                CountryCode = verifyGeoInfo.CountryCode,
+                City = verifyGeoInfo.City,
+                IspName = verifyGeoInfo.Isp,
+                Referrer = verifyReferrer,
+                TrafficChannel = ParseTrafficChannel(verifyReferrer),
+                Browser = ParseBrowserName(HttpContext.Request.Headers["User-Agent"].ToString())
             });
 
             var accessToken = _jwtService.GenerateAccessToken(user);
@@ -324,11 +380,18 @@ namespace Saowari.Controllers
             user.IsEmailVerified = true;
 
             // Also record device as trusted for future
+            var currentDevice = HttpContext.Request.Headers["User-Agent"].ToString();
+            var deviceId = HttpContext.Request.Headers["X-Device-Id"].ToString();
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                currentDevice = $"{currentDevice} [ID:{deviceId}]";
+            }
+
             _context.UserLoginHistories.Add(new UserLoginHistory
             {
                 UserId = user.UserID,
                 IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
-                DeviceName = HttpContext.Request.Headers["User-Agent"].ToString(),
+                DeviceName = currentDevice,
                 LoginTime = DateTime.UtcNow
             });
 
@@ -377,6 +440,31 @@ namespace Saowari.Controllers
                 return Unauthorized(ApiResponse<AuthResponseDto>.Fail("Invalid or expired refresh token."));
             }
 
+            var currentDevice = HttpContext.Request.Headers["User-Agent"].ToString();
+            var deviceId = HttpContext.Request.Headers["X-Device-Id"].ToString();
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                currentDevice = $"{currentDevice} [ID:{deviceId}]";
+            }
+
+            var activeSession = await _context.UserLoginHistories
+                .Where(h => h.UserId == user.UserID && h.DeviceName == currentDevice)
+                .OrderByDescending(h => h.LoginTime)
+                .FirstOrDefaultAsync();
+
+            if (activeSession != null && !activeSession.IsActive)
+            {
+                user.RefreshToken = null;
+                user.RefreshTokenExpireTime = null;
+                await _context.SaveChangesAsync();
+                return Unauthorized(ApiResponse<AuthResponseDto>.Fail("Session has been remotely logged out."));
+            }
+
+            if (activeSession != null)
+            {
+                activeSession.LastActiveTime = DateTime.UtcNow;
+            }
+
             var newAccessToken = _jwtService.GenerateAccessToken(user);
             var newRefreshToken = _jwtService.GenerateRefreshToken();
 
@@ -409,6 +497,24 @@ namespace Saowari.Controllers
             {
                 user.RefreshToken = null;
                 user.RefreshTokenExpireTime = null;
+
+                var currentDevice = HttpContext.Request.Headers["User-Agent"].ToString();
+                var deviceId = HttpContext.Request.Headers["X-Device-Id"].ToString();
+                if (!string.IsNullOrEmpty(deviceId))
+                {
+                    currentDevice = $"{currentDevice} [ID:{deviceId}]";
+                }
+
+                var activeSession = await _context.UserLoginHistories
+                    .Where(h => h.UserId == user.UserID && h.DeviceName == currentDevice)
+                    .OrderByDescending(h => h.LoginTime)
+                    .FirstOrDefaultAsync();
+
+                if (activeSession != null)
+                {
+                    activeSession.IsActive = false;
+                }
+
                 await _context.SaveChangesAsync();
             }
 
@@ -549,6 +655,158 @@ If you did not request this, please ignore this email. Your password will remain
             return Ok(ApiResponse<bool>.Ok(true, "Account unlocked successfully. You can now log in."));
         }
 
+        [HttpPost("resend-otp")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ApiResponse<bool>>> ResendOtp([FromBody] ResendOtpDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (user == null)
+            {
+                return BadRequest(ApiResponse<bool>.Fail("Invalid request."));
+            }
+
+            var otpCode = new Random().Next(100000, 999999).ToString();
+            var expireTime = DateTime.UtcNow.AddMinutes(10);
+            
+            if (dto.Type == "unlock")
+            {
+                user.OtpCode = otpCode;
+                user.OtpExpireTime = expireTime;
+                await _context.SaveChangesAsync();
+                
+                var alertBody = $@"
+                    <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                        <h2>Account Locked</h2>
+                        <p>Hello {user.FullName},</p>
+                        <p>To unlock your account, please use the following 6-digit OTP code:</p>
+                        <h3 style='background-color: #f3f4f6; padding: 10px; display: inline-block; letter-spacing: 2px;'>{user.OtpCode}</h3>
+                    </div>";
+                var plainAlert = $"Your unlock OTP is {user.OtpCode}.";
+                
+                try { await _emailService.SendEmailAsync(user.Email, "Security Alert: Account Locked", alertBody, plainAlert); }
+                catch { /* Fail-safe */ }
+            }
+            else if (dto.Type == "login")
+            {
+                user.LoginOtpCode = otpCode;
+                user.LoginOtpExpireTime = expireTime;
+                await _context.SaveChangesAsync();
+                
+                var otpHtmlBody = $@"
+                    <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                        <h2>Login Verification</h2>
+                        <p>Hello {user.FullName},</p>
+                        <p>We detected a new login. Please use this 6-digit code:</p>
+                        <h3 style='background-color: #f3f4f6; padding: 10px; display: inline-block; letter-spacing: 2px;'>{user.LoginOtpCode}</h3>
+                    </div>";
+                var otpPlainBody = $"Your login verification code is {user.LoginOtpCode}.";
+                
+                try { await _emailService.SendEmailAsync(user.Email, "Security Alert: Verify Your Login - Saowari", otpHtmlBody, otpPlainBody); }
+                catch { /* Fail-safe */ }
+            }
+            else if (dto.Type == "registration")
+            {
+                user.RegistrationOtpCode = otpCode;
+                user.RegistrationOtpExpireTime = expireTime;
+                await _context.SaveChangesAsync();
+                
+                var emailBody = $@"
+                    <div style='font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;'>
+                        <h2 style='color: #0369a1;'>Welcome to Saowari, {user.FullName}!</h2>
+                        <p>Please verify your email address to complete your registration.</p>
+                        <p>Your 6-digit verification code is:</p>
+                        <h3 style='background-color: #f3f4f6; padding: 12px; display: inline-block; letter-spacing: 4px; font-size: 24px; color: #1d4ed8; border-radius: 4px;'>{otpCode}</h3>
+                        <p style='color: #6b7280; font-size: 14px;'>This code will expire in 15 minutes.</p>
+                    </div>";
+                
+                var textBody = $"Welcome to Saowari! Your verification code is: {otpCode}";
+                
+                try { await _emailService.SendEmailAsync(user.Email, "Verify your Saowari account", emailBody, textBody); }
+                catch { /* Fail-safe */ }
+            }
+            else
+            {
+                return BadRequest(ApiResponse<bool>.Fail("Invalid OTP type."));
+            }
+
+            return Ok(ApiResponse<bool>.Ok(true, "OTP has been resent successfully."));
+        }
+
+
+        [HttpGet("sessions")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<IEnumerable<object>>>> GetActiveSessions()
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int userId))
+                return Unauthorized(ApiResponse<IEnumerable<object>>.Fail("Invalid user token."));
+
+            var currentDevice = HttpContext.Request.Headers["User-Agent"].ToString();
+            var deviceId = HttpContext.Request.Headers["X-Device-Id"].ToString();
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                currentDevice = $"{currentDevice} [ID:{deviceId}]";
+            }
+
+            // We only want unique devices, so let's group by DeviceName and get the latest
+            var allSessions = await _context.UserLoginHistories
+                .Where(h => h.UserId == userId)
+                .OrderByDescending(h => h.LoginTime)
+                .Take(50)
+                .ToListAsync();
+
+            var uniqueSessionsList = allSessions
+                .GroupBy(h => h.DeviceName)
+                .Select(g => g.First())
+                .OrderByDescending(s => s.LoginTime)
+                .ToList();
+
+            var sessionTasks = uniqueSessionsList.Select(async h => new {
+                h.Id,
+                IpAddress = (h.IpAddress == "::1" || h.IpAddress == "127.0.0.1") ? "127.0.0.1 (Localhost)" : h.IpAddress,
+                Location = await GetLocationFromIpAsync(h.IpAddress),
+                DeviceName = ParseUserAgent(h.DeviceName),
+                h.LoginTime,
+                h.LastActiveTime,
+                h.IsActive,
+                IsCurrentDevice = h.DeviceName == currentDevice
+            });
+
+            var uniqueSessions = await Task.WhenAll(sessionTasks);
+
+            return Ok(ApiResponse<IEnumerable<object>>.Ok(uniqueSessions, "Sessions fetched successfully"));
+        }
+
+        [HttpPost("revoke-session/{id}")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<bool>>> RevokeSession(int id)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int userId))
+                return Unauthorized(ApiResponse<bool>.Fail("Invalid user token."));
+
+            var session = await _context.UserLoginHistories.FirstOrDefaultAsync(h => h.Id == id && h.UserId == userId);
+            if (session == null)
+            {
+                return NotFound(ApiResponse<bool>.Fail("Session not found."));
+            }
+
+            session.IsActive = false;
+            
+            // Optionally set other sessions with same device name to inactive
+            var otherSessions = await _context.UserLoginHistories
+                .Where(h => h.UserId == userId && h.DeviceName == session.DeviceName && h.IsActive)
+                .ToListAsync();
+                
+            foreach (var s in otherSessions) {
+                s.IsActive = false;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(ApiResponse<bool>.Ok(true, "Session logged out successfully"));
+        }
+
         private string ParseUserAgent(string userAgent)
         {
             if (string.IsNullOrEmpty(userAgent)) return "Unknown Device";
@@ -571,11 +829,12 @@ If you did not request this, please ignore this email. Your password will remain
             return $"{browser} on {os}";
         }
 
-        private async Task<string> GetLocationFromIpAsync(string ipAddress)
+        private record GeoInfo(string Country, string CountryCode, string City, string Isp);
+
+        private async Task<GeoInfo> GetGeoInfoAsync(string ipAddress)
         {
             if (string.IsNullOrEmpty(ipAddress) || ipAddress == "::1" || ipAddress == "127.0.0.1")
             {
-                // Fallback trick for local testing
                 try
                 {
                     using var client = new HttpClient();
@@ -584,41 +843,55 @@ If you did not request this, please ignore this email. Your password will remain
                     using var ipDoc = JsonDocument.Parse(ipifyResponse);
                     ipAddress = ipDoc.RootElement.GetProperty("ip").GetString() ?? "";
                 }
-                catch
-                {
-                    return "Local Network";
-                }
+                catch { return new GeoInfo("Local", "LO", "Localhost", "Local Network"); }
             }
-
             try
             {
                 using var client = new HttpClient();
-                client.Timeout = TimeSpan.FromSeconds(3);
-                var geoResponse = await client.GetStringAsync($"https://get.geojs.io/v1/ip/geo/{ipAddress}.json");
-                using var geoDoc = JsonDocument.Parse(geoResponse);
-                
-                var root = geoDoc.RootElement;
-                var city = root.TryGetProperty("city", out var c) ? c.GetString() : "";
-                var region = root.TryGetProperty("region", out var r) ? r.GetString() : "";
-                var country = root.TryGetProperty("country", out var cnt) ? cnt.GetString() : "";
-                
-                var location = string.Join(", ", new[] { city, region, country }.Where(s => !string.IsNullOrEmpty(s)));
-                if (string.IsNullOrEmpty(location)) location = "Unknown Location";
-                
-                var isp = root.TryGetProperty("organization_name", out var org) ? org.GetString() : 
-                          (root.TryGetProperty("organization", out var org2) ? org2.GetString() : "");
-                          
-                if (!string.IsNullOrEmpty(isp))
-                {
-                    location += $" (ISP: {isp})";
-                }
-                
-                return location;
+                client.Timeout = TimeSpan.FromSeconds(4);
+                var json = await client.GetStringAsync($"https://get.geojs.io/v1/ip/geo/{ipAddress}.json");
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                var country = root.TryGetProperty("country", out var c) ? c.GetString() ?? "" : "";
+                var countryCode = root.TryGetProperty("country_code", out var cc) ? cc.GetString() ?? "" : "";
+                var city = root.TryGetProperty("city", out var ci) ? ci.GetString() ?? "" : "";
+                var isp = root.TryGetProperty("organization_name", out var org) ? org.GetString() ?? ""
+                        : root.TryGetProperty("organization", out var org2) ? org2.GetString() ?? "" : "";
+                return new GeoInfo(country, countryCode.ToUpper(), city, isp);
             }
-            catch
-            {
-                return "Unknown Location";
-            }
+            catch { return new GeoInfo("Unknown", "XX", "Unknown", "Unknown"); }
+        }
+
+        private string ParseTrafficChannel(string? referrer)
+        {
+            if (string.IsNullOrWhiteSpace(referrer)) return "Direct";
+            var r = referrer.ToLower();
+            if (r.Contains("google.") || r.Contains("bing.") || r.Contains("yahoo.") || r.Contains("duckduckgo.")) return "Organic Search";
+            if (r.Contains("facebook.") || r.Contains("instagram.") || r.Contains("twitter.") || r.Contains("t.co") || r.Contains("youtube.") || r.Contains("linkedin.") || r.Contains("pinterest.") || r.Contains("telegram.") || r.Contains("tiktok.")) return "Social";
+            if (r.Contains("email") || r.Contains("mail.") || r.Contains("newsletter") || r.Contains("substack.")) return "Email";
+            return "Referral";
+        }
+
+        private string ParseBrowserName(string userAgent)
+        {
+            if (string.IsNullOrEmpty(userAgent)) return "Unknown";
+            if (userAgent.Contains("Edg/")) return "Edge";
+            if (userAgent.Contains("OPR/") || userAgent.Contains("Opera")) return "Opera";
+            if (userAgent.Contains("Chrome")) return "Chrome";
+            if (userAgent.Contains("Firefox")) return "Firefox";
+            if (userAgent.Contains("Safari") && !userAgent.Contains("Chrome")) return "Safari";
+            if (userAgent.Contains("MSIE") || userAgent.Contains("Trident")) return "Internet Explorer";
+            return "Other";
+        }
+
+        private async Task<string> GetLocationFromIpAsync(string ipAddress)
+        {
+            var geo = await GetGeoInfoAsync(ipAddress);
+            var location = string.Join(", ", new[] { geo.City, geo.Country }.Where(s => !string.IsNullOrEmpty(s) && s != "Unknown"));
+            if (string.IsNullOrEmpty(location)) location = "Unknown Location";
+            if (!string.IsNullOrEmpty(geo.Isp) && geo.Isp != "Unknown")
+                location += $" (ISP: {geo.Isp})";
+            return location;
         }
     }
 }

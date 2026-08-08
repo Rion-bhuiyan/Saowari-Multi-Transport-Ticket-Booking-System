@@ -32,6 +32,7 @@ namespace Saowari.Services
                 .Include(v => v.SeatPricings)
                     .ThenInclude(sp => sp.SeatClass)
                 .Include(v => v.Seats)
+                .AsNoTracking()
                 .ToListAsync();
             var dtos = _mapper.Map<IEnumerable<VehicleResponseDto>>(entities);
             return ApiResponse<IEnumerable<VehicleResponseDto>>.Ok(dtos);
@@ -43,6 +44,7 @@ namespace Saowari.Services
                 .Include(v => v.SeatPricings)
                     .ThenInclude(sp => sp.SeatClass)
                 .Include(v => v.Seats)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(v => v.VehicleID == id);
             if (entity == null) return ApiResponse<VehicleResponseDto>.Fail("Not found");
             return ApiResponse<VehicleResponseDto>.Ok(_mapper.Map<VehicleResponseDto>(entity));

@@ -13,7 +13,7 @@
         <div class="flex flex-col md:flex-row justify-between items-center border-b border-saowari-border pb-4 mb-6 gap-4">
           <div class="flex items-center gap-4">
             <!-- Timer Circle -->
-            <div *ngIf="countdownSeconds > 0" class="w-12 h-12 rounded-full border border-green-500 flex items-center justify-center text-gray-700 font-bold text-sm bg-green-50/50 shadow-sm transition-all duration-300" [ngClass]="{'text-red-600 border-red-500 bg-red-50/50 animate-pulse': countdownSeconds <= 60}">
+            <div *ngIf="countdownSeconds > 0" class="w-12 h-12 rounded-full border border-green-500 flex items-center justify-center text-saowari-text-primary font-bold text-sm bg-green-50/50 shadow-sm transition-all duration-300" [ngClass]="{'text-red-600 border-red-500 bg-red-50/50 animate-pulse': countdownSeconds <= 60}">
               {{ formatCountdown() }}
             </div>
             <h2 class="text-xl font-heading font-bold text-saowari-text-primary">Select Your Seats</h2>
@@ -42,7 +42,7 @@
             <!-- NEW VISUAL GRID LAYOUT -->
             <ng-container *ngIf="(config?.mode === 'visual' || config?.Mode === 'visual' || (visualDecks?.length || 0) > 0) && (visualDecks?.length || 0) > 0; else legacyLayout">
               <div *ngFor="let deck of visualDecks" class="w-full mb-8">
-                <h5 *ngIf="deck.name !== 'Main Deck'" class="text-center font-bold text-gray-700 mb-4 bg-gray-100 rounded-lg py-2 uppercase tracking-widest text-sm border border-saowari-border">
+                <h5 *ngIf="deck.name !== 'Main Deck'" class="text-center font-bold text-saowari-text-primary mb-4 bg-saowari-surface-alt rounded-lg py-2 uppercase tracking-widest text-sm border border-saowari-border">
                   {{ deck.name }}
                 </h5>
                 <div class="grid gap-2 sm:gap-3 justify-center mx-auto" [style.gridTemplateColumns]="'repeat(' + gridWidth + ', minmax(0, max-content))'">
@@ -79,7 +79,7 @@
             <!-- LEGACY LAYOUT FALLBACK -->
             <ng-template #legacyLayout>
               <div *ngFor="let deck of seatRows" class="w-full mb-8">
-              <h5 *ngIf="deck.deckName !== 'Main Deck'" class="text-center font-bold text-gray-700 mb-4 bg-gray-100 rounded-lg py-2 uppercase tracking-widest text-sm border border-saowari-border">
+              <h5 *ngIf="deck.deckName !== 'Main Deck'" class="text-center font-bold text-saowari-text-primary mb-4 bg-saowari-surface-alt rounded-lg py-2 uppercase tracking-widest text-sm border border-saowari-border">
                 {{ deck.deckName }}
               </h5>
               <div class="space-y-4">
@@ -287,15 +287,15 @@
             <div class="p-3.5 rounded-xl flex flex-col gap-1.5 transition-all border"
                  [ngClass]="{
                    'bg-amber-50/70 border-amber-200': selectedBoardingPoint,
-                   'bg-slate-50 border-slate-200': !selectedBoardingPoint
+                   'bg-saowari-surface-alt border-saowari-border': !selectedBoardingPoint
                  }">
               <span class="text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5"
-                    [ngClass]="selectedBoardingPoint ? 'text-amber-800' : 'text-slate-500'">
+                    [ngClass]="selectedBoardingPoint ? 'text-amber-800' : 'text-saowari-text-secondary'">
                 <i class="fas fa-map-marker-alt" [ngClass]="selectedBoardingPoint ? 'text-amber-600 animate-pulse' : 'text-slate-400'"></i>
                 Boarding Stop (Required)
               </span>
               <div class="flex items-center justify-between mt-0.5">
-                <span class="font-bold text-sm" [ngClass]="selectedBoardingPoint ? 'text-amber-950' : 'text-slate-500'">
+                <span class="font-bold text-sm" [ngClass]="selectedBoardingPoint ? 'text-amber-950' : 'text-saowari-text-secondary'">
                   {{ selectedBoardingPoint || 'Select from Route Map' }}
                 </span>
                 <span *ngIf="selectedBoardingPoint" class="bg-amber-500 text-[10px] font-bold text-white px-2 py-0.5 rounded shadow-sm">
@@ -318,7 +318,7 @@
 
           <div *ngIf="selectedSeats.length > 0" class="space-y-3 mb-6">
             <div *ngFor="let seat of selectedSeats" class="flex justify-between text-sm">
-              <span class="font-medium text-gray-700">Seat {{ seat.seatNumber }} ({{ seat.seatClassName }})</span>
+              <span class="font-medium text-saowari-text-primary">Seat {{ seat.seatNumber }} ({{ seat.seatClassName }})</span>
               <span class="font-bold">৳{{ seat.price || seat.Price || schedule.basePrice }}</span>
             </div>
           </div>

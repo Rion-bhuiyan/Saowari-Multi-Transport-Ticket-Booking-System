@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -49,7 +49,9 @@ export class ScheduleLifecycleComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private notification: NotificationService,
     public authService: AuthService,
-    private router: Router
+    private router: Router,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -61,10 +63,13 @@ export class ScheduleLifecycleComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Timer for live countdowns
-    this.timerInterval = setInterval(() => {
-      this.now = new Date();
-    }, 1000);
+    // Timer for live countdowns optimized outside Angular zone to prevent global refresh jitter
+    this.ngZone.runOutsideAngular(() => {
+      this.timerInterval = setInterval(() => {
+        this.now = new Date();
+        this.cdr.detectChanges(); // Only refresh this specific component's UI
+      }, 1000);
+    });
   }
 
   ngOnDestroy() {

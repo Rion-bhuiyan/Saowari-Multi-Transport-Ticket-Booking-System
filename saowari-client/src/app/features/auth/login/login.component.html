@@ -57,7 +57,7 @@
       </a>
 
       <h2 class="text-3xl font-heading font-bold text-saowari-text-primary mb-2">
-        {{ isOtpRequired ? (otpType === 'login' ? 'Verify Your Device' : 'Verify Your Email') : 'Welcome back' }}
+        {{ isOtpRequired ? (otpType === 'login' ? 'Verify Your Device' : (otpType === 'unlock' ? 'Unlock Account' : 'Verify Your Email')) : 'Welcome back' }}
       </h2>
       <p class="text-saowari-text-secondary mb-8">
         {{ isOtpRequired ? 'We sent a 6-digit code to your email. Please enter it to continue.' : 'Sign in to your account to continue.' }}
@@ -67,7 +67,7 @@
       <form *ngIf="!isOtpRequired" #loginForm="ngForm" (ngSubmit)="onLogin()">
         <!-- Email -->
         <div class="form-control mb-5">
-          <label class="label pb-1"><span class="label-text font-semibold text-gray-700">Email Address</span></label>
+          <label class="label pb-1"><span class="label-text font-semibold text-saowari-text-primary">Email Address</span></label>
           <div class="relative">
             <i class="far fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
             <input type="email" name="email" [(ngModel)]="credentials.email" required
@@ -79,7 +79,7 @@
         <!-- Password -->
         <div class="form-control mb-2">
           <label class="label pb-1">
-            <span class="label-text font-semibold text-gray-700">Password</span>
+            <span class="label-text font-semibold text-saowari-text-primary">Password</span>
             <a routerLink="/auth/forgot-password" class="label-text-alt text-saowari-accent hover:underline text-sm">Forgot password?</a>
           </label>
           <div class="relative">
@@ -106,7 +106,7 @@
       <!-- OTP Verification Form -->
       <form *ngIf="isOtpRequired" #otpForm="ngForm" (ngSubmit)="onVerifyOtp()">
         <div class="form-control mb-5">
-          <label class="label pb-1"><span class="label-text font-semibold text-gray-700">6-Digit OTP</span></label>
+          <label class="label pb-1"><span class="label-text font-semibold text-saowari-text-primary">6-Digit OTP</span></label>
           <div class="relative">
             <i class="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
             <input type="text" name="otp" [(ngModel)]="otpCode" required
@@ -119,10 +119,14 @@
                 class="btn btn-saowari w-full mt-6 text-base shadow-lg shadow-primary/20 h-12">
           <span *ngIf="isLoading" class="loading loading-spinner loading-sm"></span>
           <i *ngIf="!isLoading" class="fas fa-check-circle"></i>
-          {{ isLoading ? 'Verifying...' : (otpType === 'login' ? 'Verify Login' : 'Verify Email') }}
+          {{ isLoading ? 'Verifying...' : (otpType === 'login' ? 'Verify Login' : (otpType === 'unlock' ? 'Unlock Account' : 'Verify Email')) }}
         </button>
 
-        <p class="text-center mt-4">
+        <p class="text-center mt-4 flex flex-col gap-3">
+          <button type="button" (click)="resendOtp()" [disabled]="isResendingOtp" class="text-sm font-semibold text-saowari-primary hover:text-saowari-accent transition-colors">
+            <span *ngIf="isResendingOtp" class="loading loading-spinner loading-xs mr-1"></span>
+            Resend OTP
+          </button>
           <button type="button" (click)="isOtpRequired = false; otpCode = ''" class="text-sm text-saowari-text-secondary hover:text-saowari-primary transition-colors">
             Cancel and try again
           </button>

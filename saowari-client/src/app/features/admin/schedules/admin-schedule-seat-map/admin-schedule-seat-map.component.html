@@ -24,7 +24,7 @@
       <div class="bg-gradient-to-r from-slate-700 to-slate-600 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="w-10 h-7 bg-yellow-300 rounded-md border-2 border-yellow-500 flex items-center justify-center shadow-inner">
-            <i class="fas fa-steering-wheel text-slate-700 text-xs"></i>
+            <i class="fas fa-steering-wheel text-saowari-text-primary text-xs"></i>
           </div>
           <span class="text-white text-xs font-bold tracking-widest uppercase">Driver</span>
         </div>
@@ -40,7 +40,7 @@
           <!-- NEW VISUAL GRID LAYOUT -->
           <ng-container *ngIf="(seatLayoutConfig?.mode === 'visual' || seatLayoutConfig?.Mode === 'visual' || (visualDecks?.length || 0) > 0) && (visualDecks?.length || 0) > 0; else legacyLayout">
             <div *ngFor="let deck of visualDecks" class="w-full relative z-10 mb-8">
-              <h5 *ngIf="deck.name !== 'Main Deck'" class="text-center font-bold text-gray-700 mb-4 bg-gray-100 rounded-lg py-2 uppercase tracking-widest text-sm border border-saowari-border">
+              <h5 *ngIf="deck.name !== 'Main Deck'" class="text-center font-bold text-saowari-text-primary mb-4 bg-saowari-surface-alt rounded-lg py-2 uppercase tracking-widest text-sm border border-saowari-border">
                 {{ deck.name }}
               </h5>
               <div class="grid gap-2 justify-center mx-auto" [style.gridTemplateColumns]="'repeat(' + gridWidth + ', minmax(0, max-content))'">
@@ -142,7 +142,7 @@
             <span class="text-sm text-saowari-text-secondary font-medium">Booked</span>
           </div>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gray-100 border-2 border-saowari-border text-gray-400 shadow-inner flex items-center justify-center relative overflow-hidden">
+            <div class="w-10 h-10 rounded-xl bg-saowari-surface-alt border-2 border-saowari-border text-gray-400 shadow-inner flex items-center justify-center relative overflow-hidden">
               <div class="absolute inset-0 border-t border-gray-400/30 transform rotate-45 origin-center scale-150"></div>
               <div class="absolute inset-0 border-t border-gray-400/30 transform -rotate-45 origin-center scale-150"></div>
               <i class="fas fa-lock z-10 text-[10px]"></i>
@@ -177,14 +177,14 @@
             </div>
           </div>
           <!-- License Details Subcard -->
-          <div class="bg-slate-50 border border-slate-200/60 p-3 rounded-xl space-y-1.5 text-xs text-slate-700">
+          <div class="bg-saowari-surface-alt border border-saowari-border/60 p-3 rounded-xl space-y-1.5 text-xs text-saowari-text-primary">
             <div class="flex justify-between items-center">
               <span class="text-slate-400">License:</span>
-              <span class="font-mono font-bold tracking-wider text-slate-800 bg-saowari-surface border border-slate-200 px-1.5 py-0.5 rounded shadow-sm select-all">{{ seatMapData.driver.licenceNumber }}</span>
+              <span class="font-mono font-bold tracking-wider text-saowari-text-primary bg-saowari-surface border border-saowari-border px-1.5 py-0.5 rounded shadow-sm select-all">{{ seatMapData.driver.licenceNumber }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-slate-400">License Expires:</span>
-              <span class="font-medium text-slate-800" [ngClass]="{'text-red-500 font-bold': isLicenseExpired(seatMapData.driver.licenceExpDate)}">
+              <span class="font-medium text-saowari-text-primary" [ngClass]="{'text-red-500 font-bold': isLicenseExpired(seatMapData.driver.licenceExpDate)}">
                 {{ seatMapData.driver.licenceExpDate | date:'mediumDate' }}
                 <span *ngIf="isLicenseExpired(seatMapData.driver.licenceExpDate)" class="text-[9px] uppercase tracking-wider bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold ml-1">Expired</span>
               </span>
@@ -266,11 +266,11 @@
                   <p *ngIf="seat.passenger?.email" class="flex items-center gap-1.5"><i class="fas fa-envelope w-3 text-gray-400"></i> <span class="truncate">{{ seat.passenger.email }}</span></p>
                   
                   <!-- Detailed Payment Info Card -->
-                  <div class="bg-gray-100/60 p-2 rounded-lg text-[10px] space-y-1 mt-1.5">
-                    <p class="flex justify-between"><span class="text-gray-400">Payment:</span> <span class="font-medium text-gray-700">{{ seat.passenger?.paymentMethod }}</span></p>
-                    <p class="flex justify-between" *ngIf="seat.passenger?.transactionId"><span class="text-gray-400">Txn ID:</span> <span class="font-mono text-gray-700 select-all font-semibold">{{ seat.passenger.transactionId }}</span></p>
-                    <p class="flex justify-between" *ngIf="seat.passenger?.paidAt"><span class="text-gray-400">Date:</span> <span class="text-gray-700">{{ seat.passenger.paidAt | date:'short' }}</span></p>
-                    <p class="flex justify-between" *ngIf="seat.passenger?.discountAmount > 0"><span class="text-gray-400">Base / Discount:</span> <span class="text-gray-700">${{ seat.passenger.baseAmount | number:'1.2-2' }} / <span class="text-red-500">-${{ seat.passenger.discountAmount | number:'1.2-2' }}</span></span></p>
+                  <div class="bg-saowari-surface-alt/60 p-2 rounded-lg text-[10px] space-y-1 mt-1.5">
+                    <p class="flex justify-between"><span class="text-gray-400">Payment:</span> <span class="font-medium text-saowari-text-primary">{{ seat.passenger?.paymentMethod }}</span></p>
+                    <p class="flex justify-between" *ngIf="seat.passenger?.transactionId"><span class="text-gray-400">Txn ID:</span> <span class="font-mono text-saowari-text-primary select-all font-semibold">{{ seat.passenger.transactionId }}</span></p>
+                    <p class="flex justify-between" *ngIf="seat.passenger?.paidAt"><span class="text-gray-400">Date:</span> <span class="text-saowari-text-primary">{{ seat.passenger.paidAt | date:'short' }}</span></p>
+                    <p class="flex justify-between" *ngIf="seat.passenger?.discountAmount > 0"><span class="text-gray-400">Base / Discount:</span> <span class="text-saowari-text-primary">${{ seat.passenger.baseAmount | number:'1.2-2' }} / <span class="text-red-500">-${{ seat.passenger.discountAmount | number:'1.2-2' }}</span></span></p>
                   </div>
 
                   <div class="flex items-center justify-between mt-2 pt-2 border-t border-saowari-border">
@@ -300,11 +300,11 @@
 
     <!-- Unavailable/Blocked -->
     <div *ngIf="!seat.isBooked && seat.status !== 'Available'"
-      class="border-2 flex items-center justify-center shadow-inner w-12 h-14 rounded-t-2xl bg-gray-100 text-gray-400 border-saowari-border relative overflow-hidden tooltip tooltip-top cursor-not-allowed"
+      class="border-2 flex items-center justify-center shadow-inner w-12 h-14 rounded-t-2xl bg-saowari-surface-alt text-gray-400 border-saowari-border relative overflow-hidden tooltip tooltip-top cursor-not-allowed"
       [attr.data-tip]="seat.seatNumber + ' (' + seat.status + ')'">
       <div class="absolute inset-0 border-t border-gray-400/30 transform rotate-45 origin-center scale-150"></div>
       <div class="absolute inset-0 border-t border-gray-400/30 transform -rotate-45 origin-center scale-150"></div>
-      <span class="text-[10px] font-bold z-10 bg-gray-100/80 px-1 rounded">{{ seat.seatNumber }}</span>
+      <span class="text-[10px] font-bold z-10 bg-saowari-surface-alt/80 px-1 rounded">{{ seat.seatNumber }}</span>
     </div>
 
     <!-- Booked with tooltip -->

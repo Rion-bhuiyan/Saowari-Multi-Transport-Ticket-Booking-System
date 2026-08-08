@@ -322,7 +322,11 @@ export class AdminMessengerComponent implements OnInit, AfterViewChecked, OnDest
             roleName: 'Guest (Unregistered)',
             companyName: 'N/A',
             isActive: true,
-            createdAt: this.selectedRoom?.createdAt
+            createdAt: this.selectedRoom?.createdAt,
+            ipAddress: this.selectedRoom?.ipAddress,
+            browserInfo: this.selectedRoom?.browserInfo,
+            geolocation: this.selectedRoom?.geolocation,
+            ispName: this.selectedRoom?.ispName
           };
         }
       });
@@ -335,7 +339,11 @@ export class AdminMessengerComponent implements OnInit, AfterViewChecked, OnDest
         roleName: 'Guest User',
         companyName: 'N/A',
         isActive: true,
-        createdAt: this.selectedRoom.createdAt
+        createdAt: this.selectedRoom.createdAt,
+        ipAddress: this.selectedRoom.ipAddress,
+        browserInfo: this.selectedRoom.browserInfo,
+        geolocation: this.selectedRoom.geolocation,
+        ispName: this.selectedRoom.ispName
       };
     }
   }

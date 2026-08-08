@@ -16,7 +16,7 @@
       <form #regForm="ngForm" (ngSubmit)="onRegister()" *ngIf="!isOtpRequired">
         <!-- Full Name -->
         <div class="form-control mb-4">
-          <label class="label pb-1"><span class="label-text font-semibold text-gray-700">Full Name</span></label>
+          <label class="label pb-1"><span class="label-text font-semibold text-saowari-text-primary">Full Name</span></label>
           <div class="relative">
             <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
             <input type="text" name="fullName" [(ngModel)]="model.fullName" required minlength="3"
@@ -26,7 +26,7 @@
 
         <!-- Email -->
         <div class="form-control mb-4">
-          <label class="label pb-1"><span class="label-text font-semibold text-gray-700">Email Address</span></label>
+          <label class="label pb-1"><span class="label-text font-semibold text-saowari-text-primary">Email Address</span></label>
           <div class="relative">
             <i class="far fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
             <input type="email" name="email" [(ngModel)]="model.email" required
@@ -36,7 +36,7 @@
 
         <!-- Phone -->
         <div class="form-control mb-4">
-          <label class="label pb-1"><span class="label-text font-semibold text-gray-700">Phone Number</span></label>
+          <label class="label pb-1"><span class="label-text font-semibold text-saowari-text-primary">Phone Number</span></label>
           <div class="relative">
             <i class="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
             <input type="tel" name="phone" [(ngModel)]="model.phone" required pattern="[0-9]{11}"
@@ -46,7 +46,7 @@
 
         <!-- Password -->
         <div class="form-control mb-4">
-          <label class="label pb-1"><span class="label-text font-semibold text-gray-700">Password</span></label>
+          <label class="label pb-1"><span class="label-text font-semibold text-saowari-text-primary">Password</span></label>
           <div class="relative">
             <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
             <input [type]="showPassword ? 'text' : 'password'" name="password" [(ngModel)]="model.password" required minlength="8"
@@ -59,7 +59,7 @@
 
         <!-- Confirm Password -->
         <div class="form-control mb-6">
-          <label class="label pb-1"><span class="label-text font-semibold text-gray-700">Confirm Password</span></label>
+          <label class="label pb-1"><span class="label-text font-semibold text-saowari-text-primary">Confirm Password</span></label>
           <div class="relative">
             <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
             <input [type]="showConfirmPassword ? 'text' : 'password'" name="confirm" [(ngModel)]="confirmPassword" required
@@ -100,7 +100,7 @@
         <form (ngSubmit)="onVerifyOtp()">
           <div class="form-control mb-6">
             <label class="label pb-1 justify-center">
-              <span class="label-text font-semibold text-gray-700">Verification Code</span>
+              <span class="label-text font-semibold text-saowari-text-primary">Verification Code</span>
             </label>
             <input type="text" name="otp" [(ngModel)]="otpCode" required maxlength="6"
                    class="input input-bordered w-full text-center text-2xl tracking-[0.5em] font-bold focus:border-saowari-primary h-14" 

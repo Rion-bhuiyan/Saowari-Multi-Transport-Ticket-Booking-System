@@ -78,19 +78,19 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">Vehicle Name <span class="text-red-500">*</span></span>
+                <span class="label-text font-semibold text-saowari-text-primary">Vehicle Name <span class="text-red-500">*</span></span>
               </label>
               <input type="text" name="vehicleName" [(ngModel)]="model.vehicleName" required class="input input-bordered w-full focus:border-saowari-primary" />
             </div>
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">Vehicle Number <span class="text-red-500">*</span></span>
+                <span class="label-text font-semibold text-saowari-text-primary">Vehicle Number <span class="text-red-500">*</span></span>
               </label>
               <input type="text" name="vehicleNumber" [(ngModel)]="model.vehicleNumber" required class="input input-bordered w-full focus:border-saowari-primary" />
             </div>
             <div class="form-control w-full" *ngIf="!authService.isCompanyManager()">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">Company <span class="text-red-500">*</span></span>
+                <span class="label-text font-semibold text-saowari-text-primary">Company <span class="text-red-500">*</span></span>
               </label>
               <select name="companyId" [(ngModel)]="model.companyId" required class="select select-bordered w-full focus:border-saowari-primary">
                 <option [ngValue]="null" disabled>Select Company</option>
@@ -99,7 +99,7 @@
             </div>
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">Vehicle Type <span class="text-red-500">*</span></span>
+                <span class="label-text font-semibold text-saowari-text-primary">Vehicle Type <span class="text-red-500">*</span></span>
               </label>
               <select name="vehicleTypeId" [(ngModel)]="model.vehicleTypeId" required class="select select-bordered w-full focus:border-saowari-primary">
                 <option [ngValue]="null" disabled>Select Type</option>
@@ -108,26 +108,26 @@
             </div>
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">Engine Number <span class="text-red-500">*</span></span>
+                <span class="label-text font-semibold text-saowari-text-primary">Engine Number <span class="text-red-500">*</span></span>
               </label>
               <input type="text" name="engineNumber" [(ngModel)]="model.engineNumber" required class="input input-bordered w-full focus:border-saowari-primary" />
             </div>
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">Engine CC <span class="text-red-500">*</span></span>
+                <span class="label-text font-semibold text-saowari-text-primary">Engine CC <span class="text-red-500">*</span></span>
               </label>
               <input type="text" name="engineCC" [(ngModel)]="model.engineCC" required class="input input-bordered w-full focus:border-saowari-primary" />
             </div>
 
             <div class="form-control w-full">
               <label class="label">
-                <span class="label-text font-semibold text-gray-700">Chassis Number <span class="text-red-500">*</span></span>
+                <span class="label-text font-semibold text-saowari-text-primary">Chassis Number <span class="text-red-500">*</span></span>
               </label>
               <input type="text" name="chassisNumber" [(ngModel)]="model.chassisNumber" required class="input input-bordered w-full focus:border-saowari-primary" />
             </div>
             <div class="form-control">
-              <label class="label"><span class="label-text font-semibold text-gray-700">Capacity <span class="text-red-500">*</span></span></label>
-              <input type="number" name="capacity" [(ngModel)]="model.capacity" disabled class="input input-bordered w-full bg-gray-100 focus:border-saowari-primary" title="Calculated from visual layout" />
+              <label class="label"><span class="label-text font-semibold text-saowari-text-primary">Capacity <span class="text-red-500">*</span></span></label>
+              <input type="number" name="capacity" [(ngModel)]="model.capacity" disabled class="input input-bordered w-full bg-saowari-surface-alt focus:border-saowari-primary" title="Calculated from visual layout" />
             </div>
           </div>
 
@@ -152,9 +152,9 @@
           <div class="mb-4">
             <label class="block text-xs font-bold text-saowari-text-secondary uppercase tracking-wider mb-2">Auto-fill Layout (Warning: clears current deck)</label>
             <div class="flex gap-2">
-              <button type="button" class="btn btn-sm btn-outline border-saowari-border text-saowari-text-secondary hover:bg-gray-100" (click)="autoFillLayout('standard')">Standard 1+2</button>
-              <button type="button" class="btn btn-sm btn-outline border-saowari-border text-saowari-text-secondary hover:bg-gray-100" (click)="autoFillLayout('economy')">Economy 2+2</button>
-              <button type="button" class="btn btn-sm btn-outline border-saowari-border text-saowari-text-secondary hover:bg-gray-100" (click)="autoFillLayout('minibus')">Minibus 1+1</button>
+              <button type="button" class="btn btn-sm btn-outline border-saowari-border text-saowari-text-secondary hover:bg-saowari-surface-alt" (click)="autoFillLayout('standard')">Standard 1+2</button>
+              <button type="button" class="btn btn-sm btn-outline border-saowari-border text-saowari-text-secondary hover:bg-saowari-surface-alt" (click)="autoFillLayout('economy')">Economy 2+2</button>
+              <button type="button" class="btn btn-sm btn-outline border-saowari-border text-saowari-text-secondary hover:bg-saowari-surface-alt" (click)="autoFillLayout('minibus')">Minibus 1+1</button>
             </div>
           </div>
 
@@ -185,8 +185,8 @@
                 </div>
               </div>
               
-              <button type="button" class="btn btn-sm btn-primary w-full mb-4 gap-1.5 shadow-sm" (click)="assignAllSeats(activeAssignmentClassId)">
-                <i class="fas fa-magic"></i> Assign Active Class to ALL
+              <button type="button" class="btn btn-saowari w-full mb-4 shadow-sm" (click)="assignAllSeats(activeAssignmentClassId)">
+                <i class="fas fa-magic mr-1"></i> Assign Class to ALL
               </button>
 
               <div *ngIf="selectedSeat" class="bg-saowari-surface p-3 rounded-lg border border-blue-200 shadow-sm mt-4 relative overflow-hidden">
@@ -213,13 +213,13 @@
             </div>
 
             <!-- Right Side: Grid Builder -->
-            <div class="w-full md:w-2/3 bg-gray-100 p-6 rounded-xl border border-saowari-border shadow-inner flex flex-col items-center overflow-x-auto">
+            <div class="w-full md:w-2/3 bg-saowari-surface-alt p-6 rounded-xl border border-saowari-border shadow-inner flex flex-col items-center overflow-x-auto">
               
               <!-- Driver Area -->
               <div class="w-full max-w-sm bg-gradient-to-r from-slate-700 to-slate-600 rounded-t-xl px-4 py-3 flex items-center justify-between mb-1 shadow-md">
                 <div class="flex items-center gap-2">
                   <div class="w-6 h-5 bg-yellow-300 rounded border-2 border-yellow-500 flex items-center justify-center shadow-inner">
-                    <i class="fas fa-steering-wheel text-slate-700 text-[8px]"></i>
+                    <i class="fas fa-steering-wheel text-saowari-text-primary text-[8px]"></i>
                   </div>
                   <span class="text-white text-[10px] font-bold tracking-widest uppercase">Front</span>
                 </div>
@@ -267,7 +267,7 @@
 
           <div class="flex items-center gap-2 mb-8 mt-6">
             <input type="checkbox" class="toggle toggle-primary" name="isActive" [(ngModel)]="model.isActive" />
-            <span class="text-sm font-medium text-gray-700">Is Active</span>
+            <span class="text-sm font-medium text-saowari-text-primary">Is Active</span>
           </div>
 
           <div class="modal-action mt-8 flex gap-3">

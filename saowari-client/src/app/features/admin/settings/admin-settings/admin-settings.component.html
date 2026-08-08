@@ -15,14 +15,14 @@
       <!-- Current Logo -->
       <div class="mb-8 flex items-start gap-8">
         <div class="flex-shrink-0">
-          <p class="text-sm font-semibold text-gray-700 mb-3">Current Logo</p>
+          <p class="text-sm font-semibold text-saowari-text-primary mb-3">Current Logo</p>
           <div class="w-40 h-16 rounded-xl border-2 border-saowari-border bg-saowari-surface-alt flex items-center justify-center p-3 shadow-inner">
             <img *ngIf="currentLogoUrl" [src]="currentLogoUrl" alt="Current Logo" class="max-w-full max-h-full object-contain" />
             <span *ngIf="!currentLogoUrl" class="font-heading font-bold text-xl tracking-wider text-saowari-text-primary">SAOWARI</span>
           </div>
         </div>
         <div>
-          <p class="text-sm font-semibold text-gray-700 mb-2">Instructions</p>
+          <p class="text-sm font-semibold text-saowari-text-primary mb-2">Instructions</p>
           <p class="text-sm text-saowari-text-secondary leading-relaxed max-w-md">
             Use a transparent PNG or SVG for best results. Recommended height: 60px.
           </p>
@@ -30,7 +30,7 @@
       </div>
       <div class="divider"></div>
       <!-- Upload Logo -->
-      <p class="text-sm font-semibold text-gray-700 mb-3">Upload New Logo</p>
+      <p class="text-sm font-semibold text-saowari-text-primary mb-3">Upload New Logo</p>
       <div class="flex justify-center px-10 pt-10 pb-10 border-2 border-saowari-border border-dashed rounded-xl hover:border-saowari-primary transition-colors bg-saowari-surface-alt relative group cursor-pointer"
            (click)="!logoPreview ? logoInput.click() : null">
         <input #logoInput type="file" (change)="onLogoSelected($event)" accept="image/png, image/jpeg, image/svg+xml" class="hidden" />
@@ -68,7 +68,7 @@
     </div>
     <div class="p-8 flex items-center justify-between">
       <div>
-        <p class="text-sm font-semibold text-gray-700 mb-1">Transport Background Pattern</p>
+        <p class="text-sm font-semibold text-saowari-text-primary mb-1">Transport Background Pattern</p>
         <p class="text-xs text-saowari-text-secondary">Enable a minimalistic transport-themed typography and emoji pattern across the site's background.</p>
       </div>
       <div class="flex items-center gap-4">
@@ -93,8 +93,8 @@
 
       <!-- Current Background Preview -->
       <div class="mb-8">
-        <p class="text-sm font-semibold text-gray-700 mb-3">Current Ticket Background</p>
-        <div class="rounded-xl border-2 border-saowari-border overflow-hidden shadow-inner relative bg-white" style="height: 160px;">
+        <p class="text-sm font-semibold text-saowari-text-primary mb-3">Current Ticket Background</p>
+        <div class="rounded-xl border-2 border-saowari-border overflow-hidden shadow-inner relative bg-saowari-surface" style="height: 160px;">
           <img *ngIf="currentBgUrl" [src]="currentBgUrl" alt="Current Background"
                class="w-full h-full object-cover" [style.opacity]="ticketBgOpacity" />
           <div *ngIf="!currentBgUrl" class="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center text-gray-400">
@@ -119,7 +119,7 @@
       <div class="divider"></div>
 
       <!-- Upload New Background -->
-      <p class="text-sm font-semibold text-gray-700 mb-3">Upload New Background</p>
+      <p class="text-sm font-semibold text-saowari-text-primary mb-3">Upload New Background</p>
       <p class="text-xs text-gray-400 mb-4">
         <strong>Recommended:</strong> Letter size portrait image (approx 850×1100px) in JPG or PNG format. 
         The ticket content will be overlaid on top, so use lighter images or images with a simple center area.
@@ -139,7 +139,7 @@
         </div>
 
         <div *ngIf="bgPreview" class="flex flex-col items-center w-full">
-          <div class="relative w-full rounded-xl border border-purple-200 shadow-sm overflow-hidden bg-white" style="height:140px;">
+          <div class="relative w-full rounded-xl border border-purple-200 shadow-sm overflow-hidden bg-saowari-surface" style="height:140px;">
             <img [src]="bgPreview" alt="Background Preview" class="w-full h-full object-cover" [style.opacity]="ticketBgOpacity" />
             <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
               <span class="text-white font-bold text-sm bg-black/40 px-3 py-1 rounded-lg">Preview</span>
@@ -162,7 +162,7 @@
       <!-- Ticket Background Opacity -->
       <div class="form-control w-full">
         <label class="label">
-          <span class="text-sm font-semibold text-gray-700">Global Ticket Background Opacity</span>
+          <span class="text-sm font-semibold text-saowari-text-primary">Global Ticket Background Opacity</span>
           <span class="text-purple-600 font-bold text-lg">{{ ticketBgOpacity * 100 | number:'1.0-0' }}%</span>
         </label>
         <p class="text-xs text-gray-400 mb-4">

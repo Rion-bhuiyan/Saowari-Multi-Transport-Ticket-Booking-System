@@ -3,3 +3,8 @@
 **/bin/
 **/obj/
 Saowari/wwwroot/uploads/
+.vs/
+.vscode/
+**/node_modules/
+**/dist/
+*.user

@@ -26,14 +26,14 @@
         
         <!-- Target Roles -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-3">Target Audience <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold text-saowari-text-primary mb-3">Target Audience <span class="text-red-500">*</span></label>
           <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
             <label *ngFor="let role of roles" class="flex items-center p-3 border border-saowari-border rounded-xl cursor-pointer hover:bg-saowari-surface-alt transition-colors">
               <input type="checkbox" 
                      class="w-4 h-4 text-blue-600 rounded border-saowari-border focus:ring-blue-500"
                      [checked]="selectedRoleIds.includes(role.userRoleId)"
                      (change)="toggleRole(role.userRoleId, $event)">
-              <span class="ml-3 text-sm font-medium text-gray-700">{{ role.userRoleName }}</span>
+              <span class="ml-3 text-sm font-medium text-saowari-text-primary">{{ role.userRoleName }}</span>
             </label>
           </div>
         </div>
@@ -42,7 +42,7 @@
 
         <!-- Subject -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Subject <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold text-saowari-text-primary mb-2">Subject <span class="text-red-500">*</span></label>
           <input type="text" 
                  [(ngModel)]="subject" 
                  name="subject" 
@@ -53,7 +53,7 @@
 
         <!-- Promotional Image -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Promotional Image (Optional)</label>
+          <label class="block text-sm font-semibold text-saowari-text-primary mb-2">Promotional Image (Optional)</label>
           
           <div *ngIf="!imagePreview" class="border-2 border-dashed border-saowari-border rounded-xl p-8 text-center hover:bg-saowari-surface-alt transition-colors">
             <input type="file" id="broadcastImage" class="hidden" (change)="onImageSelected($event)" accept="image/*">
@@ -77,7 +77,7 @@
 
         <!-- Message Body -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Message Content <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold text-saowari-text-primary mb-2">Message Content <span class="text-red-500">*</span></label>
           <textarea [(ngModel)]="message" 
                     name="message" 
                     required
@@ -90,7 +90,7 @@
         <div class="pt-4 border-t border-saowari-border flex justify-end gap-3">
           <button type="button" 
                   (click)="resetForm()"
-                  class="px-6 py-2.5 rounded-xl border border-saowari-border text-gray-700 font-medium hover:bg-saowari-surface-alt transition-colors">
+                  class="px-6 py-2.5 rounded-xl border border-saowari-border text-saowari-text-primary font-medium hover:bg-saowari-surface-alt transition-colors">
             Clear
           </button>
           <button type="submit" 

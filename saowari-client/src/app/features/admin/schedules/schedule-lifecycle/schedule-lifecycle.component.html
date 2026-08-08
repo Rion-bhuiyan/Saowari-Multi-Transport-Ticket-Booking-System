@@ -64,7 +64,7 @@
             <div *ngIf="item.companyLogo" class="w-8 h-8 rounded-full border overflow-hidden">
               <img [src]="item.companyLogo" class="w-full h-full object-cover">
             </div>
-            <span class="font-bold text-gray-700">{{ item.companyName || 'Unknown Company' }}</span>
+            <span class="font-bold text-saowari-text-primary">{{ item.companyName || 'Unknown Company' }}</span>
           </div>
           <div class="badge badge-primary badge-outline text-[10px] sm:text-xs font-semibold whitespace-nowrap py-2 px-3 animate-pulse">
             In {{ getCountdown(item.departureDateTime) }}
@@ -99,7 +99,7 @@
             <div *ngIf="item.companyLogo" class="w-8 h-8 rounded-full border overflow-hidden">
               <img [src]="item.companyLogo" class="w-full h-full object-cover">
             </div>
-            <span class="font-bold text-gray-700">{{ item.companyName || 'Unknown Company' }}</span>
+            <span class="font-bold text-saowari-text-primary">{{ item.companyName || 'Unknown Company' }}</span>
           </div>
           <div class="badge bg-saowari-accent text-white border-none shadow-lg text-xs flex gap-2 items-center">
             <span class="w-2 h-2 rounded-full bg-saowari-surface animate-ping"></span> Live
@@ -129,7 +129,7 @@
     <div *ngFor="let item of pendingExpiry" (click)="goToDetails(item.scheduleID || item.id)" class="card cursor-pointer bg-warning/10 shadow-lg border border-warning/30 relative hover:shadow-xl transition-all">
       <div class="card-body p-5">
         <div class="flex justify-between items-center mb-2">
-          <span class="font-bold text-gray-700">{{ item.companyName }}</span>
+          <span class="font-bold text-saowari-text-primary">{{ item.companyName }}</span>
           <i class="fas fa-exclamation-triangle text-warning text-xl"></i>
         </div>
         <h3 class="font-bold text-lg text-saowari-text-primary">{{ item.route }}</h3>
@@ -198,7 +198,7 @@
       </div>
 
       <div class="form-control w-full">
-        <label class="label"><span class="label-text font-bold text-gray-700">Select Driver *</span></label>
+        <label class="label"><span class="label-text font-bold text-saowari-text-primary">Select Driver *</span></label>
         <select class="select select-bordered w-full focus:outline-none focus:border-saowari-accent bg-saowari-surface-alt" [(ngModel)]="cloneModel.driverInformtionId">
           <option [ngValue]="null">-- Select Driver --</option>
           <option *ngFor="let d of driversList" [ngValue]="d.driverInformtionId">{{ d.fullName }} ({{ d.phone }})</option>
@@ -206,7 +206,7 @@
       </div>
 
       <div class="form-control w-full">
-        <label class="label"><span class="label-text font-bold text-gray-700">Select Supervisor (Optional)</span></label>
+        <label class="label"><span class="label-text font-bold text-saowari-text-primary">Select Supervisor (Optional)</span></label>
         <select class="select select-bordered w-full focus:outline-none focus:border-saowari-accent bg-saowari-surface-alt" [(ngModel)]="cloneModel.supervisorId">
           <option [ngValue]="null">-- None --</option>
           <option *ngFor="let s of supervisorsList" [ngValue]="s.supervisorId">{{ s.fullName }}</option>
@@ -215,18 +215,18 @@
 
       <div class="grid grid-cols-2 gap-4">
         <div class="form-control">
-          <label class="label"><span class="label-text font-bold text-gray-700">Departure Time *</span></label>
+          <label class="label"><span class="label-text font-bold text-saowari-text-primary">Departure Time *</span></label>
           <input type="datetime-local" class="input input-bordered w-full focus:outline-none focus:border-saowari-accent bg-saowari-surface-alt" [(ngModel)]="cloneModel.departureTime">
         </div>
         <div class="form-control">
-          <label class="label"><span class="label-text font-bold text-gray-700">Arrival Time *</span></label>
+          <label class="label"><span class="label-text font-bold text-saowari-text-primary">Arrival Time *</span></label>
           <input type="datetime-local" class="input input-bordered w-full focus:outline-none focus:border-saowari-accent bg-saowari-surface-alt" [(ngModel)]="cloneModel.arrivalTime">
         </div>
       </div>
 
       <!-- Pricing Section -->
       <div *ngIf="cloneModel.seatClassPricings?.length > 0" class="mt-4 pt-4 border-t border-saowari-border">
-        <label class="label"><span class="label-text font-bold text-gray-700 mb-1 block">Seat Class Pricing</span></label>
+        <label class="label"><span class="label-text font-bold text-saowari-text-primary mb-1 block">Seat Class Pricing</span></label>
         <div class="grid grid-cols-2 gap-3">
           <div *ngFor="let pricing of cloneModel.seatClassPricings" class="form-control">
             <label class="label py-1"><span class="label-text text-xs text-saowari-text-secondary">{{ pricing.className || 'Seat Class' }}</span></label>

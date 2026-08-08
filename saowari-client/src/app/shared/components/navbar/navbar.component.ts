@@ -12,7 +12,7 @@ import { UserModel } from '../../../core/models/auth.model';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <nav class="fixed top-0 left-0 w-full z-50 transition-all duration-500"
+    <nav class="fixed top-0 left-0 w-full z-[100] transition-all duration-500"
          [ngClass]="isHome && isTransparent ? 'bg-saowari-primary/30 backdrop-blur-md shadow-sm' : 'bg-saowari-primary shadow-lg'">
       <div class="container mx-auto px-4">
         <div class="flex justify-between items-center h-20">

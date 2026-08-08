@@ -13,6 +13,13 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "allowedCommonJsDependencies": [
+              "canvg",
+              "html2canvas",
+              "raf",
+              "rgbcolor",
+              "core-js"
+            ],
             "outputPath": "dist/saowari-client",
             "index": "src/index.html",
             "main": "src/main.ts",

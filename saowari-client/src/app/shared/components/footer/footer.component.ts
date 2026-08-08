@@ -8,7 +8,7 @@ import { SettingsService } from '../../../core/services/api/settings.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <footer class="bg-saowari-text-primary text-white pt-16 pb-8">
+    <footer class="bg-saowari-footer text-white pt-16 pb-8">
       <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           

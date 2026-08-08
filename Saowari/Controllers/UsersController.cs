@@ -34,12 +34,12 @@ namespace Saowari.Controllers
 
         /// <summary>Get all users (Admin only)</summary>
         [HttpGet]
-        [Authorize(Policy = "AdminOrManager")]
+        [Authorize(Policy = "ManagerOrSupervisor")]
         public async Task<ActionResult<ApiResponse<IEnumerable<UserResponseDto>>>> GetAll()
         {
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             int? companyId = null;
-            if (userRole == "CompanyManager" || userRole == "Manager")
+            if ((userRole == "CompanyManager" || userRole == "Manager") || userRole == "Manager" || userRole == "Supervisor")
             {
                 var companyIdStr = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdStr, out int cid)) companyId = cid;
@@ -82,7 +82,15 @@ namespace Saowari.Controllers
             var userRole = await _context.UserRoles.FindAsync(dto.RoleID);
             if (userRole == null) return BadRequest(ApiResponse<UserResponseDto>.Fail("Invalid Role ID."));
 
+            var cleanEmail = dto.Email?.Trim().ToLower();
+            if (await _context.Users.AnyAsync(u => u.Email.Trim().ToLower() == cleanEmail))
+            {
+                return BadRequest(ApiResponse<UserResponseDto>.Fail("Email already exists."));
+            }
+
             var user = _mapper.Map<User>(dto);
+            if (user.Email != null) user.Email = user.Email.Trim().ToLower();
+            if (user.AdminCopyEmail != null) user.AdminCopyEmail = user.AdminCopyEmail.Trim().ToLower();
             
             var passwordToUse = string.IsNullOrEmpty(dto.Password) ? "Saowari@123" : dto.Password;
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwordToUse);
@@ -149,7 +157,15 @@ namespace Saowari.Controllers
             var userRole = await _context.UserRoles.FindAsync(dto.RoleID);
             if (userRole == null) return BadRequest(ApiResponse<UserResponseDto>.Fail("Invalid Role ID."));
 
+            var cleanEmail = dto.Email?.Trim().ToLower();
+            if (await _context.Users.AnyAsync(u => u.Email.Trim().ToLower() == cleanEmail && u.UserID != id))
+            {
+                return BadRequest(ApiResponse<UserResponseDto>.Fail("Email already exists."));
+            }
+
             _mapper.Map(dto, user);
+            if (user.Email != null) user.Email = user.Email.Trim().ToLower();
+            if (user.AdminCopyEmail != null) user.AdminCopyEmail = user.AdminCopyEmail.Trim().ToLower();
 
             if (userRole.UserRoleName == "Driver")
             {

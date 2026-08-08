@@ -40,7 +40,7 @@ namespace Saowari.Controllers
                 .Include(a => a.Company)
                 .AsQueryable();
 
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (!int.TryParse(companyIdClaim, out int companyId))
@@ -131,7 +131,7 @@ namespace Saowari.Controllers
 
             if (app == null) return NotFound(ApiResponse<object>.Fail("Application not found."));
 
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (!int.TryParse(companyIdClaim, out int companyId) || app.CompanyId != companyId)

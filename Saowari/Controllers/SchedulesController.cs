@@ -36,7 +36,7 @@ namespace Saowari.Controllers
 
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -80,6 +80,7 @@ namespace Saowari.Controllers
                 .Include(s => s.Route).ThenInclude(r => r.ToLocation)
                 .Include(s => s.DepartureLocations)
                 .Include(s => s.ScheduleStatus)
+                .AsNoTracking()
                 .Where(s => s.DepartureDateTime >= System.DateTime.Now && (s.ScheduleStatus.ScheduleStatusName == "Active" || s.ScheduleStatus.ScheduleStatusName == "Scheduled"))
                 .OrderBy(s => s.DepartureDateTime)
                 .Take(6)
@@ -121,7 +122,7 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<ScheduleResponseDto>>> Create([FromBody] ScheduleCreateDto dto)
         {
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -144,7 +145,7 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<ScheduleResponseDto>>> Update(int id, [FromBody] ScheduleUpdateDto dto)
         {
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -167,7 +168,7 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<bool>>> Delete(int id)
         {
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -197,11 +198,12 @@ namespace Saowari.Controllers
                     .ThenInclude(di => di.Users)
                 .Include(s => s.Supervisor)
                     .ThenInclude(sp => sp.Users)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.ScheduleID == id);
             
             if (schedule == null) return NotFound("Schedule not found.");
 
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId) && schedule.Vehicle.CompanyId != companyId)
@@ -229,6 +231,7 @@ namespace Saowari.Controllers
             var seatStatuses = await _context.ScheduleSeatStatuses
                 .Include(ss => ss.Seat)
                 .Include(ss => ss.SeatStatus)
+                .AsNoTracking()
                 .Where(ss => ss.ScheduleID == id)
                 .ToListAsync();
 
@@ -237,6 +240,7 @@ namespace Saowari.Controllers
                 .Include(b => b.Payments)
                     .ThenInclude(p => p.PaymentMethod)
                 .Include(b => b.BookingSeats)
+                .AsNoTracking()
                 .Where(b => b.ScheduleID == id)
                 .ToListAsync();
 
@@ -335,7 +339,7 @@ namespace Saowari.Controllers
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
             // CompanyManager can only see their own company
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int managedCompanyId))
@@ -384,7 +388,7 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<ScheduleResponseDto>>> MarkPendingExpiry(int id)
         {
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -426,7 +430,7 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<ScheduleResponseDto>>> ApproveExpiry(int id)
         {
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -448,7 +452,7 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<ScheduleResponseDto>>> CloneSchedule([FromBody] ScheduleCloneDto dto)
         {
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))

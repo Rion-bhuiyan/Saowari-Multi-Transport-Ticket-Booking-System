@@ -1,14 +1,14 @@
 <div class="p-6 max-w-7xl mx-auto">
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
-      <h1 class="text-3xl font-heading font-bold text-gray-800 flex items-center gap-3">
+      <h1 class="text-3xl font-heading font-bold text-saowari-text-primary flex items-center gap-3">
         <i class="fas fa-trophy text-yellow-500"></i> Customer Leaderboard
       </h1>
-      <p class="text-gray-500 mt-1">Discover your most loyal and valuable customers.</p>
+      <p class="text-saowari-text-secondary mt-1">Discover your most loyal and valuable customers.</p>
     </div>
 
     <!-- Filters -->
-    <div class="flex flex-wrap gap-3 bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+    <div class="flex flex-wrap gap-3 bg-saowari-surface p-3 rounded-xl shadow-sm border border-saowari-border">
       <div class="form-control" *ngIf="isAdmin">
         <select class="select select-bordered select-sm focus:border-saowari-primary font-medium" [(ngModel)]="companyId" (change)="onFilterChange()">
           <option value="">All Companies</option>
@@ -43,10 +43,10 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!isLoading && customers.length === 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+  <div *ngIf="!isLoading && customers.length === 0" class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border p-12 text-center">
     <div class="text-6xl text-gray-200 mb-4"><i class="fas fa-users-slash"></i></div>
-    <h3 class="text-xl font-bold text-gray-700">No Customers Found</h3>
-    <p class="text-gray-500 mt-2">There is no customer activity for the selected filters.</p>
+    <h3 class="text-xl font-bold text-saowari-text-primary">No Customers Found</h3>
+    <p class="text-saowari-text-secondary mt-2">There is no customer activity for the selected filters.</p>
   </div>
 
   <!-- Leaderboard Content -->
@@ -55,9 +55,9 @@
     <!-- Top 3 Winners Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <ng-container *ngFor="let c of customers | slice:0:3; let i = index">
-        <div class="bg-white rounded-2xl shadow-sm border p-6 flex flex-col items-center relative overflow-hidden transition-all hover:shadow-md cursor-pointer"
+        <div class="bg-saowari-surface rounded-2xl shadow-sm border p-6 flex flex-col items-center relative overflow-hidden transition-all hover:shadow-md cursor-pointer"
              (click)="navigateToUser(c.userId)"
-             [ngClass]="i === 0 ? 'border-yellow-200 ring-1 ring-yellow-400' : (i === 1 ? 'border-gray-200' : 'border-amber-200')">
+             [ngClass]="i === 0 ? 'border-yellow-200 ring-1 ring-yellow-400' : (i === 1 ? 'border-saowari-border' : 'border-amber-200')">
           
           <!-- Background Decoration -->
           <div class="absolute -top-10 -right-10 text-8xl opacity-5" [ngClass]="getRankBadge(i).color">
@@ -80,10 +80,10 @@
           </div>
 
           <!-- Info -->
-          <h3 class="text-xl font-bold text-gray-800 text-center">{{ c.name }}</h3>
-          <p class="text-xs text-gray-500 mb-4">{{ c.email }}</p>
+          <h3 class="text-xl font-bold text-saowari-text-primary text-center">{{ c.name }}</h3>
+          <p class="text-xs text-saowari-text-secondary mb-4">{{ c.email }}</p>
 
-          <div class="w-full bg-gray-50 rounded-xl p-4 grid grid-cols-2 gap-2 text-center">
+          <div class="w-full bg-saowari-surface-alt rounded-xl p-4 grid grid-cols-2 gap-2 text-center">
             <div>
               <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Tickets</p>
               <p class="font-bold text-saowari-primary">{{ c.totalTickets }}</p>
@@ -92,14 +92,14 @@
               <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Spent</p>
               <p class="font-bold text-saowari-success">৳{{ c.totalSpent | number:'1.0-0' }}</p>
             </div>
-            <div class="col-span-2 mt-2 pt-2 border-t border-gray-200 flex justify-between px-2">
+            <div class="col-span-2 mt-2 pt-2 border-t border-saowari-border flex justify-between px-2">
               <div class="text-left">
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider"><i class="fas fa-sign-in-alt"></i> Visits</p>
-                <p class="font-semibold text-xs text-gray-700">{{ c.totalLogins }}</p>
+                <p class="font-semibold text-xs text-saowari-text-primary">{{ c.totalLogins }}</p>
               </div>
               <div class="text-right">
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider"><i class="far fa-clock"></i> Avg Time</p>
-                <p class="font-semibold text-xs text-gray-700">{{ c.totalLogins > 0 ? (c.totalTimeSpentMinutes / c.totalLogins | number:'1.0-0') : 0 }}m</p>
+                <p class="font-semibold text-xs text-saowari-text-primary">{{ c.totalLogins > 0 ? (c.totalTimeSpentMinutes / c.totalLogins | number:'1.0-0') : 0 }}m</p>
               </div>
             </div>
           </div>
@@ -108,11 +108,11 @@
     </div>
 
     <!-- The Rest of the Leaderboard Table -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" *ngIf="customers.length > 3">
+    <div class="bg-saowari-surface rounded-2xl shadow-sm border border-saowari-border overflow-hidden" *ngIf="customers.length > 3">
       <div class="overflow-x-auto">
         <table class="table w-full">
           <thead>
-            <tr class="bg-gray-50 text-gray-500 uppercase text-xs tracking-wider border-b border-gray-100">
+            <tr class="bg-saowari-surface-alt text-saowari-text-secondary uppercase text-xs tracking-wider border-b border-saowari-border">
               <th class="w-16 text-center">Rank</th>
               <th>Customer</th>
               <th class="text-center">Tickets Bought</th>
@@ -135,8 +135,8 @@
                     </div>
                   </div>
                   <div>
-                    <div class="font-bold text-gray-800">{{ c.name }}</div>
-                    <div class="text-xs text-gray-500">{{ c.phone || c.email }}</div>
+                    <div class="font-bold text-saowari-text-primary">{{ c.name }}</div>
+                    <div class="text-xs text-saowari-text-secondary">{{ c.phone || c.email }}</div>
                   </div>
                 </div>
               </td>
@@ -145,9 +145,9 @@
                   {{ c.totalTickets }}
                 </span>
               </td>
-              <td class="text-center font-bold text-gray-700">৳{{ c.totalSpent | number:'1.0-0' }}</td>
-              <td class="text-center font-semibold text-gray-600">{{ c.totalLogins }}</td>
-              <td class="text-right pr-6 text-sm text-gray-500">
+              <td class="text-center font-bold text-saowari-text-primary">৳{{ c.totalSpent | number:'1.0-0' }}</td>
+              <td class="text-center font-semibold text-saowari-text-secondary">{{ c.totalLogins }}</td>
+              <td class="text-right pr-6 text-sm text-saowari-text-secondary">
                 <i class="far fa-clock mr-1"></i> {{ c.totalLogins > 0 ? (c.totalTimeSpentMinutes / c.totalLogins | number:'1.0-0') : 0 }} mins
               </td>
             </tr>

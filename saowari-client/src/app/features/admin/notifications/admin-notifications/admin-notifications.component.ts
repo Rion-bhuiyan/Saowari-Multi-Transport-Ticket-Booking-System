@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService, NotificationItem, AdminNotificationPreference } from '../../../../core/services/api/notification.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-notifications',
@@ -23,7 +24,7 @@ export class AdminNotificationsComponent implements OnInit, OnDestroy {
   notifications: NotificationItem[] = [];
   preferences: AdminNotificationPreference[] = [];
   
-  private pollingIntervalId: any;
+  private notificationSub?: Subscription;
 
   constructor(
     private notificationService: NotificationService,
@@ -34,15 +35,16 @@ export class AdminNotificationsComponent implements OnInit, OnDestroy {
     this.loadNotifications();
     this.loadPreferences();
 
-    // Start 30-second real-time polling
-    this.pollingIntervalId = setInterval(() => {
-      this.refreshNotificationsSilent();
-    }, 30000);
+    // Subscribe to real-time notifications directly
+    this.notificationSub = this.notificationService.newNotification$.subscribe(notification => {
+      // Prepend to list
+      this.notifications = [notification, ...this.notifications];
+    });
   }
 
   ngOnDestroy(): void {
-    if (this.pollingIntervalId) {
-      clearInterval(this.pollingIntervalId);
+    if (this.notificationSub) {
+      this.notificationSub.unsubscribe();
     }
   }
 

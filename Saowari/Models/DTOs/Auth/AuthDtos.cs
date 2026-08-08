@@ -36,6 +36,8 @@ namespace Saowari.Models.DTOs.Auth
 
         [Required]
         public string Password { get; set; } = null!;
+
+        public string? Referrer { get; set; }
     }
 
     public class AuthResponseDto

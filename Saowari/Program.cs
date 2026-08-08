@@ -37,6 +37,14 @@ builder.Services.AddApplicationServices();
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<Saowari.Services.ChatCleanupService>();
 
+// ── Response Compression ──────────────────────────────────────────────────────
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
+    options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
+});
+
 // Register PresenceTracker as Singleton
 builder.Services.AddSingleton<Saowari.Services.PresenceTracker>();
 
@@ -49,7 +57,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("SaowariPolicy", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200")
+            .SetIsOriginAllowed(_ => true)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -115,6 +123,8 @@ var app = builder.Build();
 
 // ── Middleware Pipeline (ORDER IS CRITICAL) ───────────────────────────────────
 
+app.UseResponseCompression();
+
 // 1. CORS — must be FIRST, before UseAuthentication / UseAuthorization
 app.UseCors("SaowariPolicy");
 
@@ -136,15 +146,12 @@ using (var scope = app.Services.CreateScope())
     await DataSeeder.SeedAsync(context);
 }   
 
-// 3. Swagger (development only)
-if (app.Environment.IsDevelopment())
+// 3. Swagger (Enabled for both Development & Production)
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Saowari API v1");
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Saowari API v1");
+});
 
 // 4. Authentication & Authorization
 app.UseAuthentication();

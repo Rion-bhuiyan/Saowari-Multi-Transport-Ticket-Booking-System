@@ -457,6 +457,7 @@ namespace Saowari.Services
             try
             {
                 await _notificationService.NotifyBookingCreatedAsync(booking);
+                await _notificationService.BroadcastAdminDataUpdateAsync("Booking");
             }
             catch (Exception) { /* Fail-safe */ }
 
@@ -512,6 +513,16 @@ namespace Saowari.Services
                 try
                 {
                     await _notificationService.NotifyBookingCancelledAsync(entity);
+                    await _notificationService.BroadcastAdminDataUpdateAsync("Booking");
+                }
+                catch (Exception) { /* Fail-safe */ }
+            }
+            else
+            {
+                // Just broadcast normal update
+                try
+                {
+                    await _notificationService.BroadcastAdminDataUpdateAsync("Booking");
                 }
                 catch (Exception) { /* Fail-safe */ }
             }
@@ -674,6 +685,7 @@ namespace Saowari.Services
             try
             {
                 await _notificationService.NotifyBookingCancelledAsync(booking);
+                await _notificationService.BroadcastAdminDataUpdateAsync("Booking");
             }
             catch (Exception) { /* Fail-safe */ }
 

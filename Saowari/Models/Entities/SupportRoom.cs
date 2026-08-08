@@ -25,6 +25,18 @@ namespace Saowari.Models.Entities
 
         public DateTime LastMessageAt { get; set; } = DateTime.UtcNow;
 
+        [MaxLength(50)]
+        public string? IpAddress { get; set; }
+
+        [MaxLength(200)]
+        public string? BrowserInfo { get; set; }
+
+        [MaxLength(200)]
+        public string? Geolocation { get; set; }
+
+        [MaxLength(200)]
+        public string? IspName { get; set; }
+
         public virtual User? AssignedAdmin { get; set; }
         public virtual ICollection<SupportMessage> SupportMessages { get; set; } = new List<SupportMessage>();
     }

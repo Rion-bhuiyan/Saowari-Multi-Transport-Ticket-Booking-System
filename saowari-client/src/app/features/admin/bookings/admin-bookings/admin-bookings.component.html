@@ -24,7 +24,7 @@
         <select 
           [(ngModel)]="selectedStatus" 
           (change)="applyFilter()" 
-          class="block w-full pl-3 pr-10 py-2 text-base border border-saowari-border focus:outline-none focus:ring-2 focus:ring-saowari-primary/50 focus:border-saowari-primary sm:text-sm rounded-xl bg-saowari-surface-alt hover:bg-gray-100 transition-colors appearance-none cursor-pointer"
+          class="block w-full pl-3 pr-10 py-2 text-base border border-saowari-border focus:outline-none focus:ring-2 focus:ring-saowari-primary/50 focus:border-saowari-primary sm:text-sm rounded-xl bg-saowari-surface-alt hover:bg-saowari-surface-alt transition-colors appearance-none cursor-pointer"
         >
           <option value="">All Statuses</option>
           <option *ngFor="let s of uniqueStatuses" [value]="s">{{ s }}</option>
@@ -96,9 +96,9 @@
             <!-- Route -->
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-gray-700">{{ b.fromLocation || '—' }}</span>
+                <span class="text-sm font-medium text-saowari-text-primary">{{ b.fromLocation || '—' }}</span>
                 <i class="fas fa-long-arrow-alt-right text-saowari-primary/60 text-xs"></i>
-                <span class="text-sm font-medium text-gray-700">{{ b.toLocation || '—' }}</span>
+                <span class="text-sm font-medium text-saowari-text-primary">{{ b.toLocation || '—' }}</span>
               </div>
               <div class="text-xs text-saowari-text-secondary mt-0.5 flex items-center gap-1">
                 <i class="far fa-clock text-[10px] text-gray-400"></i> {{ formatDate(b.departureDateTime) }} {{ formatTime(b.departureDateTime) }}
@@ -179,7 +179,7 @@
         </p>
 
         <div class="space-y-2">
-          <label for="otp" class="block text-sm font-medium text-gray-700">Enter 6-digit OTP</label>
+          <label for="otp" class="block text-sm font-medium text-saowari-text-primary">Enter 6-digit OTP</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <i class="fas fa-key text-gray-400"></i>

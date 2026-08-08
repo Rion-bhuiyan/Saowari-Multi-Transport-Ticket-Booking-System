@@ -27,7 +27,7 @@ namespace Saowari.Controllers
             if (!result.Success) return BadRequest(result);
 
             var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -53,7 +53,7 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<VehicleResponseDto>>> Create([FromBody] VehicleCreateDto dto)
         {
             var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -73,7 +73,7 @@ namespace Saowari.Controllers
         {
             // Security check for manager updating another company's vehicle
             var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -97,7 +97,7 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<bool>>> Delete(int id)
         {
             var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -120,7 +120,7 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<bool>>> GenerateSeats(int id, [FromBody] SeatLayoutConfigDto config)
         {
             var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -143,7 +143,7 @@ namespace Saowari.Controllers
         public async Task<ActionResult<ApiResponse<bool>>> UpdateSeatClasses(int id, [FromBody] List<SeatClassAssignmentDto> assignments)
         {
             var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))

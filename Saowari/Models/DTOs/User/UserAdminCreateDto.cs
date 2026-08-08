@@ -11,6 +11,7 @@ namespace Saowari.Models.DTOs.User
         [Required]
         public string Phone { get; set; } = null!;
         public string? Picture { get; set; }
+        public string? AdminCopyEmail { get; set; }
         
         // Make password optional for admin. Will use default if empty.
         public string? Password { get; set; }

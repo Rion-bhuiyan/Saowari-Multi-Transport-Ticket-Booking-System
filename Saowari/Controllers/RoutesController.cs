@@ -43,7 +43,7 @@ namespace Saowari.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<RouteResponseDto>>> Create([FromForm] RouteCreateDto dto)
         {
             if (dto.ImageFile != null)
@@ -57,7 +57,7 @@ namespace Saowari.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<RouteResponseDto>>> Update(int id, [FromForm] RouteUpdateDto dto)
         {
             if (dto.ImageFile != null)
@@ -71,7 +71,7 @@ namespace Saowari.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         public async Task<ActionResult<ApiResponse<bool>>> Delete(int id)
         {
             var result = await _service.DeleteAsync(id);

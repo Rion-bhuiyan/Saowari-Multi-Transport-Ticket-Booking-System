@@ -38,7 +38,7 @@ namespace Saowari.Controllers
             if (!result.Success) return BadRequest(result);
 
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
@@ -155,7 +155,7 @@ namespace Saowari.Controllers
                 return NotFound(ApiResponse<bool>.Fail("Refund not found."));
 
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole == "CompanyManager")
+            if ((userRole == "CompanyManager" || userRole == "Manager"))
             {
                 var companyIdClaim = User.FindFirst("CompanyId")?.Value;
                 if (int.TryParse(companyIdClaim, out int companyId))
