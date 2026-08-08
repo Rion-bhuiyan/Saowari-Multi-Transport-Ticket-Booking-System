@@ -15,9 +15,8 @@ export class ErrorInterceptor implements HttpInterceptor {
         
         // Handle server down / network errors (0 = direct, 504/502 = via proxy)
         if (error.status === 0 || error.status === 504 || error.status === 502) {
-          errorMsg = 'Cannot connect to the server. Please ensure the server is running or check your internet connection.';
+          errorMsg = 'Connecting to server...';
           this.notificationService.error(errorMsg, 'Network Error');
-          alert(errorMsg); // Fallback native browser popup so it's impossible to miss
           return throwError(() => error);
         }
 
