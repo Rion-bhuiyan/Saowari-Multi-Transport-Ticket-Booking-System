@@ -10,35 +10,65 @@ export class TokenService {
 
   constructor(private cookieService: CookieService) { }
 
+  private getDomain(): string | undefined {
+    return (environment.cookieDomain && environment.cookieDomain.trim() !== '') ? environment.cookieDomain : undefined;
+  }
+
   setAccessToken(token: string, expiryMinutes: number): void {
     const expireDate = new Date();
     expireDate.setMinutes(expireDate.getMinutes() + expiryMinutes);
-    this.cookieService.set(environment.accessTokenKey, token, expireDate, '/', environment.cookieDomain, environment.production, 'Strict');
-    this.cookieService.set(environment.tokenExpiryKey, expireDate.getTime().toString(), expireDate, '/', environment.cookieDomain, environment.production, 'Strict');
+    const domain = this.getDomain();
+    try {
+      this.cookieService.set(environment.accessTokenKey, token, expireDate, '/', domain, false, 'Lax');
+      this.cookieService.set(environment.tokenExpiryKey, expireDate.getTime().toString(), expireDate, '/', domain, false, 'Lax');
+    } catch (e) {}
+    localStorage.setItem(environment.accessTokenKey, token);
+    localStorage.setItem(environment.tokenExpiryKey, expireDate.getTime().toString());
   }
 
   setRefreshToken(token: string): void {
     const expireDate = new Date();
-    expireDate.setDate(expireDate.getDate() + 7); // 7 days
-    this.cookieService.set(environment.refreshTokenKey, token, expireDate, '/', environment.cookieDomain, environment.production, 'Strict');
+    expireDate.setDate(expireDate.getDate() + 7);
+    const domain = this.getDomain();
+    try {
+      this.cookieService.set(environment.refreshTokenKey, token, expireDate, '/', domain, false, 'Lax');
+    } catch (e) {}
+    localStorage.setItem(environment.refreshTokenKey, token);
   }
 
   getAccessToken(): string | null {
-    return this.cookieService.check(environment.accessTokenKey) ? this.cookieService.get(environment.accessTokenKey) : null;
+    if (this.cookieService.check(environment.accessTokenKey)) {
+      return this.cookieService.get(environment.accessTokenKey);
+    }
+    return localStorage.getItem(environment.accessTokenKey);
   }
 
   getRefreshToken(): string | null {
-    return this.cookieService.check(environment.refreshTokenKey) ? this.cookieService.get(environment.refreshTokenKey) : null;
+    if (this.cookieService.check(environment.refreshTokenKey)) {
+      return this.cookieService.get(environment.refreshTokenKey);
+    }
+    return localStorage.getItem(environment.refreshTokenKey);
   }
 
   setUser(user: UserModel): void {
-    this.cookieService.set(environment.userKey, JSON.stringify(user), 7, '/', environment.cookieDomain, environment.production, 'Strict');
+    const domain = this.getDomain();
+    const json = JSON.stringify(user);
+    try {
+      this.cookieService.set(environment.userKey, json, 7, '/', domain, false, 'Lax');
+    } catch (e) {}
+    localStorage.setItem(environment.userKey, json);
   }
 
   getUser(): UserModel | null {
+    let raw: string | null = null;
     if (this.cookieService.check(environment.userKey)) {
+      raw = this.cookieService.get(environment.userKey);
+    } else {
+      raw = localStorage.getItem(environment.userKey);
+    }
+    if (raw) {
       try {
-        return JSON.parse(this.cookieService.get(environment.userKey)) as UserModel;
+        return JSON.parse(raw) as UserModel;
       } catch {
         return null;
       }
@@ -47,16 +77,29 @@ export class TokenService {
   }
 
   clearAll(): void {
-    this.cookieService.delete(environment.accessTokenKey, '/', environment.cookieDomain);
-    this.cookieService.delete(environment.refreshTokenKey, '/', environment.cookieDomain);
-    this.cookieService.delete(environment.userKey, '/', environment.cookieDomain);
-    this.cookieService.delete(environment.tokenExpiryKey, '/', environment.cookieDomain);
+    const domain = this.getDomain();
+    try {
+      this.cookieService.delete(environment.accessTokenKey, '/', domain);
+      this.cookieService.delete(environment.refreshTokenKey, '/', domain);
+      this.cookieService.delete(environment.userKey, '/', domain);
+      this.cookieService.delete(environment.tokenExpiryKey, '/', domain);
+    } catch (e) {}
+    localStorage.removeItem(environment.accessTokenKey);
+    localStorage.removeItem(environment.refreshTokenKey);
+    localStorage.removeItem(environment.userKey);
+    localStorage.removeItem(environment.tokenExpiryKey);
   }
 
   isTokenExpired(): boolean {
-    if (!this.cookieService.check(environment.tokenExpiryKey)) return true;
-    const expiryTime = parseInt(this.cookieService.get(environment.tokenExpiryKey), 10);
-    // Add 1 minute buffer
+    let expiryStr: string | null = null;
+    if (this.cookieService.check(environment.tokenExpiryKey)) {
+      expiryStr = this.cookieService.get(environment.tokenExpiryKey);
+    } else {
+      expiryStr = localStorage.getItem(environment.tokenExpiryKey);
+    }
+    if (!expiryStr) return true;
+    const expiryTime = parseInt(expiryStr, 10);
     return new Date().getTime() > (expiryTime - 60000);
   }
 }
+
