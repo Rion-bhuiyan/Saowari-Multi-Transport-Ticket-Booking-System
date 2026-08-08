@@ -13,9 +13,15 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(public tokenService: TokenService, private injector: Injector) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const customHeaders: any = {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    };
     if (this.tokenService.getAccessToken()) {
-      request = this.addToken(request, this.tokenService.getAccessToken()!);
+      customHeaders['Authorization'] = `Bearer ${this.tokenService.getAccessToken()}`;
     }
+    request = request.clone({ setHeaders: customHeaders });
 
     return next.handle(request).pipe(catchError(error => {
       if (error instanceof HttpErrorResponse && error.status === 401 && !request.url.includes('auth/login')) {
@@ -29,7 +35,10 @@ export class AuthInterceptor implements HttpInterceptor {
   private addToken(request: HttpRequest<any>, token: string) {
     return request.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     });
   }
