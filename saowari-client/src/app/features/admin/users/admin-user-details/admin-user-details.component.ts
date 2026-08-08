@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { UserService } from '../../../../core/services/api/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { BaseChartDirective } from 'ng2-charts';
+import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions, ChartType } from 'chart.js';
 
 @Component({
   selector: 'app-admin-user-details',
   standalone: true,
-  imports: [CommonModule, RouterModule, BaseChartDirective],
+  imports: [CommonModule, RouterModule, NgChartsModule],
   templateUrl: './admin-user-details.component.html',
   styleUrls: ['./admin-user-details.component.css']
 })

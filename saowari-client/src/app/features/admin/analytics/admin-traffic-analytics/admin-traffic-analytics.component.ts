@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BaseChartDirective } from 'ng2-charts';
+import { NgChartsModule } from 'ng2-charts';
 import { TrafficAnalyticsService } from '../../../../core/services/api/traffic-analytics.service';
 import { ChartData, ChartOptions } from 'chart.js';
 
 @Component({
   selector: 'app-admin-traffic-analytics',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, NgChartsModule],
   templateUrl: './admin-traffic-analytics.component.html',
   styleUrls: ['./admin-traffic-analytics.component.css']
 })
