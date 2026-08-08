@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://saowari-api.runasp.net/api',
+  apiUrl: 'https://saowari-api.runasp.net/api',
   appName: 'Saowari',
   cookieDomain: 'saowari-api.runasp.net',
   accessTokenKey: 'saowari_access_token',
