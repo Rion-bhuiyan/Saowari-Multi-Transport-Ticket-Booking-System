@@ -1,6 +1,22 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "http://saowari-api.runasp.net/api/:path*"
+    },
+    {
+      "source": "/chatHub/:path*",
+      "destination": "http://saowari-api.runasp.net/chatHub/:path*"
+    },
+    {
+      "source": "/presenceHub/:path*",
+      "destination": "http://saowari-api.runasp.net/presenceHub/:path*"
+    },
+    {
+      "source": "/notificationHub/:path*",
+      "destination": "http://saowari-api.runasp.net/notificationHub/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
